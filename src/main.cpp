@@ -42,7 +42,7 @@ int i2c_init(CommandRouter *cmd, int argc, const char **argv) {
   int baudrate = 100000;
   int timeout_ms = 200000; // 200ms
   int address_size = 2;
-  int address_msb_first = true;
+  int address_msb_first = false;
   if (argc >= 2) {
     baudrate = atoi(argv[1]);
   }
@@ -75,7 +75,7 @@ int i2c_write_uint16(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_read_uint16(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc < 4)
+  if (argc < 3)
     return EINVAL;
 
   int slave_address = atoi(argv[1]);

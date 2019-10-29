@@ -120,7 +120,9 @@ int CommandRouter::route(int argc, const char **argv) {
 
   if (argv[0] == nullptr)
     return EINVAL;
+#if 0
   Serial.printf("Received command: %s", argv[0]);
+#endif
   for (int i = 0; command_list[i].name != nullptr; i++) {
     if (strcmp(argv[0], command_list[i].name) == 0) {
       if (command_list[i].func != nullptr) {
@@ -163,7 +165,6 @@ int CommandRouter::processSerialStream() {
     return 0;
   }
 
-  Serial.printf("Received %d bytes '%s'\n", bytes_read, buffer);
   remaining_tokens = buffer;
   for (argc = 0; argc < argv_max - 1; argc++) {
     if (remaining_tokens[0] == '\0') {
@@ -171,23 +172,21 @@ int CommandRouter::processSerialStream() {
     }
     argv[argc] = strtok_r(remaining_tokens, " ", &remaining_tokens);
   }
+#if 0
   Serial.printf("argc == %d\n", argc);
   for (int i = 0; i < argc; i++) {
     Serial.printf("argv[%d] = %s\n", i, argv[i]);
   }
-
+#endif
   // Catchall for commands that are too large.
   if (remaining_tokens[0] != '\0') {
     argv[argc] = remaining_tokens;
     argc += 1;
   }
   result = route(argc, argv);
-  if (result == 0) {
-    Serial.print("Success\n");
-  } else {
+  if (result != 0) {
     // TODO: convert errno to string???
-    Serial.printf("Command failed with code %d. %s\n", result,
-                  std::strerror(result));
+    Serial.printf("Error: code %d. %s\n", result, std::strerror(result));
   }
   return result;
 }

@@ -1,7 +1,7 @@
 #include "commandrouting.hpp"
 #include <Arduino.h>
+#include <cstring>
 #include <errno.h>
-#include <string.h>
 
 CommandRouter cmd;
 
@@ -15,7 +15,7 @@ int CommandRouter::init(command_item_t *commands, int argv_max,
     return EINVAL;
   }
 
-  argv = new char *[argv_max];
+  argv = new const char *[argv_max];
   if (argv == nullptr)
     goto fail_argv_alloc;
 
@@ -44,7 +44,7 @@ fail_argv_alloc:
 
 int CommandRouter::init_no_malloc(command_item_t *commands, int argv_max,
                                   int buffer_size, char *serial_buffer,
-                                  char **argv_buffer) {
+                                  const char **argv_buffer) {
 
   if (commands == nullptr) {
     return EINVAL;
@@ -96,11 +96,9 @@ int CommandRouter::help() {
   Serial.print(F("-----------------------------------\n"));
   Serial.print(F("Command List:\n"));
   Serial.print(F("-----------------------------------\n"));
-  for (int i = 0; command_list[i].short_name != nullptr; i++) {
+  for (int i = 0; command_list[i].name != nullptr; i++) {
     Serial.print(F("COMMAND: \n"));
-    Serial.print(command_list[i].short_name);
-    Serial.print(F(" / "));
-    Serial.print(command_list[i].long_name);
+    Serial.print(command_list[i].name);
     Serial.print("\n");
     Serial.print(F("SYNTAX:\n"));
     Serial.print(command_list[i].syntax);
@@ -113,19 +111,18 @@ int CommandRouter::help() {
   return 0;
 }
 
-int CommandRouter::route(int argc, char **argv) {
+int CommandRouter::route(int argc, const char **argv) {
   if (command_list == nullptr)
     return EINVAL;
 
-  if (argc)
+  if (argc == 0)
     return EINVAL;
 
   if (argv[0] == nullptr)
     return EINVAL;
-
-  for (int i = 0; command_list[i].short_name != nullptr; i++) {
-    if ((strcmp(argv[0], command_list[i].short_name) == 0) ||
-        (strcmp(argv[0], command_list[i].long_name) == 0)) {
+  Serial.printf("Received command: %s", argv[0]);
+  for (int i = 0; command_list[i].name != nullptr; i++) {
+    if (strcmp(argv[0], command_list[i].name) == 0) {
       if (command_list[i].func != nullptr) {
         return command_list[i].func(this, argc, argv);
       } else {
@@ -136,35 +133,61 @@ int CommandRouter::route(int argc, char **argv) {
   return EINVAL;
 }
 
-int command_help_func(CommandRouter *cmd, int argc, char **argv) {
+int command_help_func(CommandRouter *cmd, int argc, const char **argv) {
   return cmd->help();
 }
 
 int CommandRouter::processSerialStream() {
   int argc;
   char *remaining_tokens;
-  size_t bytes_read;
+  int bytes_read = 0;
   int result;
+  int c;
+  while (bytes_read < buffer_size - 1) {
+    c = Serial.read();
+    if (c == -1) {
+      continue;
+    }
+    if (c == '\n' || c == '\r')
+      break;
+    if (c == '\b') {
+      bytes_read = bytes_read == 0 ? 0 : bytes_read - 1;
+      continue;
+    }
 
-  bytes_read = Serial.readBytesUntil('\n', buffer, buffer_size);
-
-  if (bytes_read == 0) {
-    return EINVAL;
+    buffer[bytes_read] = (char)c;
+    bytes_read++;
   }
-  // Do I need this?
   buffer[bytes_read] = '\0';
+  if (bytes_read == 0) {
+    return 0;
+  }
 
+  Serial.printf("Received %d bytes '%s'\n", bytes_read, buffer);
   remaining_tokens = buffer;
   for (argc = 0; argc < argv_max - 1; argc++) {
-    argv[argc] = strtok_r(buffer, " ", &remaining_tokens);
+    if (remaining_tokens[0] == '\0') {
+      break;
+    }
+    argv[argc] = strtok_r(remaining_tokens, " ", &remaining_tokens);
+  }
+  Serial.printf("argc == %d\n", argc);
+  for (int i = 0; i < argc; i++) {
+    Serial.printf("argv[%d] = %s\n", i, argv[i]);
   }
 
-  argv[argc] = remaining_tokens;
+  // Catchall for commands that are too large.
+  if (remaining_tokens[0] != '\0') {
+    argv[argc] = remaining_tokens;
+    argc += 1;
+  }
   result = route(argc, argv);
   if (result == 0) {
     Serial.print("Success\n");
   } else {
     // TODO: convert errno to string???
-    Serial.printf("Command failed with code %d.", result);
+    Serial.printf("Command failed with code %d. %s\n", result,
+                  std::strerror(result));
   }
+  return result;
 }

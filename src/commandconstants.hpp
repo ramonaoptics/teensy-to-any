@@ -2,19 +2,41 @@
 
 #include "commandrouting.hpp"
 
-int command_help_func(CommandRouter *cmd, int argc, char **argv);
-int help_func(CommandRouter *cmd, int argc, char **argv);
-int info_func(CommandRouter *cmd, int argc, char **argv);
-int reboot_func(CommandRouter *cmd, int argc, char **argv);
-int version_func(CommandRouter *cmd, int argc, char **argv);
+int info_func(CommandRouter *cmd, int argc, const char **argv);
+int reboot_func(CommandRouter *cmd, int argc, const char **argv);
+int version_func(CommandRouter *cmd, int argc, const char **argv);
+
+int i2c_init(CommandRouter *cmd, int argc, const char **argv);
+int i2c_reset(CommandRouter *cmd, int argc, const char **argv);
+int i2c_write_uint16(CommandRouter *cmd, int argc, const char **argv);
+int i2c_read_uint16(CommandRouter *cmd, int argc, const char **argv);
+int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv);
+int gpio_digital_write(CommandRouter *cmd, int argc, const char **argv);
+int gpio_digital_read(CommandRouter *cmd, int argc, const char **argv);
 
 // Syntax is: {short command, long command, description, syntax}
-command_item_t *command_list = {
-    {"?", "help", "Display help info", "?", command_help_func},
-    {"info", "about", "Displays information about this LED Array", "about",
-     info_func},
-    {"reboot", "reset", "Runs setup routine again, for resetting LED array",
-     "reboot", reboot_func},
-    {"ver", "version", "Display controller version number", "version",
-     version_func},
-    {nullptr, nullptr, nullptr, nullptr, nullptr}};
+command_item_t command_list[] = {
+    {"?", "Display help info", "?", command_help_func},
+    {"info", "Displays information about this LED Array", "about", info_func},
+    {"reboot", "Runs setup routine again, for resetting LED array", "reboot",
+     reboot_func},
+    {"version", "Display controller version number", "version", version_func},
+    {"gpio_pin_mode",
+     "Set the pinMode of a GPIO pin, 0 for INPUT, 1 for OUTPUT",
+     "gpio_pin_mode pin mode", gpio_pin_mode},
+    {"gpio_digital_write",
+     "Set the output of a GPIO pin, 0 for LOW, 1 for HIGH",
+     "gpio_digital_write pin value", gpio_digital_write},
+    {"gpio_digital_read", "Read the value of a GPIO pin, 0 for LOW, 1 for HIGH",
+     "gpio_digital_read pin value", gpio_digital_read},
+    {"i2c_init", "Initialize I2C Communication",
+     "i2c_init [baudrate=100_000] [timeout_ms=200_000] [address_size=2] "
+     "[address_msb_first=1]",
+     i2c_init},
+    {"i2c_reset", "Reset the I2C PORT in case of lockup.", "i2c_reset",
+     i2c_reset},
+    {"i2c_write_uint16", "Write a 16 bit number to the I2C device",
+     "i2c_write_uint16 slave_address register_address data", i2c_write_uint16},
+    {"i2c_read_uint16", "Read a 16 bit number from the I2C device",
+     "i2c_read_uint16 slave_address register_address", i2c_read_uint16},
+    {nullptr, nullptr, nullptr, nullptr}};

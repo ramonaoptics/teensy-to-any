@@ -24,6 +24,9 @@ int reboot_func(CommandRouter *cmd, int argc, const char **argv) {
   (void)cmd;
   (void)argc;
   (void)argv;
+  return ENOSYS;
+
+  // This reboots you into the programming mode
   _reboot_Teensyduino_();
   // Does nto get here
   return 0;
@@ -44,16 +47,16 @@ int i2c_init(CommandRouter *cmd, int argc, const char **argv) {
   int address_size = 2;
   int address_msb_first = false;
   if (argc >= 2) {
-    baudrate = atoi(argv[1]);
+    baudrate = strtol(argv[1], nullptr, 0);
   }
   if (argc >= 3) {
-    timeout_ms = atoi(argv[2]);
-  }
-  if (argc >= 3) {
-    address_size = atoi(argv[3]);
+    timeout_ms = strtol(argv[2], nullptr, 0);
   }
   if (argc >= 4) {
-    address_msb_first = atoi(argv[4]);
+    address_size = strtol(argv[3], nullptr, 0);
+  }
+  if (argc >= 5) {
+    address_msb_first = strtol(argv[4], nullptr, 0);
   }
 
   return i2c.init(baudrate, timeout_ms, address_size, address_msb_first);
@@ -64,39 +67,64 @@ int i2c_reset(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_write_uint16(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc < 4)
+  if (argc != 4)
     return EINVAL;
 
-  int slave_address = atoi(argv[1]);
-  int register_address = atoi(argv[2]);
-  uint16_t data = atoi(argv[3]);
+  int slave_address = strtol(argv[1], nullptr, 0);
+  int register_address = strtol(argv[2], nullptr, 0);
+  uint16_t data = strtol(argv[3], nullptr, 0);
 
   return i2c.write_uint16(slave_address, register_address, data);
 }
 
 int i2c_read_uint16(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc < 3)
+  if (argc != 3)
     return EINVAL;
 
-  int slave_address = atoi(argv[1]);
-  int register_address = atoi(argv[2]);
+  int slave_address = strtol(argv[1], nullptr, 0);
+  int register_address = strtol(argv[2], nullptr, 0);
   uint16_t data;
   int result;
 
   result = i2c.read_uint16(slave_address, register_address, data);
   if (result == 0) {
-    Serial.printf("0x%40x\n", data);
+    Serial.printf("0x%04X\n", data);
   }
   return result;
+}
+
+int i2c_read_no_register_uint8(CommandRouter *cmd, int argc,
+                               const char **argv) {
+  if (argc != 2)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  uint8_t data;
+  int result;
+  result = i2c.read_no_register_uint8(slave_address, data);
+  if (result == 0) {
+    Serial.printf("0x%02X\n", data);
+  }
+  return result;
+}
+
+int i2c_write_no_register_uint8(CommandRouter *cmd, int argc,
+                                const char **argv) {
+  if (argc != 3)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  uint8_t data = strtol(argv[2], nullptr, 0);
+  return i2c.write_no_register_uint8(slave_address, data);
 }
 
 int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv) {
   if (argc != 3)
     return EINVAL;
 
-  uint8_t pin = atoi(argv[1]);
-  uint8_t mode = atoi(argv[2]);
-  if (mode != OUTPUT && mode != INPUT)
+  uint8_t pin = strtol(argv[1], nullptr, 0);
+  uint8_t mode = strtol(argv[2], nullptr, 0);
+  if ((mode != OUTPUT) && (mode != INPUT))
     return EINVAL;
 
   pinMode(pin, mode);
@@ -106,9 +134,9 @@ int gpio_digital_write(CommandRouter *cmd, int argc, const char **argv) {
   if (argc != 3)
     return EINVAL;
 
-  uint8_t pin = atoi(argv[1]);
-  uint8_t value = atoi(argv[2]);
-  if (value != HIGH && value != LOW)
+  uint8_t pin = strtol(argv[1], nullptr, 0);
+  uint8_t value = strtol(argv[2], nullptr, 0);
+  if ((value != HIGH) && (value != LOW))
     return EINVAL;
 
   digitalWrite(pin, value);
@@ -116,10 +144,10 @@ int gpio_digital_write(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int gpio_digital_read(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc < 2)
+  if (argc != 2)
     return EINVAL;
 
-  uint8_t pin = atoi(argv[1]);
+  uint8_t pin = strtol(argv[1], nullptr, 0);
 
   uint8_t value = digitalRead(pin);
   Serial.print(value);

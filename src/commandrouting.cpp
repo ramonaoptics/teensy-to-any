@@ -128,11 +128,11 @@ int CommandRouter::route(int argc, const char **argv) {
       if (command_list[i].func != nullptr) {
         return command_list[i].func(this, argc, argv);
       } else {
-        return EINVAL;
+        return ENOSYS;
       }
     }
   }
-  return EINVAL;
+  return ENOENT;
 }
 
 int command_help_func(CommandRouter *cmd, int argc, const char **argv) {

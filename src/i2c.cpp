@@ -16,33 +16,59 @@ int I2CMaster::init(int baudrate, int timeout_ms, int address_size,
 }
 
 int I2CMaster::reset() {
+  if (!this->is_initialized)
+    return ENODEV;
   Wire.resetBus();
   return 0;
 }
 
 int I2CMaster::write_uint16(int slave_address, int register_address,
                             uint16_t data) {
+  if (!this->is_initialized)
+    return ENODEV;
+  // Wire library uses 7 bit addresses
+  if (slave_8bit_address)
+    slave_address = slave_address >> 1;
   // Ensure the address is in write mode
-  uint8_t slave = slave_address & (0xFF ^ 0x01);
-  Wire.beginTransmission(slave); // slave addr
+  Wire.beginTransmission(slave_address); // slave addr
   Wire.write((register_address >> 8) & 0xFF);
   Wire.write((register_address >> 0) & 0xFF);
-  Wire.write((data >> 0) & 0xFF);
+  // Assume MSB first for data as well
   Wire.write((data >> 8) & 0xFF);
+  Wire.write((data >> 0) & 0xFF);
   Wire.endTransmission(
       I2C_STOP); // blocking write (when not specified I2C_STOP is implicit)
 
   return Wire.getError();
 }
 
+int I2CMaster::write_no_register_uint8(int slave_address, uint8_t data) {
+  if (!this->is_initialized)
+    return ENODEV;
+
+  // Wire library uses 7 bit addresses
+  if (slave_8bit_address)
+    slave_address = slave_address >> 1;
+
+  Wire.beginTransmission(slave_address); // slave addr
+  Wire.write(data);
+  // blocking write (when not specified I2C_STOP is implicit)
+  Wire.endTransmission(I2C_STOP);
+
+  return Wire.getError();
+}
+
 int I2CMaster::read_uint16(int slave_address, int register_address,
                            uint16_t &data) {
+  if (!this->is_initialized)
+    return ENODEV;
+  // Wire library uses 7 bit addresses
+  if (slave_8bit_address)
+    slave_address = slave_address >> 1;
   // Ensure the address is in write mode
-  uint8_t slave = slave_address & (0xFF ^ 0x01);
   uint8_t err;
-  data = 0;
 
-  Wire.beginTransmission(slave); // slave addr
+  Wire.beginTransmission(slave_address); // slave addr
   // Write the MSB of the address first
   Wire.write((register_address >> 8) & 0xFF);
   Wire.write((register_address >> 0) & 0xFF);
@@ -53,7 +79,7 @@ int I2CMaster::read_uint16(int slave_address, int register_address,
     goto handle_error;
   }
 
-  Wire.requestFrom(slave | 0x01, 2);
+  Wire.requestFrom(slave_address, 2);
   Wire.finish();
   err = Wire.getError();
   if (err) {
@@ -65,9 +91,41 @@ int I2CMaster::read_uint16(int slave_address, int register_address,
     goto handle_error;
   }
 
-  data = Wire.readByte();
-  data = data | (Wire.readByte() << 8);
+  // Assume MSB is transfered first
+  data = Wire.readByte() << 8;
+  data = data | Wire.readByte();
 
+  return 0;
+
+handle_error:
+  while (Wire.available() != 0) {
+    Wire.readByte();
+  }
+  return err;
+}
+
+int I2CMaster::read_no_register_uint8(int slave_address, uint8_t &data) {
+  if (!this->is_initialized)
+    return ENODEV;
+  // Wire library uses 7 bit addresses
+  if (slave_8bit_address)
+    slave_address = slave_address >> 1;
+  uint8_t err;
+  data = 0;
+
+  Wire.requestFrom(slave_address, 1);
+  Wire.finish();
+  err = Wire.getError();
+  if (err) {
+    goto handle_error;
+  }
+
+  if (Wire.available() != 1) {
+    err = 3;
+    goto handle_error;
+  }
+
+  data = Wire.readByte();
   return 0;
 
 handle_error:

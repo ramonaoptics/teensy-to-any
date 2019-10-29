@@ -6,13 +6,17 @@ int info_func(CommandRouter *cmd, int argc, const char **argv);
 int reboot_func(CommandRouter *cmd, int argc, const char **argv);
 int version_func(CommandRouter *cmd, int argc, const char **argv);
 
+int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv);
+int gpio_digital_write(CommandRouter *cmd, int argc, const char **argv);
+int gpio_digital_read(CommandRouter *cmd, int argc, const char **argv);
+
 int i2c_init(CommandRouter *cmd, int argc, const char **argv);
 int i2c_reset(CommandRouter *cmd, int argc, const char **argv);
 int i2c_write_uint16(CommandRouter *cmd, int argc, const char **argv);
 int i2c_read_uint16(CommandRouter *cmd, int argc, const char **argv);
-int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv);
-int gpio_digital_write(CommandRouter *cmd, int argc, const char **argv);
-int gpio_digital_read(CommandRouter *cmd, int argc, const char **argv);
+int i2c_read_no_register_uint8(CommandRouter *cmd, int argc, const char **argv);
+int i2c_write_no_register_uint8(CommandRouter *cmd, int argc,
+                                const char **argv);
 
 // Syntax is: {short command, long command, description, syntax}
 command_item_t command_list[] = {
@@ -39,4 +43,11 @@ command_item_t command_list[] = {
      "i2c_write_uint16 slave_address register_address data", i2c_write_uint16},
     {"i2c_read_uint16", "Read a 16 bit number from the I2C device",
      "i2c_read_uint16 slave_address register_address", i2c_read_uint16},
+    {"i2c_read_no_register_uint8",
+     "Read a uint8_t from the I2C bus without specifying a register address.",
+     "i2c_read_no_register_uint8 slave_address", i2c_read_no_register_uint8},
+    {"i2c_write_no_register_uint8",
+     "Write a uint8_t to the I2C bus without specifying a register address.",
+     "i2c_write_no_register_uint8 slave_address data",
+     i2c_write_no_register_uint8},
     {nullptr, nullptr, nullptr, nullptr}};

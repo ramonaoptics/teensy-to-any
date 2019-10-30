@@ -22,7 +22,6 @@ int info_func(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int reboot_func(CommandRouter *cmd, int argc, const char **argv) {
-  cmd->buffer[0] = '\0';
   (void)argc;
   (void)argv;
   return ENOSYS;
@@ -41,8 +40,6 @@ int version_func(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_init(CommandRouter *cmd, int argc, const char **argv) {
-  cmd->buffer[0] = '\0';
-  ;
   int baudrate = 100000;
   int timeout_ms = 200000; // 200ms
   int address_size = 2;
@@ -64,12 +61,10 @@ int i2c_init(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_reset(CommandRouter *cmd, int argc, const char **argv) {
-  cmd->buffer[0] = '\0';
   return i2c.reset();
 }
 
 int i2c_write_uint16(CommandRouter *cmd, int argc, const char **argv) {
-  cmd->buffer[0] = '\0';
   if (argc != 4)
     return EINVAL;
 
@@ -81,7 +76,6 @@ int i2c_write_uint16(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_read_uint16(CommandRouter *cmd, int argc, const char **argv) {
-  cmd->buffer[0] = '\0';
   if (argc != 3)
     return EINVAL;
 
@@ -100,7 +94,6 @@ int i2c_read_uint16(CommandRouter *cmd, int argc, const char **argv) {
 
 int i2c_read_no_register_uint8(CommandRouter *cmd, int argc,
                                const char **argv) {
-  cmd->buffer[0] = '\0';
   if (argc != 2)
     return EINVAL;
 
@@ -116,7 +109,6 @@ int i2c_read_no_register_uint8(CommandRouter *cmd, int argc,
 
 int i2c_write_no_register_uint8(CommandRouter *cmd, int argc,
                                 const char **argv) {
-  cmd->buffer[0] = '\0';
   if (argc != 3)
     return EINVAL;
 
@@ -126,7 +118,6 @@ int i2c_write_no_register_uint8(CommandRouter *cmd, int argc,
 }
 
 int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv) {
-  cmd->buffer[0] = '\0';
   if (argc != 3)
     return EINVAL;
 
@@ -139,7 +130,6 @@ int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 int gpio_digital_write(CommandRouter *cmd, int argc, const char **argv) {
-  cmd->buffer[0] = '\0';
   if (argc != 3)
     return EINVAL;
 
@@ -153,7 +143,6 @@ int gpio_digital_write(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int gpio_digital_read(CommandRouter *cmd, int argc, const char **argv) {
-  cmd->buffer[0] = '\0';
   if (argc != 2)
     return EINVAL;
 

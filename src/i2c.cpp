@@ -36,8 +36,26 @@ int I2CMaster::write_uint16(int slave_address, int register_address,
   // Assume MSB first for data as well
   Wire.write((data >> 8) & 0xFF);
   Wire.write((data >> 0) & 0xFF);
-  Wire.endTransmission(
-      I2C_STOP); // blocking write (when not specified I2C_STOP is implicit)
+  // blocking write (when not specified I2C_STOP is implicit)
+  Wire.endTransmission(I2C_STOP);
+
+  return Wire.getError();
+}
+
+int I2CMaster::write_uint8(int slave_address, int register_address,
+                           uint8_t data) {
+  if (!this->is_initialized)
+    return ENODEV;
+  // Wire library uses 7 bit addresses
+  if (slave_8bit_address)
+    slave_address = slave_address >> 1;
+  // Ensure the address is in write mode
+  Wire.beginTransmission(slave_address); // slave addr
+  Wire.write((register_address >> 8) & 0xFF);
+  Wire.write((register_address >> 0) & 0xFF);
+  Wire.write((data >> 0) & 0xFF);
+  // blocking write (when not specified I2C_STOP is implicit)
+  Wire.endTransmission(I2C_STOP);
 
   return Wire.getError();
 }
@@ -94,6 +112,50 @@ int I2CMaster::read_uint16(int slave_address, int register_address,
   // Assume MSB is transfered first
   data = Wire.readByte() << 8;
   data = data | Wire.readByte();
+
+  return 0;
+
+handle_error:
+  while (Wire.available() != 0) {
+    Wire.readByte();
+  }
+  return err;
+}
+
+int I2CMaster::read_uint8(int slave_address, int register_address,
+                          uint8_t &data) {
+  if (!this->is_initialized)
+    return ENODEV;
+  // Wire library uses 7 bit addresses
+  if (slave_8bit_address)
+    slave_address = slave_address >> 1;
+  // Ensure the address is in write mode
+  uint8_t err;
+
+  Wire.beginTransmission(slave_address); // slave addr
+  // Write the MSB of the address first
+  Wire.write((register_address >> 8) & 0xFF);
+  Wire.write((register_address >> 0) & 0xFF);
+  Wire.endTransmission(
+      I2C_NOSTOP); // blocking write (when not specified I2C_STOP is implicit)
+  err = Wire.getError();
+  if (err) {
+    goto handle_error;
+  }
+
+  Wire.requestFrom(slave_address, 1);
+  Wire.finish();
+  err = Wire.getError();
+  if (err) {
+    goto handle_error;
+  }
+
+  if (Wire.available() != 1) {
+    err = 3;
+    goto handle_error;
+  }
+
+  data = Wire.readByte();
 
   return 0;
 

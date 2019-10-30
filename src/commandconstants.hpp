@@ -14,6 +14,8 @@ int i2c_init(CommandRouter *cmd, int argc, const char **argv);
 int i2c_reset(CommandRouter *cmd, int argc, const char **argv);
 int i2c_write_uint16(CommandRouter *cmd, int argc, const char **argv);
 int i2c_read_uint16(CommandRouter *cmd, int argc, const char **argv);
+int i2c_write_uint8(CommandRouter *cmd, int argc, const char **argv);
+int i2c_read_uint8(CommandRouter *cmd, int argc, const char **argv);
 int i2c_read_no_register_uint8(CommandRouter *cmd, int argc, const char **argv);
 int i2c_write_no_register_uint8(CommandRouter *cmd, int argc,
                                 const char **argv);
@@ -43,6 +45,10 @@ command_item_t command_list[] = {
      "i2c_write_uint16 slave_address register_address data", i2c_write_uint16},
     {"i2c_read_uint16", "Read a 16 bit number from the I2C device",
      "i2c_read_uint16 slave_address register_address", i2c_read_uint16},
+    {"i2c_write_uint8", "Write a 16 bit number to the I2C device",
+     "i2c_write_uint8 slave_address register_address data", i2c_write_uint8},
+    {"i2c_read_uint8", "Read a 16 bit number from the I2C device",
+     "i2c_read_uint8 slave_address register_address", i2c_read_uint8},
     {"i2c_read_no_register_uint8",
      "Read a uint8_t from the I2C bus without specifying a register address.",
      "i2c_read_no_register_uint8 slave_address", i2c_read_no_register_uint8},

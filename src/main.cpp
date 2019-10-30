@@ -81,6 +81,17 @@ int i2c_write_uint16(CommandRouter *cmd, int argc, const char **argv) {
   return i2c.write_uint16(slave_address, register_address, data);
 }
 
+int i2c_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 4)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  int register_address = strtol(argv[2], nullptr, 0);
+  uint8_t data = strtol(argv[3], nullptr, 0);
+
+  return i2c.write_uint8(slave_address, register_address, data);
+}
+
 int i2c_read_uint16(CommandRouter *cmd, int argc, const char **argv) {
   if (argc != 3)
     return EINVAL;
@@ -94,6 +105,23 @@ int i2c_read_uint16(CommandRouter *cmd, int argc, const char **argv) {
 
   if (result == 0) {
     snprintf(cmd->buffer, cmd->buffer_size, "0x%04X", data);
+  }
+  return result;
+}
+
+int i2c_read_uint8(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 3)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  int register_address = strtol(argv[2], nullptr, 0);
+  uint8_t data;
+  int result;
+
+  result = i2c.read_uint8(slave_address, register_address, data);
+
+  if (result == 0) {
+    snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", data);
   }
   return result;
 }

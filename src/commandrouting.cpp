@@ -92,23 +92,37 @@ CommandRouter::~CommandRouter() {
   cleanup();
 }
 
-int CommandRouter::help() {
-  Serial.print(F("-----------------------------------\n"));
-  Serial.print(F("Command List:\n"));
-  Serial.print(F("-----------------------------------\n"));
-  for (int i = 0; command_list[i].name != nullptr; i++) {
-    Serial.print(F("COMMAND: \n"));
-    Serial.print(command_list[i].name);
-    Serial.print("\n");
-    Serial.print(F("SYNTAX:\n"));
-    Serial.print(command_list[i].syntax);
-    Serial.print("\n");
-    Serial.print(F("DESCRIPTION:\n"));
-    Serial.print(command_list[i].description);
-    Serial.print("\n");
+int CommandRouter::help(const char *command_name) {
+  if (command_name != nullptr) {
+    Serial.print(F("-----------------------------------\n"));
+    Serial.print(F("Command List:\n"));
     Serial.print(F("-----------------------------------\n"));
   }
-  return 0;
+  for (int i = 0; command_list[i].name != nullptr; i++) {
+    if (command_name == nullptr ||
+        (strcmp(command_name, command_list[i].name) == 0)) {
+      Serial.print(F("COMMAND: \n"));
+      Serial.print(command_list[i].name);
+      Serial.print("\n");
+      Serial.print(F("SYNTAX:\n"));
+      Serial.print(command_list[i].syntax);
+      Serial.print("\n");
+      Serial.print(F("DESCRIPTION:\n"));
+      Serial.print(command_list[i].description);
+      Serial.print("\n");
+      if (command_name == nullptr) {
+        Serial.print(F("-----------------------------------\n"));
+      } else {
+        return 0;
+      }
+    }
+  }
+  if (command_name == nullptr) {
+    return 0;
+  } else {
+    snprintf(buffer, buffer_size, "%s not found", command_name);
+    return EINVAL;
+  }
 }
 
 int CommandRouter::route(int argc, const char **argv) {
@@ -128,9 +142,7 @@ int CommandRouter::route(int argc, const char **argv) {
       if (command_list[i].func != nullptr) {
         return command_list[i].func(this, argc, argv);
       } else {
-        int buffer_len = strlen(buffer);
-        int bytes_remaining = buffer_size - buffer_len - 1;
-        snprintf(&buffer[buffer_len], bytes_remaining, " not found");
+        snprintf(buffer, buffer_size, "%s not found", argv[0]);
         return ENOSYS;
       }
     }
@@ -139,7 +151,11 @@ int CommandRouter::route(int argc, const char **argv) {
 }
 
 int command_help_func(CommandRouter *cmd, int argc, const char **argv) {
-  return cmd->help();
+  if (argc == 1) {
+    return cmd->help(nullptr);
+  } else {
+    return cmd->help(argv[1]);
+  }
 }
 
 int CommandRouter::processSerialStream() {
@@ -148,7 +164,10 @@ int CommandRouter::processSerialStream() {
   int bytes_read = 0;
   int result;
   int c;
-  while (bytes_read < buffer_size - 1) {
+  char *input_buffer = &buffer[1];
+  buffer[0] = '\0'; // Null terminate the return string
+
+  while (bytes_read < buffer_size - 1 - 1) {
     c = Serial.read();
     if (c == -1) {
       continue;
@@ -160,15 +179,15 @@ int CommandRouter::processSerialStream() {
       continue;
     }
 
-    buffer[bytes_read] = (char)c;
+    input_buffer[bytes_read] = (char)c;
     bytes_read++;
   }
-  buffer[bytes_read] = '\0';
+  input_buffer[bytes_read] = '\0';
   if (bytes_read == 0) {
     return 0;
   }
 
-  remaining_tokens = buffer;
+  remaining_tokens = input_buffer;
   for (argc = 0; argc < argv_max - 1; argc++) {
     if (remaining_tokens[0] == '\0') {
       break;

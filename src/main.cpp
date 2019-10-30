@@ -4,6 +4,10 @@
 #include <Arduino.h>
 #include <errno.h>
 
+#ifndef GIT_DESCRIBE
+#define GIT_DESCRIBE "0.0.0-unknown"
+#endif
+
 I2CMaster i2c;
 
 void setup() {
@@ -35,7 +39,7 @@ int reboot_func(CommandRouter *cmd, int argc, const char **argv) {
 int version_func(CommandRouter *cmd, int argc, const char **argv) {
   (void)argc;
   (void)argv;
-  snprintf(cmd->buffer, cmd->buffer_size, "0.0.0");
+  snprintf(cmd->buffer, cmd->buffer_size, GIT_DESCRIBE);
   return 0;
 }
 

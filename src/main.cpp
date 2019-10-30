@@ -4,6 +4,8 @@
 #include <Arduino.h>
 #include <errno.h>
 
+// TODO: this isn't exactly correct since this main file won't get
+// regenerated if it wasn't touched.
 #ifndef GIT_DESCRIBE
 #define GIT_DESCRIBE "0.0.0-unknown"
 #endif

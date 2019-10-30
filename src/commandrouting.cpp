@@ -93,7 +93,7 @@ CommandRouter::~CommandRouter() {
 }
 
 int CommandRouter::help(const char *command_name) {
-  if (command_name != nullptr) {
+  if (command_name == nullptr) {
     Serial.print(F("-----------------------------------\n"));
     Serial.print(F("Command List:\n"));
     Serial.print(F("-----------------------------------\n"));

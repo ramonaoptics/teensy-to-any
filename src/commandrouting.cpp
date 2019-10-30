@@ -128,6 +128,9 @@ int CommandRouter::route(int argc, const char **argv) {
       if (command_list[i].func != nullptr) {
         return command_list[i].func(this, argc, argv);
       } else {
+        int buffer_len = strlen(buffer);
+        int bytes_remaining = buffer_size - buffer_len - 1;
+        snprintf(&buffer[buffer_len], bytes_remaining, " not found");
         return ENOSYS;
       }
     }
@@ -184,9 +187,15 @@ int CommandRouter::processSerialStream() {
     argc += 1;
   }
   result = route(argc, argv);
-  if (result != 0) {
-    // TODO: convert errno to string???
-    Serial.printf("Error: code %d. %s\n", result, std::strerror(result));
+
+  // Print the return code
+  Serial.print(result);
+
+  // And any payload that exists
+  if (buffer[0]) {
+    Serial.print(" ");
+    Serial.print(buffer);
   }
+  Serial.print("\n");
   return result;
 }

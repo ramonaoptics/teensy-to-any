@@ -23,14 +23,15 @@ public:
   void cleanup();
   ~CommandRouter();
 
+  char *buffer = nullptr; // Allow for terminating null byte
+  int buffer_size = 0;
+
 private:
   int route(int argc, const char **argv);
 
-  // Serial command holders
-  char *buffer = nullptr; // Allow for terminating null byte
-  int buffer_size = 0;
   const char **argv;
   int argv_max = 0;
+
   bool malloc_used = false;
   command_item_t *command_list;
 };

@@ -3,25 +3,26 @@
 #include "i2c.hpp"
 #include <Arduino.h>
 #include <errno.h>
-#include <i2c_t3.h>
+
+I2CMaster i2c;
+
 void setup() {
-  // put your setup code here, to run once:
+  // Pause for 100 MS in order to debounce the power supply getting
+  // plugged in.
+  delay(100);
   Serial.begin(115200);
   cmd.init(command_list, 10, 1024);
 }
 
-I2CMaster i2c;
-
 int info_func(CommandRouter *cmd, int argc, const char **argv) {
-  (void)cmd;
   (void)argc;
   (void)argv;
-  Serial.print("Ramona Optics I2C Debugger\n");
+  snprintf(cmd->buffer, cmd->buffer_size, "Ramona Optics I2C Debugger");
   return 0;
 }
 
 int reboot_func(CommandRouter *cmd, int argc, const char **argv) {
-  (void)cmd;
+  cmd->buffer[0] = '\0';
   (void)argc;
   (void)argv;
   return ENOSYS;
@@ -33,15 +34,15 @@ int reboot_func(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int version_func(CommandRouter *cmd, int argc, const char **argv) {
-  (void)cmd;
   (void)argc;
   (void)argv;
-  Serial.print("0.0.0\n");
+  snprintf(cmd->buffer, cmd->buffer_size, "0.0.0");
   return 0;
 }
 
 int i2c_init(CommandRouter *cmd, int argc, const char **argv) {
-  (void)cmd;
+  cmd->buffer[0] = '\0';
+  ;
   int baudrate = 100000;
   int timeout_ms = 200000; // 200ms
   int address_size = 2;
@@ -63,10 +64,12 @@ int i2c_init(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_reset(CommandRouter *cmd, int argc, const char **argv) {
+  cmd->buffer[0] = '\0';
   return i2c.reset();
 }
 
 int i2c_write_uint16(CommandRouter *cmd, int argc, const char **argv) {
+  cmd->buffer[0] = '\0';
   if (argc != 4)
     return EINVAL;
 
@@ -78,6 +81,7 @@ int i2c_write_uint16(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_read_uint16(CommandRouter *cmd, int argc, const char **argv) {
+  cmd->buffer[0] = '\0';
   if (argc != 3)
     return EINVAL;
 
@@ -87,14 +91,16 @@ int i2c_read_uint16(CommandRouter *cmd, int argc, const char **argv) {
   int result;
 
   result = i2c.read_uint16(slave_address, register_address, data);
+
   if (result == 0) {
-    Serial.printf("0x%04X\n", data);
+    snprintf(cmd->buffer, cmd->buffer_size, "0x%04X", data);
   }
   return result;
 }
 
 int i2c_read_no_register_uint8(CommandRouter *cmd, int argc,
                                const char **argv) {
+  cmd->buffer[0] = '\0';
   if (argc != 2)
     return EINVAL;
 
@@ -103,13 +109,14 @@ int i2c_read_no_register_uint8(CommandRouter *cmd, int argc,
   int result;
   result = i2c.read_no_register_uint8(slave_address, data);
   if (result == 0) {
-    Serial.printf("0x%02X\n", data);
+    snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", data);
   }
   return result;
 }
 
 int i2c_write_no_register_uint8(CommandRouter *cmd, int argc,
                                 const char **argv) {
+  cmd->buffer[0] = '\0';
   if (argc != 3)
     return EINVAL;
 
@@ -119,6 +126,7 @@ int i2c_write_no_register_uint8(CommandRouter *cmd, int argc,
 }
 
 int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv) {
+  cmd->buffer[0] = '\0';
   if (argc != 3)
     return EINVAL;
 
@@ -131,6 +139,7 @@ int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 int gpio_digital_write(CommandRouter *cmd, int argc, const char **argv) {
+  cmd->buffer[0] = '\0';
   if (argc != 3)
     return EINVAL;
 
@@ -144,26 +153,20 @@ int gpio_digital_write(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int gpio_digital_read(CommandRouter *cmd, int argc, const char **argv) {
+  cmd->buffer[0] = '\0';
   if (argc != 2)
     return EINVAL;
 
   uint8_t pin = strtol(argv[1], nullptr, 0);
-
   uint8_t value = digitalRead(pin);
-  Serial.print(value);
-  Serial.print("\n");
+
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", value);
   return 0;
 }
 
-void loop_() {
-  // put your main code here, to run repeatedly:
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(250);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(250);
-}
-
 void loop() {
+  // TODO: remove this check on if Serial is available.
+  // I don't think we need it since it is already in a loop
   if (Serial.available()) {
     cmd.processSerialStream();
   }

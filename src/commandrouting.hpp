@@ -18,7 +18,7 @@ public:
   int init(command_item_t *commands, int argv_max, int buffer_size);
   int init_no_malloc(command_item_t *commands, int argv_max, int buffer_size,
                      char *serial_buffer, const char **argv_buffer);
-  int help(const char *command_name);
+  int help(const char *command_name = nullptr);
   int processSerialStream();
   void cleanup();
   ~CommandRouter();

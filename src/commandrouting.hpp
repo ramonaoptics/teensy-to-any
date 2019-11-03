@@ -15,9 +15,10 @@ typedef struct command_item {
 
 class CommandRouter {
 public:
-  int init(command_item_t *commands, int argv_max, int buffer_size);
-  int init_no_malloc(command_item_t *commands, int argv_max, int buffer_size,
-                     char *serial_buffer, const char **argv_buffer);
+  int init(command_item_t *commands, int buffer_size, int argv_max);
+  int init_no_malloc(command_item_t *commands, int buffer_size,
+                     char *serial_buffer, int argv_max,
+                     const char **argv_buffer);
   int help(const char *command_name = nullptr);
   int processSerialStream();
   void cleanup();

@@ -2,6 +2,7 @@
 #include "commandrouting.hpp"
 #include "i2c.hpp"
 #include <Arduino.h>
+#include <SPI.h>
 #include <errno.h>
 
 // TODO: this isn't exactly correct since this main file won't get
@@ -10,14 +11,31 @@
 #define GIT_DESCRIBE "0.0.0-unknown"
 #endif
 
+#define BUFFER_SIZE 1024 * 16
+#define ARGV_MAX 300
+char serial_buffer[BUFFER_SIZE];
+char *argv_buffer[ARGV_MAX];
+
+// Default SPI Settings
+uint32_t spi_baudrate = 4'000'000;
+uint8_t spi_bit_order = MSBFIRST;
+uint8_t spi_data_mode = SPI_MODE0;
+
+inline SPISettings my_spi_settings() {
+  // Gotta hate this really weird API
+  return SPISettings(spi_baudrate, spi_bit_order, spi_data_mode);
+}
+
 I2CMaster i2c;
 
 void setup() {
   // Pause for 100 MS in order to debounce the power supply getting
   // plugged in.
   delay(100);
-  Serial.begin(115200);
-  cmd.init(command_list, 10, 1024);
+  Serial.begin(115'200);
+  // cmd.init(command_list, 1024,  10);
+  cmd.init_no_malloc(command_list, BUFFER_SIZE, serial_buffer, ARGV_MAX,
+                     argv_buffer);
 }
 
 int info_func(CommandRouter *cmd, int argc, const char **argv) {
@@ -46,8 +64,8 @@ int version_func(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_init(CommandRouter *cmd, int argc, const char **argv) {
-  int baudrate = 100000;
-  int timeout_ms = 200000; // 200ms
+  int baudrate = 100'000;
+  int timeout_ms = 200'000; // 200ms
   int address_size = 2;
   int address_msb_first = false;
   if (argc >= 2) {
@@ -221,6 +239,119 @@ int analog_write_resolution(CommandRouter *cmd, int argc, const char **argv) {
 
   resolution = strtol(argv[1], nullptr, 0);
   analogWriteResolution(resolution);
+  return 0;
+}
+
+int spi_begin(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 1) {
+    return EINVAL;
+  }
+  SPI.begin();
+  return 0;
+}
+
+int spi_set_mosi(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2) {
+    return EINVAL;
+  }
+  uint8_t mosi = strtol(argv[1], nullptr, 0);
+  SPI.setMOSI(mosi);
+  return 0;
+}
+
+int spi_set_miso(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2) {
+    return EINVAL;
+  }
+  uint8_t miso = strtol(argv[1], nullptr, 0);
+  SPI.setMISO(miso);
+  return 0;
+}
+
+int spi_set_sck(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2) {
+    return EINVAL;
+  }
+  uint8_t sck = strtol(argv[1], nullptr, 0);
+  SPI.setSCK(sck);
+  return 0;
+}
+
+int spi_settings(CommandRouter *cmd, int argc, const char **argv) {
+  int frequency;
+  int bitOrder = MSBFIRST;
+  int dataMode = SPI_MODE0;
+
+  if (argc < 2) {
+    return EINVAL;
+  }
+
+  frequency = strtol(argv[1], nullptr, 0);
+
+  if (strcmp("MSBFIRST", argv[2]) == 0) {
+    bitOrder = MSBFIRST;
+  } else if (strcmp("LSBFIRST", argv[2]) == 0) {
+    bitOrder = LSBFIRST;
+  } else {
+    return EINVAL;
+  }
+
+  if (strcmp("SPI_MODE0", argv[3]) == 0) {
+    dataMode = SPI_MODE0;
+  } else if (strcmp("SPI_MODE1", argv[3]) == 0) {
+    dataMode = SPI_MODE1;
+  } else if (strcmp("SPI_MODE2", argv[3]) == 0) {
+    dataMode = SPI_MODE2;
+  } else if (strcmp("SPI_MODE3", argv[3]) == 0) {
+    dataMode = SPI_MODE3;
+  } else {
+    return EINVAL;
+  }
+
+  spi_baudrate = frequency;
+  spi_bit_order = bitOrder;
+  spi_data_mode = dataMode;
+
+  return 0;
+}
+
+int spi_begin_transaction(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 1) {
+    return EINVAL;
+  }
+
+  SPI.beginTransaction(my_spi_settings());
+  return 0;
+}
+
+int spi_end_transaction(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 1) {
+    return EINVAL;
+  }
+  SPI.endTransaction();
+  return 0;
+}
+
+int spi_transfer(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2) {
+    return EINVAL;
+  }
+  uint8_t data = strtol(argv[1], nullptr, 0);
+  SPI.transfer(data);
+  return 0;
+}
+
+int spi_transfer_bulk(CommandRouter *cmd, int argc, const char **argv) {
+  uint8_t data;
+  if (argc == 1) {
+    return EINVAL;
+  }
+  SPI.beginTransaction(my_spi_settings());
+  for (int i = 1; i < argc; i++) {
+    data = strtol(argv[1], nullptr, 0);
+    SPI.transfer(data);
+  }
+  SPI.endTransaction();
   return 0;
 }
 

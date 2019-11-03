@@ -5,9 +5,8 @@
 
 CommandRouter cmd;
 
-int CommandRouter::init(command_item_t *commands, int argv_max,
-                        int buffer_size) {
-
+int CommandRouter::init(command_item_t *commands, int buffer_size,
+                        int argv_max) {
   if (argv_max == 0) {
     return EINVAL;
   }
@@ -42,8 +41,8 @@ fail_argv_alloc:
   return ENOMEM;
 }
 
-int CommandRouter::init_no_malloc(command_item_t *commands, int argv_max,
-                                  int buffer_size, char *serial_buffer,
+int CommandRouter::init_no_malloc(command_item_t *commands, int buffer_size,
+                                  char *serial_buffer, int argv_max,
                                   const char **argv_buffer) {
 
   if (commands == nullptr) {

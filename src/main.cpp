@@ -187,6 +187,43 @@ int gpio_digital_read(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+int analog_write(CommandRouter *cmd, int argc, const char **argv) {
+  int pin;
+  int dutycycle;
+  if (argc != 3) {
+    return EINVAL;
+  }
+
+  pin = strtol(argv[1], nullptr, 0);
+  dutycycle = strtol(argv[2], nullptr, 0);
+  analogWrite(pin, dutycycle);
+  return 0;
+}
+
+int analog_write_frequency(CommandRouter *cmd, int argc, const char **argv) {
+  int pin;
+  int frequency;
+  if (argc != 3) {
+    return EINVAL;
+  }
+
+  pin = strtol(argv[1], nullptr, 0);
+  frequency = strtol(argv[2], nullptr, 0);
+  analogWriteFrequency(pin, frequency);
+  return 0;
+}
+
+int analog_write_resolution(CommandRouter *cmd, int argc, const char **argv) {
+  int resolution;
+  if (argc != 2) {
+    return EINVAL;
+  }
+
+  resolution = strtol(argv[1], nullptr, 0);
+  analogWriteResolution(resolution);
+  return 0;
+}
+
 void loop() {
   // TODO: remove this check on if Serial is available.
   // I don't think we need it since it is already in a loop

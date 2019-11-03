@@ -6,10 +6,12 @@ int info_func(CommandRouter *cmd, int argc, const char **argv);
 int reboot_func(CommandRouter *cmd, int argc, const char **argv);
 int version_func(CommandRouter *cmd, int argc, const char **argv);
 
+// Digital GPIO
 int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv);
 int gpio_digital_write(CommandRouter *cmd, int argc, const char **argv);
 int gpio_digital_read(CommandRouter *cmd, int argc, const char **argv);
 
+// I2C support
 int i2c_init(CommandRouter *cmd, int argc, const char **argv);
 int i2c_reset(CommandRouter *cmd, int argc, const char **argv);
 int i2c_write_uint16(CommandRouter *cmd, int argc, const char **argv);
@@ -20,7 +22,12 @@ int i2c_read_no_register_uint8(CommandRouter *cmd, int argc, const char **argv);
 int i2c_write_no_register_uint8(CommandRouter *cmd, int argc,
                                 const char **argv);
 
-// Syntax is: {short command, long command, description, syntax}
+// PWM Support
+int analog_write(CommandRouter *cmd, int argc, const char **argv);
+int analog_write_frequency(CommandRouter *cmd, int argc, const char **argv);
+int analog_write_resolution(CommandRouter *cmd, int argc, const char **argv);
+
+// Syntax is: {short command, description, syntax}
 command_item_t command_list[] = {
     {"?", "Display help info", "?", command_help_func},
     {"info", "Displays information about this LED Array", "about", info_func},
@@ -56,4 +63,10 @@ command_item_t command_list[] = {
      "Write a uint8_t to the I2C bus without specifying a register address.",
      "i2c_write_no_register_uint8 slave_address data",
      i2c_write_no_register_uint8},
+    {"analog_write", "Write the duty cycle of the PWM",
+     "analog_write pin dutycycle", analog_write},
+    {"analog_write_frequency", "Write the frequency of the PWM",
+     "analog_write_frequency pin frequency", analog_write_frequency},
+    {"analog_write_resolution", "Write the resolution of the PWM timer",
+     "analog_write_resolution bitdepth", analog_write_resolution},
     {nullptr, nullptr, nullptr, nullptr}};

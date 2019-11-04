@@ -174,7 +174,16 @@ int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv) {
     return EINVAL;
 
   uint8_t pin = strtol(argv[1], nullptr, 0);
-  uint8_t mode = strtol(argv[2], nullptr, 0);
+  uint8_t mode;
+
+  if (strcmp("OUTPUT", argv[2]) == 0) {
+    mode = OUTPUT;
+  } else if (strcmp("INPUT", argv[2]) == 0) {
+    mode = INPUT;
+  } else {
+    mode = strtol(argv[2], nullptr, 0);
+  }
+
   if ((mode != OUTPUT) && (mode != INPUT))
     return EINVAL;
 
@@ -185,8 +194,16 @@ int gpio_digital_write(CommandRouter *cmd, int argc, const char **argv) {
   if (argc != 3)
     return EINVAL;
 
+  uint8_t value;
+
   uint8_t pin = strtol(argv[1], nullptr, 0);
-  uint8_t value = strtol(argv[2], nullptr, 0);
+  if (strcmp("HIGH", argv[2]) == 0) {
+    value = HIGH;
+  } else if (strcmp("LOW", argv[2]) == 0) {
+    value = LOW;
+  } else {
+    value = strtol(argv[2], nullptr, 0);
+  }
   if ((value != HIGH) && (value != LOW))
     return EINVAL;
 

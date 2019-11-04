@@ -14,7 +14,7 @@
 #define BUFFER_SIZE 1024 * 16
 #define ARGV_MAX 300
 char serial_buffer[BUFFER_SIZE];
-char *argv_buffer[ARGV_MAX];
+const char *argv_buffer[ARGV_MAX];
 
 // Default SPI Settings
 uint32_t spi_baudrate = 4'000'000;

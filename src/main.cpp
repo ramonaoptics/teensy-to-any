@@ -11,11 +11,12 @@
 #define GIT_DESCRIBE "0.0.0-unknown"
 #endif
 
+#if 0
 #define BUFFER_SIZE 1024 * 16
 #define ARGV_MAX 300
 char serial_buffer[BUFFER_SIZE];
 const char *argv_buffer[ARGV_MAX];
-
+#endif
 // Default SPI Settings
 uint32_t spi_baudrate = 4'000'000;
 uint8_t spi_bit_order = MSBFIRST;
@@ -33,9 +34,9 @@ void setup() {
   // plugged in.
   delay(100);
   Serial.begin(115'200);
-  // cmd.init(command_list, 1024,  10);
-  cmd.init_no_malloc(command_list, BUFFER_SIZE, serial_buffer, ARGV_MAX,
-                     argv_buffer);
+  cmd.init(command_list, 1024, 10);
+  // cmd.init_no_malloc(command_list, BUFFER_SIZE, serial_buffer, ARGV_MAX,
+  //                   argv_buffer);
 }
 
 int info_func(CommandRouter *cmd, int argc, const char **argv) {

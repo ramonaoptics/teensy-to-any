@@ -5,6 +5,7 @@
 int info_func(CommandRouter *cmd, int argc, const char **argv);
 int reboot_func(CommandRouter *cmd, int argc, const char **argv);
 int version_func(CommandRouter *cmd, int argc, const char **argv);
+int command_license_func(CommandRouter *cmd, int argc, const char **argv);
 
 // Digital GPIO
 int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv);
@@ -33,6 +34,10 @@ command_item_t command_list[] = {
     {"info", "Displays information about this LED Array", "about", info_func},
     {"reboot", "Runs setup routine again, for resetting LED array", "reboot",
      reboot_func},
+    {"license",
+     "Display the license information for the source code running on the "
+     "teensy",
+     "license", command_license_func},
     {"version", "Display controller version number", "version", version_func},
     {"gpio_pin_mode",
      "Set the pinMode of a GPIO pin, 0 for INPUT, 1 for OUTPUT",

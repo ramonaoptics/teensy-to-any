@@ -75,11 +75,11 @@ int CommandRouter::init_no_malloc(command_item_t *commands, int buffer_size,
 void CommandRouter::cleanup() {
   if (malloc_used) {
     if (buffer != nullptr) {
-    delete buffer;
-  }
+      delete buffer;
+    }
     if (argv != nullptr) {
-    delete argv;
-  }
+      delete argv;
+    }
   }
 
   buffer = nullptr;
@@ -164,12 +164,14 @@ int CommandRouter::processSerialStream() {
   int argc;
   char *remaining_tokens;
   int bytes_read = 0;
+  int bytes_read_max = buffer_size - 1 - 1;
   int result;
   int c;
-  char *input_buffer = &buffer[1];
+  char *input_buffer = &this->buffer[1];
   buffer[0] = '\0'; // Null terminate the return string
 
-  while (bytes_read < buffer_size - 1 - 1) {
+  // TODO: is this limit correct?
+  while (bytes_read < bytes_read_max) {
     c = Serial.read();
     if (c == -1) {
       continue;
@@ -183,6 +185,16 @@ int CommandRouter::processSerialStream() {
 
     input_buffer[bytes_read] = (char)c;
     bytes_read++;
+  }
+  // Just flush the serial buffer, and terminate the command
+  if (bytes_read == bytes_read_max) {
+    result = ENOMEM;
+    while (true) {
+      c = Serial.read();
+      if (c == '\n' || c == '\r') {
+        goto finish;
+      }
+    }
   }
   input_buffer[bytes_read] = '\0';
   if (bytes_read == 0) {
@@ -209,6 +221,7 @@ int CommandRouter::processSerialStream() {
   }
   result = route(argc, argv);
 
+finish:
   // Print the return code
   Serial.print(result);
 

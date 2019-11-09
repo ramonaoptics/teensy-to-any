@@ -10,10 +10,10 @@ Currently, we support:
 
 1. GPIO
 2. I2C
+3. PWM
+4. SPI
 
 Future protocols include:
-3. SPI
-4. PWM control
 5. CAN
 6. Serial
 

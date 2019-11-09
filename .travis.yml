@@ -20,3 +20,4 @@ deploy:
     - ".pio/build/teensy32/firmware.hex"
   on:
     repo: ramonaoptics/teensy-to-any
+    tags: true

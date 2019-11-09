@@ -67,20 +67,23 @@ int CommandRouter::init_no_malloc(command_item_t *commands, int buffer_size,
   this->argv = argv_buffer;
   this->buffer_size = buffer_size;
   this->argv_max = argv_max;
-  malloc_used = false;
+  this->command_list = commands;
+  this->malloc_used = false;
   return 0;
 }
 
 void CommandRouter::cleanup() {
-  if (malloc_used && buffer != nullptr) {
+  if (malloc_used) {
+    if (buffer != nullptr) {
     delete buffer;
   }
-  buffer = nullptr;
-  buffer_size = 0;
-
-  if (malloc_used && argv != nullptr) {
+    if (argv != nullptr) {
     delete argv;
   }
+  }
+
+  buffer = nullptr;
+  buffer_size = 0;
   argv = nullptr;
   argv_max = 0;
   command_list = nullptr;

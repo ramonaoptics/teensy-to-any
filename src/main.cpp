@@ -11,7 +11,8 @@
 #define GIT_DESCRIBE "0.0.0-unknown"
 #endif
 
-#if 0
+#define USE_STATIC_ALLOCATION 1
+#if USE_STATIC_ALLOCATION
 #define BUFFER_SIZE 1024 * 16
 #define ARGV_MAX 300
 char serial_buffer[BUFFER_SIZE];
@@ -34,9 +35,12 @@ void setup() {
   // plugged in.
   delay(100);
   Serial.begin(115'200);
+#if USE_STATIC_ALLOCATION
+  cmd.init_no_malloc(command_list, BUFFER_SIZE, serial_buffer, ARGV_MAX,
+                     argv_buffer);
+#else
   cmd.init(command_list, 1024, 10);
-  // cmd.init_no_malloc(command_list, BUFFER_SIZE, serial_buffer, ARGV_MAX,
-  //                   argv_buffer);
+#endif
 }
 
 int info_func(CommandRouter *cmd, int argc, const char **argv) {

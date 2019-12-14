@@ -1,3 +1,7 @@
+### 0.0.9
+
+* Enable control of SPI through the interface.
+
 ### 0.0.8
 
 * Use git describe --tag to correctly identify the tags

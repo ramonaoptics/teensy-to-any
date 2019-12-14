@@ -271,6 +271,13 @@ int spi_begin(CommandRouter *cmd, int argc, const char **argv) {
   SPI.begin();
   return 0;
 }
+int spi_end(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 1) {
+    return EINVAL;
+  }
+  SPI.end();
+  return 0;
+}
 
 int spi_set_mosi(CommandRouter *cmd, int argc, const char **argv) {
   if (argc != 2) {

@@ -28,6 +28,18 @@ int analog_write(CommandRouter *cmd, int argc, const char **argv);
 int analog_write_frequency(CommandRouter *cmd, int argc, const char **argv);
 int analog_write_resolution(CommandRouter *cmd, int argc, const char **argv);
 
+// SPI support
+int spi_begin(CommandRouter *cmd, int argc, const char **argv);
+int spi_end(CommandRouter *cmd, int argc, const char **argv);
+int spi_set_mosi(CommandRouter *cmd, int argc, const char **argv);
+int spi_set_miso(CommandRouter *cmd, int argc, const char **argv);
+int spi_set_sck(CommandRouter *cmd, int argc, const char **argv);
+int spi_settings(CommandRouter *cmd, int argc, const char **argv);
+int spi_begin_transaction(CommandRouter *cmd, int argc, const char **argv);
+int spi_end_transaction(CommandRouter *cmd, int argc, const char **argv);
+int spi_transfer(CommandRouter *cmd, int argc, const char **argv);
+int spi_transfer_bulk(CommandRouter *cmd, int argc, const char **argv);
+int spi_set_clock_divider(CommandRouter *cmd, int argc, const char **argv);
 // Syntax is: {short command, description, syntax}
 command_item_t command_list[] = {
     {"?", "Display help info", "?", command_help_func},
@@ -74,4 +86,19 @@ command_item_t command_list[] = {
      "analog_write_frequency pin frequency", analog_write_frequency},
     {"analog_write_resolution", "Write the resolution of the PWM timer",
      "analog_write_resolution bitdepth", analog_write_resolution},
+    {"spi_begin", "SPI Begin", "spi_begin", spi_begin},
+    {"spi_end", "SPI End", "spi_end", spi_begin},
+    {"spi_set_mosi", "SPI set MOSI", "spi_set_mosi mosi", spi_set_mosi},
+    {"spi_set_miso", "SPI set MISO ", " spi_set_miso miso", spi_set_miso},
+    {"spi_set_sck", "SPI set SCK ", " spi_set_sck sck", spi_set_sck},
+    {"spi_settings", "SPI set setting",
+     "spi_settings frequency bitOrder dataMode", spi_settings},
+    {"spi_begin_transaction", "spi_begin_transaction", "spi_begin_transaction",
+     spi_begin_transaction},
+    {"spi_end_transaction", "spi_end_transaction", "spi_end_transaction",
+     spi_end_transaction},
+    {"spi_transfer", "SPI Transfer 8bits of data", "spi_transfer data",
+     spi_transfer},
+    {"spi_transfer_bulk", "SPI transfer multiple sets of 8 bits of data",
+     "spi_transfer_bulk data[0] data[1] data[2] [...]", spi_transfer_bulk},
     {nullptr, nullptr, nullptr, nullptr}};

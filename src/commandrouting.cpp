@@ -4,7 +4,7 @@
 #include <errno.h>
 
 #define LICENSE_TEXT                                                           \
-  "teensy-to-any: hardware debugger based on the Teensy platform\n"            \
+  "teensytoany: hardware debugger based on the Teensy platform\n"              \
   "Copyright (C) 2019  Ramona Optics, Inc.\n"                                  \
   "\n"                                                                         \
   "This program is free software: you can redistribute it and/or modify\n"     \

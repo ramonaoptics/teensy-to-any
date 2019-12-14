@@ -46,7 +46,7 @@ void setup() {
 int info_func(CommandRouter *cmd, int argc, const char **argv) {
   (void)argc;
   (void)argv;
-  snprintf(cmd->buffer, cmd->buffer_size, "Ramona Optics I2C Debugger");
+  snprintf(cmd->buffer, cmd->buffer_size, "Ramona Optics Teensy Debugger");
   return 0;
 }
 

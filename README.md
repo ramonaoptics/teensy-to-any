@@ -1,5 +1,7 @@
 # Teensy-to-any
 
+[![Build Status](https://travis-ci.org/ramonaoptics/teensy-to-any.svg?branch=master)](https://travis-ci.org/ramonaoptics/teensy-to-any)
+
 This program allows you to use the Teensy as a USB to protocol converter.
 
 The design is centered around exposing simple building blocks to a USB UART interface.

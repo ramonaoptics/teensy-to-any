@@ -301,10 +301,10 @@ int spi_set_sck(CommandRouter *cmd, int argc, const char **argv) {
 
 int spi_settings(CommandRouter *cmd, int argc, const char **argv) {
   int frequency;
-  int bitOrder = MSBFIRST;
-  int dataMode = SPI_MODE0;
+  int bitOrder;
+  int dataMode;
 
-  if (argc < 2) {
+  if (argc < 4) {
     return EINVAL;
   }
 

@@ -1,3 +1,7 @@
+### 0.0.8
+
+* Use git describe --tag to correctly identify the tags
+
 ### 0.0.7
 
 * Fixed up version string in the Teensy C++ Code.

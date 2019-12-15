@@ -1,3 +1,6 @@
+### 0.0.10
+
+* Fix spi_transfer_bulk
 ### 0.0.9
 
 * Enable control of SPI through the interface.

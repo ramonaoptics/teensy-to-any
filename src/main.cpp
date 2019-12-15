@@ -377,7 +377,7 @@ int spi_transfer_bulk(CommandRouter *cmd, int argc, const char **argv) {
   }
   SPI.beginTransaction(my_spi_settings());
   for (int i = 1; i < argc; i++) {
-    data = strtol(argv[1], nullptr, 0);
+    data = strtol(argv[i], nullptr, 0);
     SPI.transfer(data);
   }
   SPI.endTransaction();

@@ -16,9 +16,14 @@ Currently, we support:
 4. SPI
 
 Future protocols include:
+
 5. CAN
 6. Serial
 
-
 Generally speaking, this should help you prototype hardware, by bypassing the tedious steps of creating a USB Serial Parser, and letting you bring up hardware more naturally.
+
+Upload with:
+```
+platformio run --target upload
+```
 

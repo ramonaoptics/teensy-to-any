@@ -3,7 +3,7 @@
 #include <i2c_t3.h>
 int I2CMaster::init(int baudrate, int timeout_ms, int address_size,
                     int address_msb_first) {
-  if (address_size != 2)
+  if (address_size != 2 && address_size != 1)
     return ENOSYS;
   if (address_msb_first != 0)
     return ENOSYS;
@@ -22,6 +22,15 @@ int I2CMaster::reset() {
   return 0;
 }
 
+void I2CMaster::_write_register_address(int register_address) {
+  if (this->address_size == 2) {
+    Wire.write((register_address >> 8) & 0xFF);
+    Wire.write((register_address >> 0) & 0xFF);
+  } else if (this->address_size == 1) {
+    Wire.write((register_address >> 0) & 0xFF);
+  }
+}
+
 int I2CMaster::write_uint16(int slave_address, int register_address,
                             uint16_t data) {
   if (!this->is_initialized)
@@ -31,8 +40,8 @@ int I2CMaster::write_uint16(int slave_address, int register_address,
     slave_address = slave_address >> 1;
   // Ensure the address is in write mode
   Wire.beginTransmission(slave_address); // slave addr
-  Wire.write((register_address >> 8) & 0xFF);
-  Wire.write((register_address >> 0) & 0xFF);
+
+  this->_write_register_address(register_address);
   // Assume MSB first for data as well
   Wire.write((data >> 8) & 0xFF);
   Wire.write((data >> 0) & 0xFF);
@@ -51,8 +60,7 @@ int I2CMaster::write_uint8(int slave_address, int register_address,
     slave_address = slave_address >> 1;
   // Ensure the address is in write mode
   Wire.beginTransmission(slave_address); // slave addr
-  Wire.write((register_address >> 8) & 0xFF);
-  Wire.write((register_address >> 0) & 0xFF);
+  this->_write_register_address(register_address);
   Wire.write((data >> 0) & 0xFF);
   // blocking write (when not specified I2C_STOP is implicit)
   Wire.endTransmission(I2C_STOP);
@@ -88,8 +96,7 @@ int I2CMaster::read_uint16(int slave_address, int register_address,
 
   Wire.beginTransmission(slave_address); // slave addr
   // Write the MSB of the address first
-  Wire.write((register_address >> 8) & 0xFF);
-  Wire.write((register_address >> 0) & 0xFF);
+  this->_write_register_address(register_address);
   Wire.endTransmission(
       I2C_NOSTOP); // blocking write (when not specified I2C_STOP is implicit)
   err = Wire.getError();
@@ -134,8 +141,7 @@ int I2CMaster::read_uint8(int slave_address, int register_address,
 
   Wire.beginTransmission(slave_address); // slave addr
   // Write the MSB of the address first
-  Wire.write((register_address >> 8) & 0xFF);
-  Wire.write((register_address >> 0) & 0xFF);
+  this->_write_register_address(register_address);
   Wire.endTransmission(
       I2C_NOSTOP); // blocking write (when not specified I2C_STOP is implicit)
   err = Wire.getError();

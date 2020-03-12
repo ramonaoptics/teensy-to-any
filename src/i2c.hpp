@@ -14,6 +14,7 @@ public:
   int write_no_register_uint8(int slave_address, uint8_t data);
 
 private:
+  void _write_register_address(int register_address);
   int address_msb_first = 0;
   int address_size = 0;
   bool is_initialized = false;

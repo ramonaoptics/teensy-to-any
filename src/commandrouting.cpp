@@ -1,11 +1,10 @@
 #include "commandrouting.hpp"
 #include <Arduino.h>
-#include <cstring>
 #include <errno.h>
 
 #define LICENSE_TEXT                                                           \
   "teensytoany: hardware debugger based on the Teensy platform\n"              \
-  "Copyright (C) 2019  Ramona Optics, Inc.\n"                                  \
+  "Copyright (C) 2019-2020  Ramona Optics, Inc.\n"                                  \
   "\n"                                                                         \
   "This program is free software: you can redistribute it and/or modify\n"     \
   "it under the terms of the GNU General Public License as published by\n"     \
@@ -188,16 +187,19 @@ int command_help_func(CommandRouter *cmd, int argc, const char **argv) {
 
 int CommandRouter::processSerialStream() {
   int argc;
-  char *remaining_tokens;
   int bytes_read = 0;
   int bytes_read_max = buffer_size - 1 - 1;
   int result;
-  int c;
+  // The results will be placed in the
+  // buffer starting at index 0 AFTER they have used the
+  // parameter
+  // So we place the input parametrers at index 1
   char *input_buffer = &this->buffer[1];
-  buffer[0] = '\0'; // Null terminate the return string
+  this->buffer[0] = '\0'; // Null terminate the return string
 
   // TODO: is this limit correct?
   while (bytes_read < bytes_read_max) {
+    int c;
     c = Serial.read();
     if (c == -1) {
       continue;
@@ -216,6 +218,7 @@ int CommandRouter::processSerialStream() {
   if (bytes_read == bytes_read_max) {
     result = ENOMEM;
     while (true) {
+      int c;
       c = Serial.read();
       if (c == '\n' || c == '\r') {
         goto finish;
@@ -227,24 +230,38 @@ int CommandRouter::processSerialStream() {
     return 0;
   }
 
-  remaining_tokens = input_buffer;
-  for (argc = 0; argc < argv_max - 1; argc++) {
-    if (remaining_tokens[0] == '\0') {
+  // This could likely be replaced by strtok_r, but I really failed
+  // at using it on the teensy 4.0
+  // And as such, I'm simply ignoring using it.
+  int i;
+  i = 0;
+  argc = 0;
+  while (i < bytes_read){
+    char c;
+    c = input_buffer[i];
+    if (c == '\0')
       break;
+     if (input_buffer[i] == ' ') {
+       input_buffer[i] = '\0';
+       i++;
+       continue;
     }
-    argv[argc] = strtok_r(remaining_tokens, " ", &remaining_tokens);
+    argv[argc] = &input_buffer[i];
+    argc++;
+    while(i < bytes_read) {
+        i += 1;
+        c = input_buffer[i];
+        if (c == ' ' || c  == '\0')
+            break;
+    }
   }
+
 #if 0
   Serial.printf("argc == %d\n", argc);
   for (int i = 0; i < argc; i++) {
     Serial.printf("argv[%d] = %s\n", i, argv[i]);
   }
 #endif
-  // Catchall for commands that are too large.
-  if (remaining_tokens[0] != '\0') {
-    argv[argc] = remaining_tokens;
-    argc += 1;
-  }
   result = route(argc, argv);
 
 finish:

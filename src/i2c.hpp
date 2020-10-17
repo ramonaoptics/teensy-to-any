@@ -1,4 +1,6 @@
 #pragma once
+#if defined(__arm__) && defined(TEENSYDUINO) && defined(KINETISK)
+#define HAS_I2C 1
 #include <unistd.h>
 
 class I2CMaster {
@@ -20,3 +22,6 @@ private:
   bool is_initialized = false;
   bool slave_8bit_address = true;
 };
+#else
+#define HAS_I2C 0
+#endif

@@ -1,5 +1,7 @@
 #include "i2c.hpp"
 #include <errno.h>
+// Teensy 3.0
+#if defined(__arm__) && defined(TEENSYDUINO) && defined(KINETISK)
 #include <i2c_t3.h>
 int I2CMaster::init(int baudrate, int timeout_ms, int address_size,
                     int address_msb_first) {
@@ -202,3 +204,4 @@ handle_error:
   }
   return err;
 }
+#endif

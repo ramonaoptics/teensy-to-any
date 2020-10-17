@@ -28,7 +28,9 @@ inline SPISettings my_spi_settings() {
   return SPISettings(spi_baudrate, spi_bit_order, spi_data_mode);
 }
 
+#if HAS_I2C
 I2CMaster i2c;
+#endif
 
 void setup() {
   // Pause for 100 MS in order to debounce the power supply getting
@@ -69,6 +71,7 @@ int version_func(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_init(CommandRouter *cmd, int argc, const char **argv) {
+#if HAS_I2C
   int baudrate = 100'000;
   int timeout_ms = 200'000; // 200ms
   int address_size = 2;
@@ -87,24 +90,35 @@ int i2c_init(CommandRouter *cmd, int argc, const char **argv) {
   }
 
   return i2c.init(baudrate, timeout_ms, address_size, address_msb_first);
+#else
+  return -1;
+#endif
 }
 
 int i2c_reset(CommandRouter *cmd, int argc, const char **argv) {
+#if HAS_I2C
   return i2c.reset();
+#else
+  return -1;
+#endif
 }
 
 int i2c_write_uint16(CommandRouter *cmd, int argc, const char **argv) {
+#if HAS_I2C
   if (argc != 4)
     return EINVAL;
 
   int slave_address = strtol(argv[1], nullptr, 0);
   int register_address = strtol(argv[2], nullptr, 0);
   uint16_t data = strtol(argv[3], nullptr, 0);
-
   return i2c.write_uint16(slave_address, register_address, data);
+#else
+  return -1;
+#endif
 }
 
 int i2c_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
+#if HAS_I2C
   if (argc != 4)
     return EINVAL;
 
@@ -113,9 +127,13 @@ int i2c_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
   uint8_t data = strtol(argv[3], nullptr, 0);
 
   return i2c.write_uint8(slave_address, register_address, data);
+#else
+  return -1;
+#endif
 }
 
 int i2c_read_uint16(CommandRouter *cmd, int argc, const char **argv) {
+#if HAS_I2C
   if (argc != 3)
     return EINVAL;
 
@@ -123,16 +141,19 @@ int i2c_read_uint16(CommandRouter *cmd, int argc, const char **argv) {
   int register_address = strtol(argv[2], nullptr, 0);
   uint16_t data;
   int result;
-
   result = i2c.read_uint16(slave_address, register_address, data);
 
   if (result == 0) {
     snprintf(cmd->buffer, cmd->buffer_size, "0x%04X", data);
   }
   return result;
+#else
+  return -1;
+#endif
 }
 
 int i2c_read_uint8(CommandRouter *cmd, int argc, const char **argv) {
+#if HAS_I2C
   if (argc != 3)
     return EINVAL;
 
@@ -140,38 +161,48 @@ int i2c_read_uint8(CommandRouter *cmd, int argc, const char **argv) {
   int register_address = strtol(argv[2], nullptr, 0);
   uint8_t data;
   int result;
-
   result = i2c.read_uint8(slave_address, register_address, data);
-
   if (result == 0) {
     snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", data);
   }
   return result;
+#else
+  return -1;
+#endif
 }
 
 int i2c_read_no_register_uint8(CommandRouter *cmd, int argc,
                                const char **argv) {
+#if HAS_I2C
   if (argc != 2)
     return EINVAL;
 
   int slave_address = strtol(argv[1], nullptr, 0);
   uint8_t data;
   int result;
+
   result = i2c.read_no_register_uint8(slave_address, data);
   if (result == 0) {
     snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", data);
   }
   return result;
+#else
+  return -1;
+#endif
 }
 
 int i2c_write_no_register_uint8(CommandRouter *cmd, int argc,
                                 const char **argv) {
+#if HAS_I2C
   if (argc != 3)
     return EINVAL;
 
   int slave_address = strtol(argv[1], nullptr, 0);
   uint8_t data = strtol(argv[2], nullptr, 0);
   return i2c.write_no_register_uint8(slave_address, data);
+#else
+  return -1;
+#endif
 }
 
 int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv) {

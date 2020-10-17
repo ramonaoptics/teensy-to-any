@@ -10,10 +10,13 @@ a host computer that sends requests to accomplish different actions.
 
 Currently, we support:
 
-1. GPIO
-2. I2C
-3. PWM
-4. SPI
+
+| Protocol | Teensy 3.2 | Teensy 4.0 |
+|:---------|:-----------|:-----------|
+| GPIO     | Yes        | Yes        |
+| I2C      | Yes        | Help wanted|
+| PWM      | Yes        | Yes        |
+| SPI      | Yes        | Yes        |
 
 Future protocols include:
 
@@ -22,8 +25,19 @@ Future protocols include:
 
 Generally speaking, this should help you prototype hardware, by bypassing the tedious steps of creating a USB Serial Parser, and letting you bring up hardware more naturally.
 
-Upload with:
+## Teensy 3.2
+
+upload with
+
 ```
-platformio run --target upload
+platformio run -e teensy32 --target upload
+```
+
+## Teensy 4.0
+
+upload with
+
+```
+platformio run -e teensy40 --target upload
 ```
 

@@ -23,5 +23,6 @@ private:
   bool slave_8bit_address = true;
 };
 #else
+#error this should not happen
 #define HAS_I2C 0
 #endif

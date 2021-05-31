@@ -9,7 +9,7 @@ install:
 - pip install -U platformio
 - platformio update
 script:
-- platformio run -e $PLATOFORMIO_ENVIRONMENT
+- platformio run --verbose --environment $PLATOFORMIO_ENVIRONMENT
 - mv .pio/build/${PLATOFORMIO_ENVIRONMENT}/firmware.elf teensytoany-${PLATOFORMIO_ENVIRONMENT}.elf
 - mv .pio/build/${PLATOFORMIO_ENVIRONMENT}/firmware.hex teensytoany-${PLATOFORMIO_ENVIRONMENT}.hex
 - cp teensytoany-${PLATOFORMIO_ENVIRONMENT}.elf teensytoany-${PLATOFORMIO_ENVIRONMENT}-${TRAVIS_BRANCH}.elf

@@ -28,7 +28,7 @@ inline SPISettings my_spi_settings() {
   return SPISettings(spi_baudrate, spi_bit_order, spi_data_mode);
 }
 
-#if HAS_I2C
+#if TEENSY_TO_ANY_HAS_I2C
 I2CMaster i2c;
 #endif
 
@@ -71,7 +71,7 @@ int version_func(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_init(CommandRouter *cmd, int argc, const char **argv) {
-#if HAS_I2C
+#if TEENSY_TO_ANY_HAS_I2C
   int baudrate = 100'000;
   int timeout_ms = 200'000; // 200ms
   int address_size = 2;
@@ -96,7 +96,7 @@ int i2c_init(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_reset(CommandRouter *cmd, int argc, const char **argv) {
-#if HAS_I2C
+#if TEENSY_TO_ANY_HAS_I2C
   return i2c.reset();
 #else
   return -1;
@@ -104,7 +104,7 @@ int i2c_reset(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_write_uint16(CommandRouter *cmd, int argc, const char **argv) {
-#if HAS_I2C
+#if TEENSY_TO_ANY_HAS_I2C
   if (argc != 4)
     return EINVAL;
 
@@ -118,7 +118,7 @@ int i2c_write_uint16(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
-#if HAS_I2C
+#if TEENSY_TO_ANY_HAS_I2C
   if (argc != 4)
     return EINVAL;
 
@@ -133,7 +133,7 @@ int i2c_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_read_uint16(CommandRouter *cmd, int argc, const char **argv) {
-#if HAS_I2C
+#if TEENSY_TO_ANY_HAS_I2C
   if (argc != 3)
     return EINVAL;
 
@@ -153,7 +153,7 @@ int i2c_read_uint16(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_read_uint8(CommandRouter *cmd, int argc, const char **argv) {
-#if HAS_I2C
+#if TEENSY_TO_ANY_HAS_I2C
   if (argc != 3)
     return EINVAL;
 
@@ -173,7 +173,7 @@ int i2c_read_uint8(CommandRouter *cmd, int argc, const char **argv) {
 
 int i2c_read_no_register_uint8(CommandRouter *cmd, int argc,
                                const char **argv) {
-#if HAS_I2C
+#if TEENSY_TO_ANY_HAS_I2C
   if (argc != 2)
     return EINVAL;
 
@@ -193,7 +193,7 @@ int i2c_read_no_register_uint8(CommandRouter *cmd, int argc,
 
 int i2c_write_no_register_uint8(CommandRouter *cmd, int argc,
                                 const char **argv) {
-#if HAS_I2C
+#if TEENSY_TO_ANY_HAS_I2C
   if (argc != 3)
     return EINVAL;
 

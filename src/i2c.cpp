@@ -1,7 +1,6 @@
 #include "i2c.hpp"
 #include <errno.h>
-// Teensy 3.0
-#if defined(__arm__) && defined(TEENSYDUINO) && defined(KINETISK)
+#if TEENSY_TO_ANY_HAS_I2C
 #include <i2c_t3.h>
 int I2CMaster::init(int baudrate, int timeout_ms, int address_size,
                     int address_msb_first) {

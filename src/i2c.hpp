@@ -2,9 +2,8 @@
 // only support teensies 3.1, 3.2, 3.5, and 3.6
 // See list of microcontroller units
 // https://docs.platformio.org/en/latest/platforms/teensy.html
-#if defined(TEENSYDUINO) && \
-    (defined(__MK20DX256__) || defined(__MK64FX512__) || \
-     defined(__MK66FX1M0__))
+#if defined(TEENSYDUINO) && (defined(__MK20DX256__) ||                         \
+                             defined(__MK64FX512__) || defined(__MK66FX1M0__))
 #define TEENSY_TO_ANY_HAS_I2C 1
 #else
 #define TEENSY_TO_ANY_HAS_I2C 0
@@ -25,6 +24,10 @@ public:
   int read_uint8(int slave_address, int register_address, uint8_t &data);
   int read_no_register_uint8(int slave_address, uint8_t &data);
   int write_no_register_uint8(int slave_address, uint8_t data);
+  int write_payload(int slave_address, int register_address, uint8_t *data,
+                    int num_bytes);
+  int read_payload(int slave_address, int register_address, uint8_t *data,
+                   int num_bytes);
 
 private:
   void _write_register_address(int register_address);

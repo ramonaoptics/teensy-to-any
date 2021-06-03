@@ -1,3 +1,7 @@
+### 0.0.14
+
+* Enable reading and writing a contiguous payload of bytes
+
 ### 0.0.10
 
 * Fix spi_transfer_bulk

@@ -2,6 +2,17 @@
 
 * Enable reading and writing a contiguous payload of bytes
 
+### 0.0.13
+
+* Ensure that the system is compiled with I2C support for Teensy 3.2
+
+### 0.0.12
+
+* Preliminary Teensy 4.0 Support
+
+### 0.0.11
+
+* Added the ability to talk to 1 byte register address  I2C devices.
 ### 0.0.10
 
 * Fix spi_transfer_bulk

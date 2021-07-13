@@ -332,6 +332,17 @@ int analog_write(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+int analog_read(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2)
+    return EINVAL;
+
+  uint8_t pin = strtol(argv[1], nullptr, 0);
+  uint8_t value = analogRead(pin);
+
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", value);
+  return 0;
+}
+
 int analog_write_frequency(CommandRouter *cmd, int argc, const char **argv) {
   int pin;
   int frequency;

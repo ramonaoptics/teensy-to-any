@@ -30,6 +30,9 @@ int analog_write(CommandRouter *cmd, int argc, const char **argv);
 int analog_write_frequency(CommandRouter *cmd, int argc, const char **argv);
 int analog_write_resolution(CommandRouter *cmd, int argc, const char **argv);
 
+// Analog IO
+int analog_read(CommandRouter *cmd, int argc, const char **argv);
+
 // SPI support
 int spi_begin(CommandRouter *cmd, int argc, const char **argv);
 int spi_end(CommandRouter *cmd, int argc, const char **argv);
@@ -98,6 +101,8 @@ command_item_t command_list[] = {
      "analog_write_frequency pin frequency", analog_write_frequency},
     {"analog_write_resolution", "Write the resolution of the PWM timer",
      "analog_write_resolution bitdepth", analog_write_resolution},
+    {"analog_read", "Read the value of an analog pin, 0-255",
+     "analog_read pin", analog_read},
     {"spi_begin", "SPI Begin", "spi_begin", spi_begin},
     {"spi_end", "SPI End", "spi_end", spi_begin},
     {"spi_set_mosi", "SPI set MOSI", "spi_set_mosi mosi", spi_set_mosi},

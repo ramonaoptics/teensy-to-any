@@ -315,7 +315,7 @@ int gpio_digital_read(CommandRouter *cmd, int argc, const char **argv) {
   uint8_t pin = strtol(argv[1], nullptr, 0);
   uint8_t value = digitalRead(pin);
 
-  snprintf(cmd->buffer, cmd->buffer_size, "%d", value);
+  snprintf(cmd->buffer, cmd->buffer_size, "%u", value);
   return 0;
 }
 
@@ -339,7 +339,7 @@ int analog_read(CommandRouter *cmd, int argc, const char **argv) {
   uint8_t pin = strtol(argv[1], nullptr, 0);
   uint8_t value = analogRead(pin);
 
-  snprintf(cmd->buffer, cmd->buffer_size, "%d", value);
+  snprintf(cmd->buffer, cmd->buffer_size, "%u", value);
   return 0;
 }
 

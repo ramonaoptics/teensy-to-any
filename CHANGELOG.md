@@ -1,3 +1,7 @@
+### 0.0.15
+
+* Add the ability to do analog reads.
+
 ### 0.0.14
 
 * Enable reading and writing a contiguous payload of bytes

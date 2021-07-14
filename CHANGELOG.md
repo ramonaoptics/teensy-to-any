@@ -1,3 +1,7 @@
+### 0.0.16
+
+* Bugfix: Ensure that analog reads return unsigned values.
+
 ### 0.0.15
 
 * Add the ability to do analog reads.

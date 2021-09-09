@@ -473,6 +473,19 @@ int spi_transfer(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+int spi_read_byte(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2) {
+    return EINVAL;
+  }
+  uint8_t data = strtol(argv[1], nullptr, 0);
+  SPI.beginTransaction(my_spi_settings());
+  SPI.transfer(data);
+  uint8_t received_byte = SPI.transfer(0xff);
+  SPI.endTransaction();
+  snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", received_byte);
+  return 0;
+}
+
 int spi_transfer_bulk(CommandRouter *cmd, int argc, const char **argv) {
   uint8_t data;
   if (argc == 1) {

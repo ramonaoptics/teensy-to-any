@@ -43,6 +43,7 @@ int spi_settings(CommandRouter *cmd, int argc, const char **argv);
 int spi_begin_transaction(CommandRouter *cmd, int argc, const char **argv);
 int spi_end_transaction(CommandRouter *cmd, int argc, const char **argv);
 int spi_transfer(CommandRouter *cmd, int argc, const char **argv);
+int spi_read_byte(CommandRouter *cmd, int argc, const char **argv);
 int spi_transfer_bulk(CommandRouter *cmd, int argc, const char **argv);
 int spi_set_clock_divider(CommandRouter *cmd, int argc, const char **argv);
 // Syntax is: {short command, description, syntax}
@@ -116,6 +117,8 @@ command_item_t command_list[] = {
      spi_end_transaction},
     {"spi_transfer", "SPI Transfer 8bits of data", "spi_transfer data",
      spi_transfer},
+     {"spi_read_byte", "SPI transfer register address and read a byte",
+     "spi_read_byte data", spi_read_byte},
     {"spi_transfer_bulk", "SPI transfer multiple sets of 8 bits of data",
      "spi_transfer_bulk data[0] data[1] data[2] [...]", spi_transfer_bulk},
     {nullptr, nullptr, nullptr, nullptr}};

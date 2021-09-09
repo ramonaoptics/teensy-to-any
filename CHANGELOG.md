@@ -1,3 +1,6 @@
+### 0.0.16
+* Add the ability to do SPI byte reads
+
 ### 0.0.15
 
 * Add the ability to do analog reads.

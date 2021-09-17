@@ -1,3 +1,7 @@
+### 0.0.17
+
+* Add the ability to do SPI byte reads
+
 ### 0.0.16
 
 * Bugfix: Ensure that analog reads return unsigned values.

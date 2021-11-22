@@ -33,6 +33,11 @@ upload with
 platformio run -e teensy32 --target upload
 ```
 
+To upload a precompiled build:
+```
+teensy_loader_cli -s --mcu=TEENSY31 build_version_number.hex
+```
+
 ## Teensy 4.0
 
 upload with
@@ -40,4 +45,10 @@ upload with
 ```
 platformio run -e teensy40 --target upload
 ```
+
+To upload a precompiled build:
+```
+teensy_loader_cli -s --mcu=TEENSY40 build_version_number.hex
+```
+
 

@@ -273,6 +273,42 @@ handle_error:
   }
   return err;
 }
+
+int I2CMaster::read_payload_no_register(int slave_address,
+                                        uint8_t *data,
+                                        int num_bytes) {
+  if (!this->is_initialized)
+    return ENODEV;
+  // Wire library uses 7 bit addresses
+  if (slave_8bit_address)
+    slave_address = slave_address >> 1;
+  uint8_t err;
+  memset(data, 0, num_bytes);
+
+  Wire.requestFrom(slave_address, num_bytes);
+  Wire.finish();
+  err = Wire.getError();
+  if (err) {
+    goto handle_error;
+  }
+
+  if (Wire.available() != num_bytes) {
+    err = 3;
+    goto handle_error;
+  }
+
+  for (int i=0; i<num_bytes; i++) {
+    data[i] = Wire.readByte();
+  }
+
+  return 0;
+
+handle_error:
+  while (Wire.available() != 0) {
+    Wire.readByte();
+  }
+  return err;
+}
 #endif
 
 

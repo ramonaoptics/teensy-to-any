@@ -40,6 +40,7 @@ public:
                     int num_bytes);
   int read_payload(int slave_address, int register_address, uint8_t *data,
                    int num_bytes);
+  int read_payload_no_register(int slave_address, uint8_t *data, int num_bytes);
 
 private:
   void _write_register_address(int register_address);

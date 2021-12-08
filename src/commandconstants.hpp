@@ -24,6 +24,7 @@ int i2c_write_no_register_uint8(CommandRouter *cmd, int argc,
                                 const char **argv);
 int i2c_write_payload(CommandRouter *cmd, int argc, const char **argv);
 int i2c_read_payload(CommandRouter *cmd, int argc, const char **argv);
+int i2c_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv);
 
 // PWM Support
 int analog_write(CommandRouter *cmd, int argc, const char **argv);
@@ -103,6 +104,11 @@ command_item_t command_list[] = {
      "address.",
      "i2c_read_payload slave_address register_address data num_bytes",
      i2c_read_payload},
+    {"i2c_read_payload_no_register",
+     "Read up to 16 bytes from the I2C bus starting at a specified register "
+     "address.",
+     "i2c_read_payload_no_register slave_address data num_bytes",
+     i2c_read_payload_no_register},
     {"analog_write", "Write the duty cycle of the PWM",
      "analog_write pin dutycycle", analog_write},
     {"analog_write_frequency", "Write the frequency of the PWM",

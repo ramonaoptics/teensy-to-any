@@ -1,6 +1,11 @@
+### 0.0.22
+
+* Add the command `i2c_read_payload_no_register` to provide the ability to read
+  from devices like the AT24CS01 EEPROM data over I2C.
+
 ### 0.0.21
 
-* Add support for I2C on the Teensy4 through the use of 
+* Add support for I2C on the Teensy4 through the use of
   [Richard Gemmell's library](https://github.com/Richard-Gemmell/teensy4_i2c/).
 
 ### 0.0.20

@@ -1,0 +1,52 @@
+name: Build Firmware
+on: [push, pull_request]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        teensy_version: ['teensy32', 'teensy40']
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: |
+        git fetch --prune --unshallow --tags
+        git describe --dirty --tags
+    - name: Setup Mambaforge
+      shell: bash
+      run: |
+        wget --quiet -O Mambaforge.sh  "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
+        bash Mambaforge.sh -b -p "${HOME}/conda"
+        source "${HOME}/conda/etc/profile.d/conda.sh"
+        source "${HOME}/conda/etc/profile.d/mamba.sh"
+        conda activate
+        mamba install platformio git
+        conda info
+        mamba list
+        platformio --version
+    - name: Build Firmware
+      shell: bash
+      run: |
+        source "${HOME}/conda/etc/profile.d/conda.sh"
+        source "${HOME}/conda/etc/profile.d/mamba.sh"
+        conda activate
+        platformio run --environment ${{ matrix.teensy_version }}
+        cp .pio/build/${{ matrix.teensy_version }}/firmware.hex firmware_${{ matrix.teensy_version}}.hex
+
+    - name: Upload artifact
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        path: firmware_${{ matrix.teensy_version }}.hex
+        name: firmware_${{ matrix.teensy_version }}.hex
+
+    - name: Upload firmware to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ./*.hex
+        tag: ${{ github.ref }}
+        overwrite: true
+        file_glob: true
+      if: startsWith(github.ref, 'refs/tags/')

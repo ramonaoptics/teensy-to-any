@@ -1,3 +1,7 @@
+### 0.0.18
+
+* Use send_now to trigger a communication event once a command has been processed.
+
 ### 0.0.17
 
 * Add the ability to do SPI byte reads

@@ -274,5 +274,12 @@ finish:
     Serial.print(buffer);
   }
   Serial.print("\n");
+
+  // Call send_now on success to ensure that the response is immediate
+  // Otherwise, the serial buffer will wait for up to 5 ms
+  // for the buffer to get full (it never will) before sending any data
+  // https://www.pjrc.com/teensy/td_serial.html
+  Serial.send_now();
+
   return result;
 }

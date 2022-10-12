@@ -3,10 +3,6 @@ on: [push, pull_request]
 
 jobs:
   build:
-    strategy:
-      matrix:
-        teensy_version: ['teensy32', 'teensy40']
-
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -20,37 +16,15 @@ jobs:
         pip install platformio
     - name: Build firmware
       run: |
-        platformio run --environment ${{ matrix.teensy_version }}
-        cp .pio/build/${{ matrix.teensy_version }}/firmware.hex firmware_${{ matrix.teensy_version}}.hex
-
-    # - name: Setup Mambaforge
-    #   shell: bash
-    #   run: |
-    #     wget --quiet -O Mambaforge.sh  "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
-    #     bash Mambaforge.sh -b -p "${HOME}/conda"
-    #     source "${HOME}/conda/etc/profile.d/conda.sh"
-    #     source "${HOME}/conda/etc/profile.d/mamba.sh"
-    #     conda activate
-    #     mamba install platformio
-    #     conda info
-    #     mamba list
-    #     platformio --version
-    # - name: Build Firmware
-    #   shell: bash
-    #   run: |
-    #     source "${HOME}/conda/etc/profile.d/conda.sh"
-    #     source "${HOME}/conda/etc/profile.d/mamba.sh"
-    #     conda activate
-    #     platformio run --environment ${{ matrix.teensy_version }}
-    #     cp .pio/build/${{ matrix.teensy_version }}/firmware.hex firmware_${{ matrix.teensy_version}}.hex
-
+        platformio run --environment teensy32
+        cp .pio/build/teensy32/firmware.hex firmware_teensy32.hex
+        platformio run --environment teensy40
+        cp .pio/build/teensy32/firmware.hex firmware_teensy40.hex
     - name: Upload artifact
       if: always()
       uses: actions/upload-artifact@v3
       with:
-        path: firmware_${{ matrix.teensy_version }}.hex
-        name: firmware_${{ matrix.teensy_version }}.hex
-
+        path: firmware_*.hex
     - name: Upload firmware to release
       uses: svenstaro/upload-release-action@v2
       with:

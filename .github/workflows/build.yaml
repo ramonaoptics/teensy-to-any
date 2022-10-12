@@ -13,26 +13,36 @@ jobs:
     - run: |
         git fetch --prune --unshallow --tags
         git describe --dirty --tags
-    - name: Setup Mambaforge
-      shell: bash
+    - name: Set up Python
+      uses: actions/setup-python@v2
+    - name: Install PlatformIO
       run: |
-        wget --quiet -O Mambaforge.sh  "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
-        bash Mambaforge.sh -b -p "${HOME}/conda"
-        source "${HOME}/conda/etc/profile.d/conda.sh"
-        source "${HOME}/conda/etc/profile.d/mamba.sh"
-        conda activate
-        mamba install platformio
-        conda info
-        mamba list
-        platformio --version
-    - name: Build Firmware
-      shell: bash
+        pip install platformio
+    - name: Build firmware
       run: |
-        source "${HOME}/conda/etc/profile.d/conda.sh"
-        source "${HOME}/conda/etc/profile.d/mamba.sh"
-        conda activate
         platformio run --environment ${{ matrix.teensy_version }}
         cp .pio/build/${{ matrix.teensy_version }}/firmware.hex firmware_${{ matrix.teensy_version}}.hex
+
+    # - name: Setup Mambaforge
+    #   shell: bash
+    #   run: |
+    #     wget --quiet -O Mambaforge.sh  "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(uname)-$(uname -m).sh"
+    #     bash Mambaforge.sh -b -p "${HOME}/conda"
+    #     source "${HOME}/conda/etc/profile.d/conda.sh"
+    #     source "${HOME}/conda/etc/profile.d/mamba.sh"
+    #     conda activate
+    #     mamba install platformio
+    #     conda info
+    #     mamba list
+    #     platformio --version
+    # - name: Build Firmware
+    #   shell: bash
+    #   run: |
+    #     source "${HOME}/conda/etc/profile.d/conda.sh"
+    #     source "${HOME}/conda/etc/profile.d/mamba.sh"
+    #     conda activate
+    #     platformio run --environment ${{ matrix.teensy_version }}
+    #     cp .pio/build/${{ matrix.teensy_version }}/firmware.hex firmware_${{ matrix.teensy_version}}.hex
 
     - name: Upload artifact
       if: always()

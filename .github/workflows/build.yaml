@@ -21,7 +21,7 @@ jobs:
         source "${HOME}/conda/etc/profile.d/conda.sh"
         source "${HOME}/conda/etc/profile.d/mamba.sh"
         conda activate
-        mamba install platformio git
+        mamba install platformio
         conda info
         mamba list
         platformio --version

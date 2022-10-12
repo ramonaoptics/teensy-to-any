@@ -26,12 +26,12 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         path: |
-          firmware_teensy%{{ matrix.teenxy }}.hex
+          firmware_teensy${{ matrix.teenxy }}.hex
     - name: Upload firmware to release
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ./firmware_teensy%{{ matrix.teenxy }}.hex
+        file: ./firmware_teensy${{ matrix.teenxy }}.hex
         tag: ${{ github.ref }}
         overwrite: true
         file_glob: true

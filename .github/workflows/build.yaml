@@ -17,14 +17,16 @@ jobs:
     - name: Build firmware
       run: |
         platformio run --environment teensy32
-        cp .pio/build/teensy32/firmware.hex firmware_teensy32.hex
         platformio run --environment teensy40
-        cp .pio/build/teensy32/firmware.hex firmware_teensy40.hex
+        cp .pio/build/teensy32/firmware.hex firmware_teensy32.hex
+        cp .pio/build/teensy40/firmware.hex firmware_teensy40.hex
     - name: Upload artifact
       if: always()
       uses: actions/upload-artifact@v3
       with:
-        path: firmware_*.hex
+        path: |
+          firmware_teensy32.hex
+          firmware_teensy40.hexl
     - name: Upload firmware to release
       uses: svenstaro/upload-release-action@v2
       with:

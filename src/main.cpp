@@ -500,6 +500,42 @@ int spi_transfer_bulk(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+int register_read_uint8(CommandRouter *cmd, int argc, const char **argv) {
+  uint8_t data;
+  // We declare the pointer as volatile since it is expected that the user
+  // will read a hardware register and we do not want the compiler to optimize
+  // the "invalid" read away.
+  volatile uint8_t *ptr;
+  if (argc != 2) {
+    return EINVAL;
+  }
+  ptr = (uint8_t *)strtol(argv[1], nullptr, 0);
+  if (ptr == 0){
+    return EINVAL;
+  }
+  data = *ptr;
+  snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", data);
+  return 0;
+}
+
+int register_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
+  uint8_t data;
+  // We declare the pointer as volatile since it is expected that the user
+  // will write a hardware register and we do not want the compiler to optimize
+  // the "invalid" write away.
+  volatile uint8_t *ptr;
+  if (argc != 3) {
+    return EINVAL;
+  }
+  ptr = (uint8_t *)strtol(argv[1], nullptr, 0);
+  if (ptr == 0) {
+    return EINVAL;
+  }
+  data = (uint8_t)strtol(argv[2], nullptr, 0);
+  *ptr = data;
+  return 0;
+}
+
 void loop() {
   // TODO: remove this check on if Serial is available.
   // I don't think we need it since it is already in a loop

@@ -509,12 +509,12 @@ int register_read_uint8(CommandRouter *cmd, int argc, const char **argv) {
   if (argc != 2) {
     return EINVAL;
   }
-  ptr = (uint8_t *)strtol(argv[1], nullptr, 0);
+  ptr = (volatile uint8_t *)strtol(argv[1], nullptr, 0);
   if (ptr == 0){
     return EINVAL;
   }
-  data = *ptr;
-  snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", data);
+  data = ptr[0];
+  snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", ptr, data);
   return 0;
 }
 
@@ -527,7 +527,7 @@ int register_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
   if (argc != 3) {
     return EINVAL;
   }
-  ptr = (uint8_t *)strtol(argv[1], nullptr, 0);
+  ptr = (volatile uint8_t *)strtol(argv[1], nullptr, 0);
   if (ptr == 0) {
     return EINVAL;
   }
@@ -535,6 +535,44 @@ int register_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
   *ptr = data;
   return 0;
 }
+
+int register_write_uint16(CommandRouter *cmd, int argc, const char **argv) {
+  uint16_t data;
+  // We declare the pointer as volatile since it is expected that the user
+  // will write a hardware register and we do not want the compiler to optimize
+  // the "invalid" write away.
+  volatile uint16_t *ptr;
+  if (argc != 3) {
+    return EINVAL;
+  }
+  ptr = (volatile uint16_t *)strtol(argv[1], nullptr, 0);
+  if (ptr == 0) {
+    return EINVAL;
+  }
+  data = (uint16_t)strtol(argv[2], nullptr, 0);
+  *ptr = data;
+  return 0;
+}
+
+
+int register_read_uint16(CommandRouter *cmd, int argc, const char **argv) {
+  uint16_t data;
+  // We declare the pointer as volatile since it is expected that the user
+  // will read a hardware register and we do not want the compiler to optimize
+  // the "invalid" read away.
+  volatile uint16_t *ptr;
+  if (argc != 2) {
+    return EINVAL;
+  }
+  ptr = (volatile uint16_t *)strtol(argv[1], nullptr, 0);
+  if (ptr == 0){
+    return EINVAL;
+  }
+  data = ptr[0];
+  snprintf(cmd->buffer, cmd->buffer_size, "0x%04X", data);
+  return 0;
+}
+
 
 void loop() {
   // TODO: remove this check on if Serial is available.

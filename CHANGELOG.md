@@ -1,6 +1,7 @@
 ### Unreleased
 
-* Add the ability to read from `uint8_t` hardware registers.
+* Add the ability to read from `uint8_t`, `uint16_t`, and `uint32_t` hardware
+  registers.
 
 ### 0.0.18
 

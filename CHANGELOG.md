@@ -1,3 +1,8 @@
+### 0.0.19
+
+* Add the ability to read from `uint8_t`, `uint16_t`, and `uint32_t` hardware
+  registers.
+
 ### 0.0.18
 
 * Use send_now to trigger a communication event once a command has been processed.

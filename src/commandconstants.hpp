@@ -51,6 +51,8 @@ int register_read_uint8(CommandRouter *cmd, int argc, const char **argv);
 int register_write_uint8(CommandRouter *cmd, int argc, const char **argv);
 int register_read_uint16(CommandRouter *cmd, int argc, const char **argv);
 int register_write_uint16(CommandRouter *cmd, int argc, const char **argv);
+int register_read_uint32(CommandRouter *cmd, int argc, const char **argv);
+int register_write_uint32(CommandRouter *cmd, int argc, const char **argv);
 // Syntax is: {short command, description, syntax}
 command_item_t command_list[] = {
     {"?", "Display help info", "?", command_help_func},
@@ -134,4 +136,8 @@ command_item_t command_list[] = {
      "register_read_uint16 address", register_read_uint16},
     {"register_write_uint16", "Write to an arbitrary hardware register.",
      "register_write_uint16 address data", register_write_uint16},
+    {"register_read_uint32", "Read an arbitrary hardware register.",
+     "register_read_uint32 address", register_read_uint32},
+    {"register_write_uint32", "Write to an arbitrary hardware register.",
+     "register_write_uint32 address data", register_write_uint32},
     {nullptr, nullptr, nullptr, nullptr},};

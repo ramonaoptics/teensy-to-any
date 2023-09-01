@@ -4,6 +4,18 @@
 // https://docs.platformio.org/en/latest/platforms/teensy.html
 #if defined(TEENSYDUINO) && (defined(__MK20DX256__) ||                         \
                              defined(__MK64FX512__) || defined(__MK66FX1M0__))
+#define TEENSY_TO_ANY_HAS_I2C_T3 1
+#else
+#define TEENSY_TO_ANY_HAS_I2C_T3 0
+#endif
+
+#if defined(TEENSYDUINO) && defined(__IMXRT1062__)
+#define TEENSY_TO_ANY_HAS_I2C_T4 1
+#else
+#define TEENSY_TO_ANY_HAS_I2C_T4 0
+#endif
+
+#if (TEENSY_TO_ANY_HAS_I2C_T3 || TEENSY_TO_ANY_HAS_I2C_T4)
 #define TEENSY_TO_ANY_HAS_I2C 1
 #else
 #define TEENSY_TO_ANY_HAS_I2C 0

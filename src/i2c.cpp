@@ -1,7 +1,14 @@
 #include "i2c.hpp"
 #include <errno.h>
-#if TEENSY_TO_ANY_HAS_I2C
+#if TEENSY_TO_ANY_HAS_I2C_T3
 #include <i2c_t3.h>
+#endif
+#if TEENSY_TO_ANY_HAS_I2C_T4
+#include <i2c_driver_wire.h>
+#endif
+
+
+#if TEENSY_TO_ANY_HAS_I2C
 int I2CMaster::init(int baudrate, int timeout_ms, int address_size,
                     int address_msb_first) {
   if (address_size != 2 && address_size != 1)

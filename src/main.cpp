@@ -28,8 +28,11 @@ inline SPISettings my_spi_settings() {
   return SPISettings(spi_baudrate, spi_bit_order, spi_data_mode);
 }
 
-#if TEENSY_TO_ANY_HAS_I2C
+#if TEENSY_TO_ANY_HAS_I2C_T3
 I2CMaster i2c;
+#endif
+#if TEENSY_TO_ANY_HAS_I2C_T4
+I2CMaster_T4 i2c;
 #endif
 
 void setup() {

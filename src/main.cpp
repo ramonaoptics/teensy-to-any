@@ -28,9 +28,7 @@ inline SPISettings my_spi_settings() {
   return SPISettings(spi_baudrate, spi_bit_order, spi_data_mode);
 }
 
-#if TEENSY_TO_ANY_HAS_I2C
-I2CMaster i2c;
-#endif
+T2A_I2CMaster i2c;
 
 void setup() {
   // Pause for 100 MS in order to debounce the power supply getting

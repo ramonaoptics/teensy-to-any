@@ -1,8 +1,14 @@
 #include "i2c.hpp"
 #include <errno.h>
-#if TEENSY_TO_ANY_HAS_I2C
+
+#if defined(TEENSYDUINO) && (defined(__MK20DX256__) ||                         \
+                             defined(__MK64FX512__) || defined(__MK66FX1M0__))
+// only support teensies 3.1, 3.2, 3.5, and 3.6
+// See list of microcontroller units
+// https://docs.platformio.org/en/latest/platforms/teensy.html
 #include <i2c_t3.h>
-int I2CMaster::init(int baudrate, int timeout_ms, int address_size,
+
+int T2A_I2CMaster::init(int baudrate, int timeout_ms, int address_size,
                     int address_msb_first) {
   if (address_size != 2 && address_size != 1)
     return ENOSYS;
@@ -16,14 +22,14 @@ int I2CMaster::init(int baudrate, int timeout_ms, int address_size,
   return 0;
 }
 
-int I2CMaster::reset() {
+int T2A_I2CMaster::reset() {
   if (!this->is_initialized)
     return ENODEV;
   Wire.resetBus();
   return 0;
 }
 
-void I2CMaster::_write_register_address(int register_address) {
+void T2A_I2CMaster::_write_register_address(int register_address) {
   if (this->address_size == 2) {
     Wire.write((register_address >> 8) & 0xFF);
     Wire.write((register_address >> 0) & 0xFF);
@@ -32,7 +38,7 @@ void I2CMaster::_write_register_address(int register_address) {
   }
 }
 
-int I2CMaster::write_uint16(int slave_address, int register_address,
+int T2A_I2CMaster::write_uint16(int slave_address, int register_address,
                             uint16_t data) {
   if (!this->is_initialized)
     return ENODEV;
@@ -52,7 +58,7 @@ int I2CMaster::write_uint16(int slave_address, int register_address,
   return Wire.getError();
 }
 
-int I2CMaster::write_uint8(int slave_address, int register_address,
+int T2A_I2CMaster::write_uint8(int slave_address, int register_address,
                            uint8_t data) {
   if (!this->is_initialized)
     return ENODEV;
@@ -69,7 +75,7 @@ int I2CMaster::write_uint8(int slave_address, int register_address,
   return Wire.getError();
 }
 
-int I2CMaster::write_no_register_uint8(int slave_address, uint8_t data) {
+int T2A_I2CMaster::write_no_register_uint8(int slave_address, uint8_t data) {
   if (!this->is_initialized)
     return ENODEV;
 
@@ -85,7 +91,7 @@ int I2CMaster::write_no_register_uint8(int slave_address, uint8_t data) {
   return Wire.getError();
 }
 
-int I2CMaster::write_payload(int slave_address, int register_address,
+int T2A_I2CMaster::write_payload(int slave_address, int register_address,
                              uint8_t *data, int num_bytes) {
   if (!this->is_initialized)
     return ENODEV;
@@ -103,7 +109,7 @@ int I2CMaster::write_payload(int slave_address, int register_address,
   return Wire.getError();
 }
 
-int I2CMaster::read_payload(int slave_address, int register_address,
+int T2A_I2CMaster::read_payload(int slave_address, int register_address,
                             uint8_t *data, int num_bytes) {
   if (!this->is_initialized)
     return ENODEV;
@@ -148,7 +154,7 @@ handle_error:
   return err;
 }
 
-int I2CMaster::read_uint16(int slave_address, int register_address,
+int T2A_I2CMaster::read_uint16(int slave_address, int register_address,
                            uint16_t &data) {
   if (!this->is_initialized)
     return ENODEV;
@@ -193,7 +199,7 @@ handle_error:
   return err;
 }
 
-int I2CMaster::read_uint8(int slave_address, int register_address,
+int T2A_I2CMaster::read_uint8(int slave_address, int register_address,
                           uint8_t &data) {
   if (!this->is_initialized)
     return ENODEV;
@@ -236,7 +242,7 @@ handle_error:
   return err;
 }
 
-int I2CMaster::read_no_register_uint8(int slave_address, uint8_t &data) {
+int T2A_I2CMaster::read_no_register_uint8(int slave_address, uint8_t &data) {
   if (!this->is_initialized)
     return ENODEV;
   // Wire library uses 7 bit addresses
@@ -266,4 +272,35 @@ handle_error:
   }
   return err;
 }
+
+#else  // TEENSY40
+#include <i2c_device.h>
+// The I2C device. Determines which pins we use on the Teensy.
+I2CMaster& master = Master;
+
+int T2A_I2CMaster::init(int baudrate, int timeout_ms, int address_size,
+                        int address_msb_first){
+  // TODO: setup the pins 18_19
+  master.set_internal_pullups(InternalPullup::disabled);
+  master.begin(baudrate);                         // join i2c bus
+  // Set the timeout???
+  return 0;
+}
+int T2A_I2CMaster::reset(){
+  // TODO: actually do something here....
+  return 0;
+};
+int T2A_I2CMaster::write_uint16(int slave_address, int register_address, uint16_t data){
+  auto device = I2CDevice(master, slave_address, _BIG_ENDIAN);
+  return 0;
+}
+int T2A_I2CMaster::read_uint16(int slave_address, int register_address, uint16_t &data);
+int T2A_I2CMaster::write_uint8(int slave_address, int register_address, uint8_t data);
+int T2A_I2CMaster::read_uint8(int slave_address, int register_address, uint8_t &data);
+int T2A_I2CMaster::read_no_register_uint8(int slave_address, uint8_t &data);
+int T2A_I2CMaster::write_no_register_uint8(int slave_address, uint8_t data);
+int T2A_I2CMaster::write_payload(int slave_address, int register_address, uint8_t *data,
+                  int num_bytes);
+int T2A_I2CMaster::read_payload(int slave_address, int register_address, uint8_t *data,
+                  int num_bytes);
 #endif

@@ -19,7 +19,7 @@ jobs:
         pip install platformio
     - name: Build firmware
       run: |
-        platformio run --environment teensy${{ matrix.teensy }}
+        make teensy${{ matrix.teensy }}
         cp .pio/build/teensy${{ matrix.teensy }}/firmware.hex firmware_teensy${{ matrix.teensy }}.hex
     - name: Upload artifact
       if: always()

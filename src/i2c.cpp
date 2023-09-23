@@ -1,7 +1,14 @@
 #include "i2c.hpp"
 #include <errno.h>
-#if TEENSY_TO_ANY_HAS_I2C
+// only support teensies 3.1, 3.2, 3.5, and 3.6
+// See list of microcontroller units
+// https://docs.platformio.org/en/latest/platforms/teensy.html
+#if defined(TEENSYDUINO) && (defined(__MK20DX256__) ||                         \
+                             defined(__MK64FX512__) || defined(__MK66FX1M0__))
 #include <i2c_t3.h>
+#else
+#include "i2c_t4.hpp"
+#endif
 int I2CMaster::init(int baudrate, int timeout_ms, int address_size,
                     int address_msb_first) {
   if (address_size != 2 && address_size != 1)
@@ -266,4 +273,3 @@ handle_error:
   }
   return err;
 }
-#endif

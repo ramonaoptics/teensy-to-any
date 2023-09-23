@@ -1,16 +1,4 @@
 #pragma once
-// only support teensies 3.1, 3.2, 3.5, and 3.6
-// See list of microcontroller units
-// https://docs.platformio.org/en/latest/platforms/teensy.html
-#if defined(TEENSYDUINO) && (defined(__MK20DX256__) ||                         \
-                             defined(__MK64FX512__) || defined(__MK66FX1M0__))
-#define TEENSY_TO_ANY_HAS_I2C 1
-#else
-#define TEENSY_TO_ANY_HAS_I2C 0
-#warning I2C library not available for this build.
-#endif
-
-#if TEENSY_TO_ANY_HAS_I2C
 #include <unistd.h>
 
 class I2CMaster {
@@ -36,4 +24,3 @@ private:
   bool is_initialized = false;
   bool slave_8bit_address = true;
 };
-#endif

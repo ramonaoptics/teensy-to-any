@@ -1,3 +1,8 @@
+### 0.0.21
+
+* Add support for I2C on the Teensy4 through the use of 
+  [Richard Gemmell's library](https://github.com/Richard-Gemmell/teensy4_i2c/).
+
 ### 0.0.20
 
 * Add the ability to read from `uint8_t`, `uint16_t`, and `uint32_t` hardware

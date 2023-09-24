@@ -196,6 +196,79 @@ int i2c_read_payload(CommandRouter *cmd, int argc, const char **argv) {
 #endif
 }
 
+int i2c_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv) {
+#if TEENSY_TO_ANY_HAS_I2C
+  const int num_bytes_max = 16;
+  if (argc != 3)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  int num_bytes = strtol(argv[2], nullptr, 0);
+  if (num_bytes > num_bytes_max)
+    return EINVAL;
+
+  uint8_t data[16];
+  int result;
+  result = i2c.read_payload_no_register(slave_address, data, num_bytes);
+
+  if (result == 0) {
+    for (int i = 0; i < num_bytes; i++) {
+      if (i == 0) {
+        snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", data[i]);
+      } else {
+        snprintf(cmd->buffer + strlen(cmd->buffer), cmd->buffer_size, "0x%02X",
+                 data[i]);
+      }
+      if (i != num_bytes - 1) {
+        snprintf(cmd->buffer + strlen(cmd->buffer), cmd->buffer_size, "%c",
+                 ' ');
+      }
+    }
+  }
+  return result;
+#else
+  return -1;
+#endif
+}
+
+int i2c_read_payload_uint16(CommandRouter *cmd, int argc, const char **argv) {
+#if TEENSY_TO_ANY_HAS_I2C
+  const int num_bytes_max = 16;
+  if (argc != 4)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  int register_address;
+  register_address = strtol(argv[2], nullptr, 0);
+  int num_bytes = strtol(argv[3], nullptr, 0);
+  if (num_bytes > num_bytes_max)
+    return EINVAL;
+
+  uint8_t data[16];
+  int result;
+  result = i2c.read_payload_uint16(slave_address, register_address,
+                                   data, num_bytes);
+
+  if (result == 0) {
+    for (int i = 0; i < num_bytes; i++) {
+      if (i == 0) {
+        snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", data[i]);
+      } else {
+        snprintf(cmd->buffer + strlen(cmd->buffer), cmd->buffer_size, "0x%02X",
+                 data[i]);
+      }
+      if (i != num_bytes - 1) {
+        snprintf(cmd->buffer + strlen(cmd->buffer), cmd->buffer_size, "%c",
+                 ' ');
+      }
+    }
+  }
+  return result;
+#else
+  return -1;
+#endif
+}
+
 int i2c_read_uint16(CommandRouter *cmd, int argc, const char **argv) {
 #if TEENSY_TO_ANY_HAS_I2C
   if (argc != 3)

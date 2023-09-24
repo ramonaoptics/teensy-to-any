@@ -606,4 +606,72 @@ handle_error:
   }
   return err;
 }
+
+int I2CMaster_T4::read_payload_no_register(int slave_address,
+                                           uint8_t *data,
+                                           int num_bytes) {
+  if (!this->is_initialized)
+    return ENODEV;
+  // Wire library uses 7 bit addresses
+  if (slave_8bit_address)
+    slave_address = slave_address >> 1;
+  uint8_t err;
+  memset(data, 0, num_bytes);
+
+  Wire.requestFrom(slave_address, num_bytes);
+
+  if (Wire.available() != num_bytes) {
+    err = 3;
+    goto handle_error;
+  }
+
+  for (int i=0; i<num_bytes; i++) {
+    data[i] = Wire.read();
+  }
+
+  return 0;
+
+handle_error:
+  while (Wire.available() != 0) {
+    Wire.read();
+  }
+  return err;
+}
+
+int I2CMaster_T4::read_payload_uint16(int slave_address, int register_address,
+                                      uint8_t *data, int num_bytes) {
+  if (!this->is_initialized)
+    return ENODEV;
+  // Wire library uses 7 bit addresses
+  if (slave_8bit_address)
+    slave_address = slave_address >> 1;
+  // Ensure the address is in write mode
+  uint8_t err;
+
+  Wire.beginTransmission(slave_address); // slave addr
+  // Write the MSB of the address first
+  Wire.write((register_address >> 8) & 0xFF);
+  Wire.write((register_address >> 0) & 0xFF);
+  // blocking write (when not specified I2C_STOP is implicit)
+  err = Wire.endTransmission(I2C_NOSTOP);
+
+  Wire.requestFrom(slave_address, num_bytes);
+
+  if (Wire.available() != num_bytes) {
+    err = 3;
+    goto handle_error;
+  }
+
+  for (int i = 0; i < num_bytes; i++) {
+    data[i] = Wire.read();
+  }
+
+  return 0;
+
+handle_error:
+  while (Wire.available() != 0) {
+    Wire.read();
+  }
+  return err;
+}
 #endif

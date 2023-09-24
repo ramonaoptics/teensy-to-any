@@ -610,7 +610,7 @@ int register_read_uint32(CommandRouter *cmd, int argc, const char **argv) {
     return EINVAL;
   }
   data = ptr[0];
-  snprintf(cmd->buffer, cmd->buffer_size, "0x%08X", data);
+  snprintf(cmd->buffer, cmd->buffer_size, "0x%08lX", data);
   return 0;
 }
 

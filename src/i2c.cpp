@@ -310,9 +310,8 @@ handle_error:
   return err;
 }
 
-int I2CMaster::read_payload_uint16(int slave_address, int register_address_0,
-                                   int register_address_1, uint8_t *data,
-                                   int num_bytes) {
+int I2CMaster::read_payload_uint16(int slave_address, int register_address,
+                                   uint8_t *data, int num_bytes) {
   if (!this->is_initialized)
     return ENODEV;
   // Wire library uses 7 bit addresses
@@ -323,8 +322,8 @@ int I2CMaster::read_payload_uint16(int slave_address, int register_address_0,
 
   Wire.beginTransmission(slave_address); // slave addr
   // Write the MSB of the address first
-  Wire.write(register_address_0 & 0xFF);
-  Wire.write(register_address_1 & 0xFF);
+  Wire.write((register_address >> 8) & 0xFF);
+  Wire.write((register_address >> 0) & 0xFF);
   Wire.endTransmission(
       I2C_NOSTOP); // blocking write (when not specified I2C_STOP is implicit)
   err = Wire.getError();

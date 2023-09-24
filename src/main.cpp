@@ -28,8 +28,11 @@ inline SPISettings my_spi_settings() {
   return SPISettings(spi_baudrate, spi_bit_order, spi_data_mode);
 }
 
-#if TEENSY_TO_ANY_HAS_I2C
+#if TEENSY_TO_ANY_HAS_I2C_T3
 I2CMaster i2c;
+#endif
+#if TEENSY_TO_ANY_HAS_I2C_T4
+I2CMaster_T4 i2c;
 #endif
 
 void setup() {
@@ -607,7 +610,7 @@ int register_read_uint32(CommandRouter *cmd, int argc, const char **argv) {
     return EINVAL;
   }
   data = ptr[0];
-  snprintf(cmd->buffer, cmd->buffer_size, "0x%08X", data);
+  snprintf(cmd->buffer, cmd->buffer_size, "0x%08lX", data);
   return 0;
 }
 

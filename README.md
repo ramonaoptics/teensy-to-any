@@ -14,7 +14,7 @@ Currently, we support:
 | Protocol | Teensy 3.2 | Teensy 4.0 |
 |:---------|:-----------|:-----------|
 | GPIO     | Yes        | Yes        |
-| I2C      | Yes        | Help wanted|
+| I2C      | Yes        | Yes        |
 | PWM      | Yes        | Yes        |
 | SPI      | Yes        | Yes        |
 

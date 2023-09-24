@@ -277,16 +277,20 @@ handle_error:
 
 
 #if TEENSY_TO_ANY_HAS_I2C_T4
-bool I2C_NOSTOP = false;
-bool I2C_STOP = true;
+const bool I2C_NOSTOP = false;
+const bool I2C_STOP = true;
 int I2CMaster_T4::init(int baudrate, int timeout_ms, int address_size,
                     int address_msb_first) {
   if (address_size != 2 && address_size != 1)
     return ENOSYS;
   if (address_msb_first != 0)
     return ENOSYS;
+  // For the teensy4 library, the timeout is constant to 200 ms
+  // Wire.timeout_millis = timeout_ms;
+  // Wire.setDefaultTimeout(timeout_ms);
+  Wire.setClock(baudrate);
   Wire.begin();
-  //Wire.setDefaultTimeout(timeout_ms);
+
   this->address_msb_first = address_msb_first;
   this->address_size = address_size;
   this->is_initialized = true;
@@ -296,7 +300,12 @@ int I2CMaster_T4::init(int baudrate, int timeout_ms, int address_size,
 int I2CMaster_T4::reset() {
   if (!this->is_initialized)
     return ENODEV;
-  //Wire.resetBus();
+
+  // Doesn't seem to exist. but maybe we can recreate with end/begin
+  // Wire.resetBus()
+  Wire.end();
+  Wire.begin();
+
   return 0;
 }
 
@@ -311,6 +320,7 @@ void I2CMaster_T4::_write_register_address(int register_address) {
 
 int I2CMaster_T4::write_uint16(int slave_address, int register_address,
                             uint16_t data) {
+  uint8_t error;
   if (!this->is_initialized)
     return ENODEV;
   // Wire library uses 7 bit addresses
@@ -324,9 +334,9 @@ int I2CMaster_T4::write_uint16(int slave_address, int register_address,
   Wire.write((data >> 8) & 0xFF);
   Wire.write((data >> 0) & 0xFF);
   // blocking write (when not specified I2C_STOP is implicit)
-  Wire.endTransmission(I2C_STOP);
+  error = Wire.endTransmission(I2C_STOP);
 
-  return Wire.getReadError(); //not sure this is correct?
+  return (int)(error);
 }
 
 int I2CMaster_T4::write_uint8(int slave_address, int register_address,
@@ -341,9 +351,7 @@ int I2CMaster_T4::write_uint8(int slave_address, int register_address,
   this->_write_register_address(register_address);
   Wire.write((data >> 0) & 0xFF);
   // blocking write (when not specified I2C_STOP is implicit)
-  Wire.endTransmission(I2C_STOP);
-
-  return Wire.getReadError();
+  return Wire.endTransmission(I2C_STOP);
 }
 
 int I2CMaster_T4::write_no_register_uint8(int slave_address, uint8_t data) {
@@ -357,9 +365,7 @@ int I2CMaster_T4::write_no_register_uint8(int slave_address, uint8_t data) {
   Wire.beginTransmission(slave_address); // slave addr
   Wire.write(data);
   // blocking write (when not specified I2C_STOP is implicit)
-  Wire.endTransmission(I2C_STOP);
-
-  return Wire.getReadError();
+  return Wire.endTransmission(I2C_STOP);
 }
 
 int I2CMaster_T4::write_payload(int slave_address, int register_address,
@@ -375,9 +381,7 @@ int I2CMaster_T4::write_payload(int slave_address, int register_address,
   this->_write_register_address(register_address);
   Wire.write(data, num_bytes);
   // blocking write (when not specified I2C_STOP is implicit)
-  Wire.endTransmission(I2C_STOP);
-
-  return Wire.getReadError();
+  return Wire.endTransmission(I2C_STOP);
 }
 
 int I2CMaster_T4::read_payload(int slave_address, int register_address,
@@ -393,19 +397,13 @@ int I2CMaster_T4::read_payload(int slave_address, int register_address,
   Wire.beginTransmission(slave_address); // slave addr
   // Write the MSB of the address first
   this->_write_register_address(register_address);
-  Wire.endTransmission(
-      I2C_NOSTOP); // blocking write (when not specified I2C_STOP is implicit)
-  err = Wire.getReadError();
+  // blocking write (when not specified I2C_STOP is implicit)
+  err = Wire.endTransmission(I2C_NOSTOP);
   if (err) {
     goto handle_error;
   }
 
   Wire.requestFrom(slave_address, num_bytes);
-  Wire.end();
-  err = Wire.getReadError();
-  if (err) {
-    goto handle_error;
-  }
 
   if (Wire.available() != num_bytes) {
     err = 3;
@@ -438,19 +436,13 @@ int I2CMaster_T4::read_uint16(int slave_address, int register_address,
   Wire.beginTransmission(slave_address); // slave addr
   // Write the MSB of the address first
   this->_write_register_address(register_address);
-  Wire.endTransmission(
-      I2C_NOSTOP); // blocking write (when not specified I2C_STOP is implicit)
-  err = Wire.getReadError();
+  // blocking write (when not specified I2C_STOP is implicit)
+  err = Wire.endTransmission(I2C_NOSTOP);
   if (err) {
     goto handle_error;
   }
 
   Wire.requestFrom(slave_address, 2);
-  Wire.end();
-  err = Wire.getReadError();
-  if (err) {
-    goto handle_error;
-  }
 
   if (Wire.available() != 2) {
     err = 3;
@@ -483,19 +475,13 @@ int I2CMaster_T4::read_uint8(int slave_address, int register_address,
   Wire.beginTransmission(slave_address); // slave addr
   // Write the MSB of the address first
   this->_write_register_address(register_address);
-  Wire.endTransmission(
-      I2C_NOSTOP); // blocking write (when not specified I2C_STOP is implicit)
-  err = Wire.getReadError();
+  // blocking write (when not specified I2C_STOP is implicit)
+  err = Wire.endTransmission(I2C_NOSTOP);
   if (err) {
     goto handle_error;
   }
 
   Wire.requestFrom(slave_address, 1);
-  Wire.end();
-  err = Wire.getReadError();
-  if (err) {
-    goto handle_error;
-  }
 
   if (Wire.available() != 1) {
     err = 3;
@@ -523,11 +509,6 @@ int I2CMaster_T4::read_no_register_uint8(int slave_address, uint8_t &data) {
   data = 0;
 
   Wire.requestFrom(slave_address, 1);
-  Wire.end();
-  err = Wire.getReadError();
-  if (err) {
-    goto handle_error;
-  }
 
   if (Wire.available() != 1) {
     err = 3;

@@ -2,6 +2,7 @@
 
 * Add the command `i2c_read_payload_no_register` to provide the ability to read
   from devices like the AT24CS01 EEPROM data over I2C.
+* Add the command `i2c_read_payload_uint16`.
 
 ### 0.0.21
 

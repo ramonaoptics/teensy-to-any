@@ -676,16 +676,57 @@ int spi_read_byte(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int spi_transfer_bulk(CommandRouter *cmd, int argc, const char **argv) {
-  uint8_t data;
-  if (argc == 1) {
+  const int MAX_UINT8_TO_SEND = 100;
+  uint8_t data[MAX_UINT8_TO_SEND];
+  int transfer_count;
+  size_t output_buffer_remaining = cmd->buffer_size;
+  int bytes_written;
+  char *output_pointer;
+
+  if (argc <= 1) {
     return EINVAL;
   }
+
+  transfer_count = argc - 1;
+  if (transfer_count > MAX_UINT8_TO_SEND) {
+    return E2BIG;
+  }
+
+  // Each returned value is at least 4 bytes. For the last value
+  // a '\0' is required instead of a ' ' <- space
+  if (output_buffer_remaining < transfer_count * sizeof("0xFF ")) {
+    return E2BIG;
+  }
+
+  // We are storing the data in a temporary pre-allocated buffer
+  // to avoid any kind of hardware failure during transfer due to string
+  // buffer overflow
   SPI.beginTransaction(my_spi_settings());
-  for (int i = 1; i < argc; i++) {
-    data = strtol(argv[i], nullptr, 0);
-    SPI.transfer(data);
+  for (int i = 0; i < transfer_count; i++) {
+    uint8_t d = strtol(argv[i + 1], nullptr, 0);
+    data[i] = SPI.transfer(d);
   }
   SPI.endTransaction();
+
+  output_pointer = cmd->buffer;
+  bytes_written = snprintf(
+    output_pointer,
+    output_buffer_remaining,
+    "0x%02X",
+    data[0]
+  );
+  output_buffer_remaining -= bytes_written;
+  output_pointer = output_pointer + bytes_written;
+  for (int i = 1; i < transfer_count; i++) {
+    bytes_written = snprintf(
+      output_pointer,
+      output_buffer_remaining,
+      " 0x%02X",  // notice the extra space at the beginning
+      data[i]
+    );
+    output_buffer_remaining -= bytes_written;
+    output_pointer = output_pointer + bytes_written;
+  }
   return 0;
 }
 

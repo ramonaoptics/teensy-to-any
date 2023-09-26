@@ -1,4 +1,17 @@
-### 0.0.22
+### 0.0.23 (2023/09/26)
+
+* `gpio_pin_mode` now takes an optional parameter to set the value after the
+  mode is set. This is useful for those setting output pins to avoid any delay
+  in the serial communication that could set the pins in an invalid state
+  for a lengthy period of time.
+
+* Add new command `gpio_digital_pulse` and `gpio_digital_pulse_us` that enable
+  the use to pulse a digital pin.
+
+* Add new command `analog_pulse` that enable the use to pulse a an analog pin
+  at a given duty cycle.
+
+### 0.0.22 (2023/09/24)
 
 * Add the command `i2c_read_payload_no_register` to provide the ability to read
   from devices like the AT24CS01 EEPROM data over I2C.

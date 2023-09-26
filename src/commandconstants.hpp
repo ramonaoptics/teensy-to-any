@@ -11,6 +11,7 @@ int command_license_func(CommandRouter *cmd, int argc, const char **argv);
 int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv);
 int gpio_digital_write(CommandRouter *cmd, int argc, const char **argv);
 int gpio_digital_read(CommandRouter *cmd, int argc, const char **argv);
+int gpio_digital_pulse(CommandRouter *cmd, int argc, const char **argv);
 
 // I2C support
 int i2c_init(CommandRouter *cmd, int argc, const char **argv);
@@ -31,6 +32,7 @@ int i2c_read_payload_uint16(CommandRouter *cmd, int argc, const char **argv);
 int analog_write(CommandRouter *cmd, int argc, const char **argv);
 int analog_write_frequency(CommandRouter *cmd, int argc, const char **argv);
 int analog_write_resolution(CommandRouter *cmd, int argc, const char **argv);
+int analog_pulse(CommandRouter *cmd, int argc, const char **argv);
 
 // Analog IO
 int analog_read(CommandRouter *cmd, int argc, const char **argv);
@@ -67,13 +69,18 @@ command_item_t command_list[] = {
      "license", command_license_func},
     {"version", "Display controller version number", "version", version_func},
     {"gpio_pin_mode",
-     "Set the pinMode of a GPIO pin, 0 for INPUT, 1 for OUTPUT",
-     "gpio_pin_mode pin mode", gpio_pin_mode},
+     "Set the pinMode of a GPIO pin, 0 for INPUT, 1 for OUTPUT. "
+     "Optionally, the value can be provided. If the value is provided "
+     "a digitalWrite will be issued.",
+     "gpio_pin_mode pin mode [value]", gpio_pin_mode},
     {"gpio_digital_write",
      "Set the output of a GPIO pin, 0 for LOW, 1 for HIGH",
      "gpio_digital_write pin value", gpio_digital_write},
     {"gpio_digital_read", "Read the value of a GPIO pin, 0 for LOW, 1 for HIGH",
-     "gpio_digital_read pin value", gpio_digital_read},
+     "gpio_digital_read pin", gpio_digital_read},
+    {"gpio_digital_pulse",
+     "Pulse the output of a GPIO pin for a given duration in seconds.",
+     "gpio_digital_pulse pin value value_end duration_us", gpio_digital_pulse},
     {"i2c_init", "Initialize I2C Communication",
      "i2c_init [baudrate=100_000] [timeout_ms=200_000] [address_size=2] "
      "[address_msb_first=1]",
@@ -121,6 +128,8 @@ command_item_t command_list[] = {
      "analog_write_frequency pin frequency", analog_write_frequency},
     {"analog_write_resolution", "Write the resolution of the PWM timer",
      "analog_write_resolution bitdepth", analog_write_resolution},
+    {"analog_pulse", "Write the duty cycle of the PWM for a given duration of time.",
+     "analog_pulse pin dutycycle dutycycle_end duration", analog_pulse},
     {"analog_read", "Read the value of an analog pin, 0-255",
      "analog_read pin", analog_read},
     {"spi_begin", "SPI Begin", "spi_begin", spi_begin},

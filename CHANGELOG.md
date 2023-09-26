@@ -11,6 +11,8 @@
 * Add new command `analog_pulse` that enable the use to pulse a an analog pin
   at a given duty cycle.
 
+* `spi_transfer_bulk` now also returns the data read back from device.
+
 ### 0.0.22 (2023/09/24)
 
 * Add the command `i2c_read_payload_no_register` to provide the ability to read

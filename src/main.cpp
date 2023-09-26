@@ -517,6 +517,45 @@ int analog_write_resolution(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+int analog_pulse(CommandRouter *cmd, int argc, const char **argv) {
+  int pin;
+  int dutycycle, dutycycle_end;
+  double duration;
+  if (argc != 5) {
+    return EINVAL;
+  }
+
+  pin = strtol(argv[1], nullptr, 0);
+  dutycycle = strtol(argv[2], nullptr, 0);
+  dutycycle_end = strtol(argv[3], nullptr, 0);
+
+  duration = strtod(argv[4], nullptr);
+  // limit the duration to 500 ms so as not to have
+  // things be too slow
+  if (duration < 0 || duration > 500E-3) {
+    return EINVAL;
+  }
+
+  if (duration < 16E-6) {
+    int duration_ns = (int)(duration * 1E9);
+    analogWrite(pin, dutycycle);
+    delayNanoseconds(duration_ns);
+    analogWrite(pin, dutycycle_end);
+  } else if (duration < 16E-3) {
+    int duration_us = (int)(duration * 1E6);
+    analogWrite(pin, dutycycle);
+    delayMicroseconds(duration_us);
+    analogWrite(pin, dutycycle_end);
+  } else {
+    int duration_ms = (int)(duration * 1E3);
+    analogWrite(pin, dutycycle);
+    delay(duration_ms);
+    analogWrite(pin, dutycycle_end);
+  }
+
+  return 0;
+}
+
 int spi_begin(CommandRouter *cmd, int argc, const char **argv) {
   if (argc != 1) {
     return EINVAL;

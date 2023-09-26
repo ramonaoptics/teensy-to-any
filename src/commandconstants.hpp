@@ -67,8 +67,10 @@ command_item_t command_list[] = {
      "license", command_license_func},
     {"version", "Display controller version number", "version", version_func},
     {"gpio_pin_mode",
-     "Set the pinMode of a GPIO pin, 0 for INPUT, 1 for OUTPUT",
-     "gpio_pin_mode pin mode", gpio_pin_mode},
+     "Set the pinMode of a GPIO pin, 0 for INPUT, 1 for OUTPUT. "
+     "Optionally, the value can be provided. If the value is provided "
+     "a digitalWrite will be issued.",
+     "gpio_pin_mode pin mode [value]", gpio_pin_mode},
     {"gpio_digital_write",
      "Set the output of a GPIO pin, 0 for LOW, 1 for HIGH",
      "gpio_digital_write pin value", gpio_digital_write},

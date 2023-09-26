@@ -343,11 +343,13 @@ int i2c_write_no_register_uint8(CommandRouter *cmd, int argc,
 }
 
 int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc != 3)
+  if (argc < 3 || argc > 4)
     return EINVAL;
 
   uint8_t pin = strtol(argv[1], nullptr, 0);
   uint8_t mode;
+  bool write_after_mode_set = argc >= 4;
+  uint8_t value = LOW;
 
   if (strcmp("OUTPUT", argv[2]) == 0) {
     mode = OUTPUT;
@@ -360,7 +362,22 @@ int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv) {
   if ((mode != OUTPUT) && (mode != INPUT))
     return EINVAL;
 
+  if (write_after_mode_set) {
+    if (strcmp("HIGH", argv[3]) == 0) {
+      value = HIGH;
+    } else if (strcmp("LOW", argv[3]) == 0) {
+      value = LOW;
+    } else {
+      value = strtol(argv[3], nullptr, 0);
+    }
+    if ((value != HIGH) && (value != LOW))
+      return EINVAL;
+  }
+
   pinMode(pin, mode);
+  if (write_after_mode_set){
+    digitalWrite(pin, value);
+  }
   return 0;
 }
 int gpio_digital_write(CommandRouter *cmd, int argc, const char **argv) {

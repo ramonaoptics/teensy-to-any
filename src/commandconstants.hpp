@@ -11,6 +11,7 @@ int command_license_func(CommandRouter *cmd, int argc, const char **argv);
 int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv);
 int gpio_digital_write(CommandRouter *cmd, int argc, const char **argv);
 int gpio_digital_read(CommandRouter *cmd, int argc, const char **argv);
+int gpio_digital_pulse(CommandRouter *cmd, int argc, const char **argv);
 
 // I2C support
 int i2c_init(CommandRouter *cmd, int argc, const char **argv);
@@ -75,7 +76,10 @@ command_item_t command_list[] = {
      "Set the output of a GPIO pin, 0 for LOW, 1 for HIGH",
      "gpio_digital_write pin value", gpio_digital_write},
     {"gpio_digital_read", "Read the value of a GPIO pin, 0 for LOW, 1 for HIGH",
-     "gpio_digital_read pin value", gpio_digital_read},
+     "gpio_digital_read pin", gpio_digital_read},
+    {"gpio_digital_pulse",
+     "Pulse the output of a GPIO pin for a given duration in seconds.",
+     "gpio_digital_pulse pin value value_end duration_us", gpio_digital_pulse},
     {"i2c_init", "Initialize I2C Communication",
      "i2c_init [baudrate=100_000] [timeout_ms=200_000] [address_size=2] "
      "[address_msb_first=1]",

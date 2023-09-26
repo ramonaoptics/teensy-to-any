@@ -412,6 +412,63 @@ int gpio_digital_read(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+int gpio_digital_pulse(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 5)
+    return EINVAL;
+
+  uint8_t value;
+  uint8_t value_end;
+  double duration;
+
+  uint8_t pin = strtol(argv[1], nullptr, 0);
+
+  if (strcmp("HIGH", argv[2]) == 0) {
+    value = HIGH;
+  } else if (strcmp("LOW", argv[2]) == 0) {
+    value = LOW;
+  } else {
+    value = strtol(argv[2], nullptr, 0);
+  }
+  if ((value != HIGH) && (value != LOW))
+    return EINVAL;
+
+  if (strcmp("HIGH", argv[3]) == 0) {
+    value_end = HIGH;
+  } else if (strcmp("LOW", argv[3]) == 0) {
+    value_end = LOW;
+  } else {
+    value_end = strtol(argv[3], nullptr, 0);
+  }
+  if ((value_end != HIGH) && (value_end != LOW))
+    return EINVAL;
+
+  duration = strtod(argv[4], nullptr);
+  // limit the duration to 500 ms so as not to have
+  // things be too slow
+  if (duration < 0 || duration > 500E-3) {
+    return EINVAL;
+  }
+
+  if (duration < 16E-6) {
+    int duration_ns = (int)(duration * 1E9);
+    digitalWrite(pin, value);
+    delayNanoseconds(duration_ns);
+    digitalWrite(pin, value_end);
+  } else if (duration < 16E-3) {
+    int duration_us = (int)(duration * 1E6);
+    digitalWrite(pin, value);
+    delayMicroseconds(duration_us);
+    digitalWrite(pin, value_end);
+  } else {
+    int duration_ms = (int)(duration * 1E3);
+    digitalWrite(pin, value);
+    delay(duration_ms);
+    digitalWrite(pin, value_end);
+  }
+
+  return 0;
+}
+
 int analog_write(CommandRouter *cmd, int argc, const char **argv) {
   int pin;
   int dutycycle;

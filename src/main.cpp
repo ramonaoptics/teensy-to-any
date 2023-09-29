@@ -73,6 +73,23 @@ int version_func(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+int mcu_func(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argc;
+  (void)argv;
+
+#if (TEENSYDUINO) && defined(__IMXRT1062__)
+  snprintf(cmd->buffer, cmd->buffer_size, "TEENSY40");
+#elif defined(TEENSYDUINO) && (defined(__MK20DX256__) ||  \
+                               defined(__MK64FX512__) ||  \
+                               defined(__MK66FX1M0__))
+  snprintf(cmd->buffer, cmd->buffer_size, "TEENSY32");
+#else
+  snprintf(cmd->buffer, cmd->buffer_size, "UNKNOWN");
+#endif
+  return 0;
+}
+
+
 int i2c_init(CommandRouter *cmd, int argc, const char **argv) {
 #if TEENSY_TO_ANY_HAS_I2C
   int baudrate = 100'000;

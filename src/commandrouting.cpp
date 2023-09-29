@@ -4,7 +4,7 @@
 
 #define LICENSE_TEXT                                                           \
   "teensytoany: hardware debugger based on the Teensy platform\n"              \
-  "Copyright (C) 2019-2020  Ramona Optics, Inc.\n"                                  \
+  "Copyright (C) 2019-2023  Ramona Optics, Inc.\n"                                  \
   "\n"                                                                         \
   "This program is free software: you can redistribute it and/or modify\n"     \
   "it under the terms of the GNU General Public License as published by\n"     \
@@ -22,7 +22,7 @@
 
 CommandRouter cmd;
 
-int CommandRouter::init(command_item_t *commands, int buffer_size,
+int CommandRouter::init(const command_item_t *commands, int buffer_size,
                         int argv_max) {
   if (argv_max == 0) {
     return EINVAL;
@@ -58,7 +58,7 @@ fail_argv_alloc:
   return ENOMEM;
 }
 
-int CommandRouter::init_no_malloc(command_item_t *commands, int buffer_size,
+int CommandRouter::init_no_malloc(const command_item_t *commands, int buffer_size,
                                   char *serial_buffer, int argv_max,
                                   const char **argv_buffer) {
 

@@ -5,6 +5,7 @@
 int info_func(CommandRouter *cmd, int argc, const char **argv);
 int reboot_func(CommandRouter *cmd, int argc, const char **argv);
 int version_func(CommandRouter *cmd, int argc, const char **argv);
+int mcu_func(CommandRouter *cmd, int argc, const char **argv);
 int command_license_func(CommandRouter *cmd, int argc, const char **argv);
 
 // Digital GPIO
@@ -58,11 +59,11 @@ int register_write_uint16(CommandRouter *cmd, int argc, const char **argv);
 int register_read_uint32(CommandRouter *cmd, int argc, const char **argv);
 int register_write_uint32(CommandRouter *cmd, int argc, const char **argv);
 // Syntax is: {short command, description, syntax}
-command_item_t command_list[] = {
+const command_item_t command_list[] = {
     {"?", "Display help info", "?", command_help_func},
-    {"info", "Displays information about this LED Array", "about", info_func},
-    {"reboot", "Runs setup routine again, for resetting LED array", "reboot",
-     reboot_func},
+    {"info", "Displays information about this TeensyToAny device", "about", info_func},
+    {"reboot", "Runs setup routine again, for this device.", "reboot", reboot_func},
+    {"mcu", "Displays information about the microcontroller board.", "about", mcu_func},
     {"license",
      "Display the license information for the source code running on the "
      "teensy",
@@ -161,4 +162,5 @@ command_item_t command_list[] = {
      "register_read_uint32 address", register_read_uint32},
     {"register_write_uint32", "Write to an arbitrary hardware register.",
      "register_write_uint32 address data", register_write_uint32},
-    {nullptr, nullptr, nullptr, nullptr},};
+    {nullptr, nullptr, nullptr, nullptr},
+};

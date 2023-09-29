@@ -20,6 +20,8 @@ jobs:
     - name: Build firmware
       run: |
         make teensy${{ matrix.teensy }}
+        git_describe=$(git describe --tags --dirty)
+        cp .pio/build/teensy${{ matrix.teensy }}/firmware.hex firmware_teensy${{ matrix.teensy }}-${git_describe}.hex
         cp .pio/build/teensy${{ matrix.teensy }}/firmware.hex firmware_teensy${{ matrix.teensy }}.hex
     - name: Upload artifact
       if: always()
@@ -31,7 +33,7 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ./firmware_teensy${{ matrix.teensy }}.hex
+        file: ./firmware_teensy*.hex
         tag: ${{ github.ref }}
         overwrite: true
         file_glob: true

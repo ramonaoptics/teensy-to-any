@@ -15,8 +15,8 @@ typedef struct command_item {
 
 class CommandRouter {
 public:
-  int init(command_item_t *commands, int buffer_size, int argv_max);
-  int init_no_malloc(command_item_t *commands, int buffer_size,
+  int init(const command_item_t *commands, int buffer_size, int argv_max);
+  int init_no_malloc(const command_item_t *commands, int buffer_size,
                      char *serial_buffer, int argv_max,
                      const char **argv_buffer);
   int help(const char *command_name = nullptr);
@@ -34,7 +34,7 @@ private:
   int argv_max = 0;
 
   bool malloc_used = false;
-  command_item_t *command_list;
+  const command_item_t *command_list;
 };
 
 extern CommandRouter cmd;

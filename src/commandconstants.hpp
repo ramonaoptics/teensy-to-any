@@ -63,7 +63,7 @@ const command_item_t command_list[] = {
     {"?", "Display help info", "?", command_help_func},
     {"info", "Displays information about this TeensyToAny device", "about", info_func},
     {"reboot", "Runs setup routine again, for this device.", "reboot", reboot_func},
-    {"mcu", "Displays information about the microcontroller board.", "about", mcu_func},
+    {"mcu", "Displays information about the microcontroller board.", "mcu", mcu_func},
     {"license",
      "Display the license information for the source code running on the "
      "teensy",

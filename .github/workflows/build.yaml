@@ -20,6 +20,8 @@ jobs:
     - name: Build firmware
       run: |
         make teensy${{ matrix.teensy }}
+        git_describe=$(git describe --tags --dirty)
+        cp .pio/build/teensy${{ matrix.teensy }}/firmware.hex firmware_teensy${{ matrix.teensy }}-${git_describe}.hex
         cp .pio/build/teensy${{ matrix.teensy }}/firmware.hex firmware_teensy${{ matrix.teensy }}.hex
     - name: Upload artifact
       if: always()

@@ -1,3 +1,7 @@
+### 0.1.0 (2023/09/29)
+
+* hex files with precise versions are uploaded enabling better version pinning.
+
 ### 0.0.23 (2023/09/26)
 
 * `gpio_pin_mode` now takes an optional parameter to set the value after the

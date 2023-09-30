@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <errno.h>
+#include <EEPROM.h>
 
 // TODO: this isn't exactly correct since this main file won't get
 // regenerated if it wasn't touched.
@@ -858,6 +859,157 @@ int register_read_uint32(CommandRouter *cmd, int argc, const char **argv) {
   snprintf(cmd->buffer, cmd->buffer_size, "0x%08lX", data);
   return 0;
 }
+
+int eeprom_length(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 1) {
+    return EINVAL;
+  }
+
+  uint16_t length = EEPROM.length();
+
+  snprintf(cmd->buffer, cmd->buffer_size, "0x%04X", length);
+
+  return 0;
+}
+
+int eeprom_read_uint8(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2) {
+    return EINVAL;
+  }
+  int index;
+  uint8_t data;
+
+  index = strtol(argv[1], nullptr, 0);
+  if (index > EEPROM.length()) {
+    return EINVAL;
+  }
+
+  data = EEPROM.read(index);
+
+  snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", data);
+
+  return 0;
+}
+
+int eeprom_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 3) {
+    return EINVAL;
+  }
+  int index;
+  uint8_t data;
+
+  index = strtol(argv[1], nullptr, 0);
+  data = strtol(argv[2], nullptr, 0);
+  if (index > EEPROM.length()) {
+    return EINVAL;
+  }
+
+  EEPROM.write(index, data);
+
+  return 0;
+}
+
+int eeprom_update_uint8(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 3) {
+    return EINVAL;
+  }
+  int index;
+  uint8_t data;
+
+  index = strtol(argv[1], nullptr, 0);
+  data = strtol(argv[2], nullptr, 0);
+  if (index > EEPROM.length()) {
+    return EINVAL;
+  }
+
+  /*
+    The function EEPROM.update(address, val) is equivalent to the following:
+
+    if( EEPROM.read(address) != val ){
+      EEPROM.write(address, val);
+    }
+  */
+  EEPROM.update(index, data);
+
+  return 0;
+}
+
+int eeprom_read_string(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc < 2 || argc > 3) {
+    return EINVAL;
+  }
+  int index, i;
+  int n_read;
+  char data;
+
+  index = strtol(argv[1], nullptr, 0);
+  if (index > EEPROM.length()) {
+    return EINVAL;
+  }
+  if (argc >= 3) {
+    n_read = strtol(argv[2], nullptr, 0);
+  } else {
+    n_read = EEPROM.length() - index;
+  }
+
+  if (index + n_read > EEPROM.length()) {
+    return EINVAL;
+  }
+
+  for(i=0; i < n_read; i++, index++){
+    data = (char) EEPROM.read(index);
+
+    if (data == '\0') {
+      break;
+    }
+
+    cmd->buffer[i] = data;
+  }
+  // Terminate, always, even if we "got to the end of EEPROM's length
+  cmd->buffer[i] = '\0';
+
+  return 0;
+}
+
+int eeprom_write_string(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc < 3) {
+    return EINVAL;
+  }
+  int index, i;
+  int data_length;
+  const char* data;
+
+  index = strtol(argv[1], nullptr, 0);
+  if (index > EEPROM.length()) {
+    return EINVAL;
+  }
+
+  // We compute the length of the string "joined" by spaces
+  data_length = argc - 3;
+  for (i=2; i < argc; i++) {
+    data = argv[2];
+    data_length += strlen(data);
+  }
+
+  if (index + data_length >= EEPROM.length()) {
+    return EINVAL;
+  }
+
+  for (int j=2; j < argc; j++) {
+    data = argv[j];
+    if (j != 2) {
+      EEPROM.update(index, ' ');
+      ++index;
+    }
+    for(i=0; data[i] != '\0'; i++, index++){
+      EEPROM.update(index, data[i]);
+    }
+  }
+  EEPROM.update(index, '\0');
+
+  return 0;
+}
+
 
 
 void loop() {

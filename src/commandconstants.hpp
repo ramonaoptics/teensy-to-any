@@ -6,6 +6,7 @@ int info_func(CommandRouter *cmd, int argc, const char **argv);
 int reboot_func(CommandRouter *cmd, int argc, const char **argv);
 int version_func(CommandRouter *cmd, int argc, const char **argv);
 int mcu_func(CommandRouter *cmd, int argc, const char **argv);
+int serialnumber_func(CommandRouter *cmd, int argc, const char **argv);
 int command_license_func(CommandRouter *cmd, int argc, const char **argv);
 
 // Digital GPIO
@@ -72,6 +73,7 @@ const command_item_t command_list[] = {
     {"info", "Displays information about this TeensyToAny device", "about", info_func},
     {"reboot", "Runs setup routine again, for this device.", "reboot", reboot_func},
     {"mcu", "Displays information about the microcontroller board.", "mcu", mcu_func},
+    {"serialnumber", "Displays the serial number of the board.", "serialnumber", serialnumber_func},
     {"license",
      "Display the license information for the source code running on the "
      "teensy",

@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <errno.h>
+#include <usb_names.h>
 #include <EEPROM.h>
 
 // TODO: this isn't exactly correct since this main file won't get
@@ -73,6 +74,23 @@ int version_func(CommandRouter *cmd, int argc, const char **argv) {
   snprintf(cmd->buffer, cmd->buffer_size, GIT_DESCRIBE);
   return 0;
 }
+
+int serialnumber_func(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argc;
+  (void)argv;
+  uint8_t i;
+  // https://github.com/PaulStoffregen/cores/pull/722
+#pragma GCC diagnostic push
+  // https://gcc.gnu.org/onlinedocs/gcc/Diagnostic-Pragmas.html
+#pragma GCC diagnostic ignored "-Warray-bounds"
+  for (i=0; i < (usb_string_serial_number.bLength - 2) / sizeof(uint16_t); i++) {
+    cmd->buffer[i] = (char)usb_string_serial_number.wString[i];
+  }
+#pragma GCC diagnostic pop
+  cmd->buffer[i] = '\0';
+  return 0;
+}
+
 
 int mcu_func(CommandRouter *cmd, int argc, const char **argv) {
   (void)argc;

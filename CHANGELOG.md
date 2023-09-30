@@ -1,3 +1,9 @@
+### 0.4.0 (2024/01/04)
+
+* Provide EEPROM commands.
+* Provide a method for the Teensy to read it's own USB Serial Number back to
+  the device through the USB interface.
+
 ### 0.3.0 (2023/11/06)
 
 * Increase the maximum analog pulse duration to 3 minutes.

@@ -463,7 +463,7 @@ int gpio_digital_pulse(CommandRouter *cmd, int argc, const char **argv) {
 
   // allow for 3 mins which should accomodate
   // any reasonable use case
-  if (duration < 0 || duration > 180000-3) {
+  if (duration < 0 || duration > 180.1) {
     return EINVAL;
   }
 

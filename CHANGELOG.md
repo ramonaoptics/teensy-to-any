@@ -1,3 +1,7 @@
+### 0.2.0 (2023/11/03)
+
+* Increase the maximum didgital pulse duration to 3 minutes.
+
 ### 0.1.0 (2023/09/29)
 
 * hex files with precise versions are uploaded enabling better version pinning.

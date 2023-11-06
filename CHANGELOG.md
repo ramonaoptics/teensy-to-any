@@ -1,6 +1,10 @@
+### 0.3.0 (2023/11/06)
+
+* Increase the maximum analog pulse duration to 3 minutes.
+
 ### 0.2.0 (2023/11/03)
 
-* Increase the maximum didgital pulse duration to 3 minutes.
+* Increase the maximum digital pulse duration to 3 minutes.
 
 ### 0.1.0 (2023/09/29)
 

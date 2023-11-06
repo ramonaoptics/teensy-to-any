@@ -548,9 +548,9 @@ int analog_pulse(CommandRouter *cmd, int argc, const char **argv) {
   dutycycle_end = strtol(argv[3], nullptr, 0);
 
   duration = strtod(argv[4], nullptr);
-  // limit the duration to 500 ms so as not to have
-  // things be too slow
-  if (duration < 0 || duration > 500E-3) {
+  // allow for 3 mins which should accomodate
+  // any reasonable use case
+  if (duration < 0 || duration > 180.1) {
     return EINVAL;
   }
 

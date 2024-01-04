@@ -6,6 +6,7 @@ int info_func(CommandRouter *cmd, int argc, const char **argv);
 int reboot_func(CommandRouter *cmd, int argc, const char **argv);
 int version_func(CommandRouter *cmd, int argc, const char **argv);
 int mcu_func(CommandRouter *cmd, int argc, const char **argv);
+int serialnumber_func(CommandRouter *cmd, int argc, const char **argv);
 int command_license_func(CommandRouter *cmd, int argc, const char **argv);
 
 // Digital GPIO
@@ -58,12 +59,21 @@ int register_read_uint16(CommandRouter *cmd, int argc, const char **argv);
 int register_write_uint16(CommandRouter *cmd, int argc, const char **argv);
 int register_read_uint32(CommandRouter *cmd, int argc, const char **argv);
 int register_write_uint32(CommandRouter *cmd, int argc, const char **argv);
+
+int eeprom_length(CommandRouter *cmd, int argc, const char **argv);
+int eeprom_read_uint8(CommandRouter *cmd, int argc, const char **argv);
+int eeprom_write_uint8(CommandRouter *cmd, int argc, const char **argv);
+int eeprom_update_uint8(CommandRouter *cmd, int argc, const char **argv);
+int eeprom_read_string(CommandRouter *cmd, int argc, const char **argv);
+int eeprom_write_string(CommandRouter *cmd, int argc, const char **argv);
+
 // Syntax is: {short command, description, syntax}
 const command_item_t command_list[] = {
     {"?", "Display help info", "?", command_help_func},
     {"info", "Displays information about this TeensyToAny device", "about", info_func},
     {"reboot", "Runs setup routine again, for this device.", "reboot", reboot_func},
     {"mcu", "Displays information about the microcontroller board.", "mcu", mcu_func},
+    {"serialnumber", "Displays the serial number of the board.", "serialnumber", serialnumber_func},
     {"license",
      "Display the license information for the source code running on the "
      "teensy",
@@ -162,5 +172,17 @@ const command_item_t command_list[] = {
      "register_read_uint32 address", register_read_uint32},
     {"register_write_uint32", "Write to an arbitrary hardware register.",
      "register_write_uint32 address data", register_write_uint32},
+    {"eeprom_length", "Return the size of the of the EEPROM in bytes.",
+     "eeprom_length", eeprom_length},
+    {"eeprom_read_uint8", "Read data from a given EEPROM address.",
+     "eeprom_read_uint8 address", eeprom_read_uint8},
+    {"eeprom_write_uint8", "Write to an EEPROM address.",
+     "eeprom_write_uint8 address data", eeprom_write_uint8},
+    {"eeprom_update_uint8", "Write to an EEPROM address if the value has changed.",
+     "eeprom_update_uint8 address data", eeprom_update_uint8},
+    {"eeprom_read_string", "Read data from a given EEPROM address.",
+     "eeprom_read_string address", eeprom_read_string},
+    {"eeprom_write_string", "Write to an EEPROM address.",
+     "eeprom_write_string address data", eeprom_write_string},
     {nullptr, nullptr, nullptr, nullptr},
 };

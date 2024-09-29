@@ -13,6 +13,19 @@
 #define GIT_DESCRIBE "0.0.0-unknown"
 #endif
 
+// Our startup procedure first checks that the version
+// in the EEPROM matches the version in the code. If it does
+// then we run the startup command and potentially the demo
+// commands. If it does not match then we run nothing.
+#define EEPROM_VERSION_LENGTH 32
+#define EEPROM_VERSION_ADDRESS 0
+
+#define EEPROM_STARTUP_COMMAND_POINTER_ADDRESS 32
+#define EEPROM_STARTUP_COMMAND_LENGTH_ADDRESS 34
+#define EEPROM_DEMO_COMMAND_POINTER_ADDRESS 36
+#define EEPROM_DEMO_COMMAND_LENGTH_ADDRESS 38
+
+
 #define USE_STATIC_ALLOCATION 1
 #if USE_STATIC_ALLOCATION
 #define BUFFER_SIZE 1024 * 16
@@ -37,6 +50,16 @@ I2CMaster i2c;
 I2CMaster_T4 i2c;
 #endif
 
+int eeprom_version_matches() {
+  char version[EEPROM_VERSION_LENGTH];
+  int i;
+  for (i = 0; i < EEPROM_VERSION_LENGTH; i++) {
+    version[i] = EEPROM.read(EEPROM_VERSION_ADDRESS + i);
+  }
+
+  return strncmp(version, GIT_DESCRIBE, EEPROM_VERSION_LENGTH) == 0;
+}
+
 void setup() {
   // Pause for 100 MS in order to debounce the power supply getting
   // plugged in.
@@ -48,6 +71,14 @@ void setup() {
 #else
   cmd.init(command_list, 1024, 10);
 #endif
+
+  if (eeprom_version_matches()) {
+    int length = EEPROM.read(EEPROM_STARTUP_COMMAND_LENGTH_ADDRESS) +
+                 (EEPROM.read(EEPROM_STARTUP_COMMAND_LENGTH_ADDRESS + 1) << 8);
+    int address = EEPROM.read(EEPROM_STARTUP_COMMAND_POINTER_ADDRESS) +
+                  (EEPROM.read(EEPROM_STARTUP_COMMAND_POINTER_ADDRESS + 1) << 8);
+    cmd.processEEPROMStream(address, length);
+  }
 }
 
 int info_func(CommandRouter *cmd, int argc, const char **argv) {

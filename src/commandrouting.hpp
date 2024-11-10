@@ -21,7 +21,7 @@ public:
                      const char **argv_buffer);
   int help(const char *command_name = nullptr);
   int processSerialStream();
-  int processEEPROMStream(int address, int length);
+  int processString(const char *buffer);
   void cleanup();
   ~CommandRouter();
 
@@ -29,7 +29,6 @@ public:
   int buffer_size = 0;
 
 private:
-  int processEEPROMSingleCommand(int address, int &bytes_read);
   int route(int argc, const char **argv);
 
   const char **argv;

@@ -13,18 +13,6 @@
 #define GIT_DESCRIBE "0.0.0-unknown"
 #endif
 
-// Our startup procedure first checks that the version
-// in the EEPROM matches the version in the code. If it does
-// then we run the startup command and potentially the demo
-// commands. If it does not match then we run nothing.
-#define EEPROM_VERSION_LENGTH 32
-#define EEPROM_VERSION_ADDRESS 0
-
-#define EEPROM_STARTUP_COMMAND_POINTER_ADDRESS 32
-#define EEPROM_STARTUP_COMMAND_LENGTH_ADDRESS 34
-#define EEPROM_DEMO_COMMAND_POINTER_ADDRESS 36
-#define EEPROM_DEMO_COMMAND_LENGTH_ADDRESS 38
-
 
 #define USE_STATIC_ALLOCATION 1
 #if USE_STATIC_ALLOCATION
@@ -50,21 +38,59 @@ I2CMaster i2c;
 I2CMaster_T4 i2c;
 #endif
 
-int eeprom_version_matches() {
-  char version[EEPROM_VERSION_LENGTH];
-  int i;
-  for (i = 0; i < EEPROM_VERSION_LENGTH; i++) {
-    version[i] = EEPROM.read(EEPROM_VERSION_ADDRESS + i);
-  }
+#define TEENSY_TO_ANY_STARTUP_COMMANDS
+const char *startup_commands[] = {
+    "gpio_pin_mode 13 OUTPUT 1",
+    "gpio_digital_pulse 13 0 1 200E-3",
+    "gpio_digital_pulse 13 1 0 200E-3",
+    "gpio_digital_pulse 13 0 1 100E-3",
+    "gpio_digital_pulse 13 1 0 100E-3",
+    "gpio_digital_pulse 13 0 1 100E-3",
+    "gpio_digital_pulse 13 1 0 100E-3",
+    "gpio_digital_pulse 13 0 1 100E-3",
+    "gpio_digital_pulse 13 1 0 100E-3",
+    "gpio_digital_pulse 13 0 1 200E-3",
+    "gpio_digital_pulse 13 1 0 200E-3",
+    nullptr,
+};
 
-  return strncmp(version, GIT_DESCRIBE, EEPROM_VERSION_LENGTH) == 0;
+#define TEENSY_TO_ANY_DEMO_COMMANDS
+const char *demo_commands[] = {
+  "gpio_digital_pulse 13 0 1 50E-3",
+  "gpio_digital_pulse 13 1 0 50E-3",
+  nullptr,
+};
+
+void execute_startup_commands() {
+#ifdef TEENSY_TO_ANY_STARTUP_COMMANDS
+  for (int i = 0; startup_commands[i] != nullptr; i++) {
+    cmd.processString(startup_commands[i]);
+  }
+#endif
+}
+
+void execute_demo_commands() {
+#ifdef TEENSY_TO_ANY_DEMO_COMMANDS
+  int demo_enabled = EEPROM.read(0) == 0xFF;
+  if (!demo_enabled) {
+    return;
+  }
+  while (true) {
+    for (int i = 0; demo_commands[i] != nullptr; i++) {
+      cmd.processString(demo_commands[i]);
+      if (Serial.available()) {
+        return;
+      }
+    }
+  }
+#endif
 }
 
 void setup() {
   // Pause for 100 MS in order to debounce the power supply getting
   // plugged in.
   delay(100);
-  Serial.begin(115'200);
+
 #if USE_STATIC_ALLOCATION
   cmd.init_no_malloc(command_list, BUFFER_SIZE, serial_buffer, ARGV_MAX,
                      argv_buffer);
@@ -72,13 +98,12 @@ void setup() {
   cmd.init(command_list, 1024, 10);
 #endif
 
-  if (eeprom_version_matches()) {
-    int length = EEPROM.read(EEPROM_STARTUP_COMMAND_LENGTH_ADDRESS) +
-                 (EEPROM.read(EEPROM_STARTUP_COMMAND_LENGTH_ADDRESS + 1) << 8);
-    int address = EEPROM.read(EEPROM_STARTUP_COMMAND_POINTER_ADDRESS) +
-                  (EEPROM.read(EEPROM_STARTUP_COMMAND_POINTER_ADDRESS + 1) << 8);
-    cmd.processEEPROMStream(address, length);
-  }
+  execute_startup_commands();
+
+  // Starting serial seems to be slow, so do it at the end
+  Serial.begin(115'200);
+
+  execute_demo_commands();
 }
 
 int info_func(CommandRouter *cmd, int argc, const char **argv) {
@@ -537,6 +562,32 @@ int gpio_digital_pulse(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+int sleep_seconds(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2)
+    return EINVAL;
+  double duration;
+
+  duration = strtod(argv[1], nullptr);
+
+  // allow for 3 mins which should accomodate
+  // any reasonable use case
+  if (duration < 0 || duration > 180.1) {
+    return EINVAL;
+  }
+
+  if (duration < 16E-6) {
+    int duration_ns = (int)(duration * 1E9);
+    delayNanoseconds(duration_ns);
+  } else if (duration < 16E-3) {
+    int duration_us = (int)(duration * 1E6);
+    delayMicroseconds(duration_us);
+  } else {
+    int duration_ms = (int)(duration * 1E3);
+    delay(duration_ms);
+  }
+  return 0;
+}
+
 int analog_write(CommandRouter *cmd, int argc, const char **argv) {
   int pin;
   int dutycycle;
@@ -909,156 +960,69 @@ int register_read_uint32(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
-int eeprom_length(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc != 1) {
-    return EINVAL;
-  }
-
-  uint16_t length = EEPROM.length();
-
-  snprintf(cmd->buffer, cmd->buffer_size, "0x%04X", length);
-
-  return 0;
-}
-
 int eeprom_read_uint8(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc != 2) {
+  if (argc < 2) {
     return EINVAL;
   }
   int index;
-  uint8_t data;
+  int length = 1;
 
   index = strtol(argv[1], nullptr, 0);
-  if (index > EEPROM.length()) {
-    return EINVAL;
+  if (argc == 3) {
+    length = strtol(argv[2], nullptr, 0);
   }
 
-  data = EEPROM.read(index);
-
-  snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", data);
+  auto buffer = cmd->buffer;
+  auto buffer_size = cmd->buffer_size;
+  int written = 0;
+  const char * fmt;
+  for (int i = 0; i < length; i++) {
+    if (index + i > EEPROM.length()) {
+      return EINVAL;
+    }
+    auto data = EEPROM.read(index + i);
+    if (i == 0) {
+      fmt = "0x%02X";
+    } else {
+      fmt = " 0x%02X";
+    }
+    written = snprintf(buffer, buffer_size, fmt, data);
+    buffer += written;
+    buffer_size -= written;
+    index++;
+  }
 
   return 0;
 }
 
 int eeprom_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc != 3) {
+  if (argc < 3) {
     return EINVAL;
   }
   int index;
   uint8_t data;
 
   index = strtol(argv[1], nullptr, 0);
-  data = strtol(argv[2], nullptr, 0);
-  if (index > EEPROM.length()) {
-    return EINVAL;
-  }
 
-  EEPROM.write(index, data);
+  for (int i = 2; i < argc; i++) {
+    if (index > EEPROM.length()) {
+      return EINVAL;
+    }
 
-  return 0;
-}
-
-int eeprom_update_uint8(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc != 3) {
-    return EINVAL;
-  }
-  int index;
-  uint8_t data;
-
-  index = strtol(argv[1], nullptr, 0);
-  data = strtol(argv[2], nullptr, 0);
-  if (index > EEPROM.length()) {
-    return EINVAL;
-  }
-
-  /*
+    data = strtol(argv[i], nullptr, 0);
+    /*
     The function EEPROM.update(address, val) is equivalent to the following:
 
     if( EEPROM.read(address) != val ){
       EEPROM.write(address, val);
     }
-  */
-  EEPROM.update(index, data);
+    */
+    EEPROM.update(index, data);
+    ++index;
+  }
 
   return 0;
 }
-
-int eeprom_read_string(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc < 2 || argc > 3) {
-    return EINVAL;
-  }
-  int index, i;
-  int n_read;
-  char data;
-
-  index = strtol(argv[1], nullptr, 0);
-  if (index > EEPROM.length()) {
-    return EINVAL;
-  }
-  if (argc >= 3) {
-    n_read = strtol(argv[2], nullptr, 0);
-  } else {
-    n_read = EEPROM.length() - index;
-  }
-
-  if (index + n_read > EEPROM.length()) {
-    return EINVAL;
-  }
-
-  for(i=0; i < n_read; i++, index++){
-    data = (char) EEPROM.read(index);
-
-    if (data == '\0') {
-      break;
-    }
-
-    cmd->buffer[i] = data;
-  }
-  // Terminate, always, even if we "got to the end of EEPROM's length
-  cmd->buffer[i] = '\0';
-
-  return 0;
-}
-
-int eeprom_write_string(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc < 3) {
-    return EINVAL;
-  }
-  int index, i;
-  int data_length;
-  const char* data;
-
-  index = strtol(argv[1], nullptr, 0);
-  if (index > EEPROM.length()) {
-    return EINVAL;
-  }
-
-  // We compute the length of the string "joined" by spaces
-  data_length = argc - 3;
-  for (i=2; i < argc; i++) {
-    data = argv[2];
-    data_length += strlen(data);
-  }
-
-  if (index + data_length >= EEPROM.length()) {
-    return EINVAL;
-  }
-
-  for (int j=2; j < argc; j++) {
-    data = argv[j];
-    if (j != 2) {
-      EEPROM.update(index, ' ');
-      ++index;
-    }
-    for(i=0; data[i] != '\0'; i++, index++){
-      EEPROM.update(index, data[i]);
-    }
-  }
-  EEPROM.update(index, '\0');
-
-  return 0;
-}
-
 
 
 void loop() {

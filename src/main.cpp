@@ -49,18 +49,18 @@ int len_demo_commands;
 
 void setup_startup_and_demo_commands() {
   len_startup_commands = 0;
-  for (int i = 0; teensy_to_any::startup_commands[i] != nullptr; i++) {
+  for (int i = 0; teensy_to_any_startup_commands[i] != nullptr; i++) {
     len_startup_commands++;
   }
   len_demo_commands = 0;
-  for (int i = 0; teensy_to_any::demo_commands[i] != nullptr; i++) {
+  for (int i = 0; teensy_to_any_demo_commands[i] != nullptr; i++) {
     len_demo_commands++;
   }
 }
 
 void execute_startup_commands() {
-  for (int i = 0; teensy_to_any::startup_commands[i] != nullptr; i++) {
-    cmd.processString(teensy_to_any::startup_commands[i]);
+  for (int i = 0; teensy_to_any_startup_commands[i] != nullptr; i++) {
+    cmd.processString(teensy_to_any_startup_commands[i]);
   }
 }
 
@@ -70,8 +70,8 @@ void execute_demo_commands() {
     return;
   }
   while (true) {
-    for (int i = 0; teensy_to_any::demo_commands[i] != nullptr; i++) {
-      cmd.processString(teensy_to_any::demo_commands[i]);
+    for (int i = 0; teensy_to_any_demo_commands[i] != nullptr; i++) {
+      cmd.processString(teensy_to_any_demo_commands[i]);
       if (Serial.available()) {
         return;
       }
@@ -149,7 +149,7 @@ int read_startup_command(CommandRouter *cmd, int argc, const char **argv){
     return EINVAL;
   if (index >= len_startup_commands)
     return EINVAL;
-  const char *command = teensy_to_any::startup_commands[index];
+  const char *command = teensy_to_any_startup_commands[index];
   if (command == nullptr)
     return EINVAL;
   snprintf(cmd->buffer, cmd->buffer_size, "%s", command);
@@ -169,7 +169,7 @@ int read_demo_command(CommandRouter *cmd, int argc, const char **argv){
     return EINVAL;
   if (index >= len_demo_commands)
     return EINVAL;
-  const char *command = teensy_to_any::demo_commands[index];
+  const char *command = teensy_to_any_demo_commands[index];
   if (command == nullptr)
     return EINVAL;
   snprintf(cmd->buffer, cmd->buffer_size, "%s", command);

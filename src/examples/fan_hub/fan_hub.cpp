@@ -15,8 +15,7 @@
  *
  * Ramona Optics - 2024
  */
-namespace teensy_to_any {
-const char *startup_commands[] = {
+const char *teensy_to_any_startup_commands[] = {
     // Setup the LED as an indicator pin
     "gpio_pin_mode 13 OUTPUT 1",
     // Setup pin 2 as the PWM control pin
@@ -29,7 +28,7 @@ const char *startup_commands[] = {
 };
 
 // Change the fan speed
-const char *demo_commands[] = {
+const char *teensy_to_any_demo_commands[] = {
     "analog_write 2 255",
     "analog_write 13 255",
     "sleep 0.2", "sleep 0.2", "sleep 0.2", "sleep 0.2", "sleep 0.2", // 1000 ms
@@ -63,4 +62,3 @@ const char *demo_commands[] = {
     "sleep 0.2", "sleep 0.2", "sleep 0.2", "sleep 0.2", "sleep 0.2", // 1000 ms
     nullptr,
 };
-}

@@ -68,7 +68,12 @@ int eeprom_update_uint8(CommandRouter *cmd, int argc, const char **argv);
 int eeprom_read_string(CommandRouter *cmd, int argc, const char **argv);
 int eeprom_write_string(CommandRouter *cmd, int argc, const char **argv);
 
+// Mostly for debugging and startup scripts
 int sleep_seconds(CommandRouter *cmd, int argc, const char **argv);
+int startup_commands_available(CommandRouter *cmd, int argc, const char **argv);
+int read_startup_command(CommandRouter *cmd, int argc, const char **argv);
+int demo_commands_available(CommandRouter *cmd, int argc, const char **argv);
+int read_demo_command(CommandRouter *cmd, int argc, const char **argv);
 
 // Syntax is: {short command, description, syntax}
 const command_item_t command_list[] = {
@@ -181,5 +186,13 @@ const command_item_t command_list[] = {
      "eeprom_write_uint8 address data", eeprom_write_uint8},
     {"sleep", "Sleep (and block) for the desired duration",
      "sleep duration", sleep_seconds},
+    {"startup_commands_available", "Number of startup commands available",
+     "startup_commands_available", startup_commands_available},
+    {"read_startup_command", "Read a startup command",
+     "read_startup_command index", read_startup_command},
+    {"demo_commands_available", "Number of demo commands available",
+     "demo_commands_available", demo_commands_available},
+    {"read_demo_command", "Read a demo command",
+    "read_demo_command index", read_demo_command},
     {nullptr, nullptr, nullptr, nullptr},
 };

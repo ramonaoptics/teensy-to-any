@@ -1,6 +1,7 @@
 #include "commandconstants.hpp"
 #include "commandrouting.hpp"
 #include "i2c.hpp"
+#include "startup_commands.hpp"
 #include <Arduino.h>
 #include <SPI.h>
 #include <errno.h>
@@ -38,52 +39,25 @@ I2CMaster i2c;
 I2CMaster_T4 i2c;
 #endif
 
-#define TEENSY_TO_ANY_STARTUP_COMMANDS
-const char *startup_commands[] = {
-    "gpio_pin_mode 13 OUTPUT 1",
-    "gpio_digital_pulse 13 0 1 200E-3",
-    "gpio_digital_pulse 13 1 0 200E-3",
-    "gpio_digital_pulse 13 0 1 100E-3",
-    "gpio_digital_pulse 13 1 0 100E-3",
-    "gpio_digital_pulse 13 0 1 100E-3",
-    "gpio_digital_pulse 13 1 0 100E-3",
-    "gpio_digital_pulse 13 0 1 100E-3",
-    "gpio_digital_pulse 13 1 0 100E-3",
-    "gpio_digital_pulse 13 0 1 200E-3",
-    "gpio_digital_pulse 13 1 0 200E-3",
-    nullptr,
-};
-
-#define TEENSY_TO_ANY_DEMO_COMMANDS
-const char *demo_commands[] = {
-  "gpio_digital_pulse 13 0 1 50E-3",
-  "gpio_digital_pulse 13 1 0 50E-3",
-  nullptr,
-};
-
 void execute_startup_commands() {
-#ifdef TEENSY_TO_ANY_STARTUP_COMMANDS
-  for (int i = 0; startup_commands[i] != nullptr; i++) {
-    cmd.processString(startup_commands[i]);
+  for (int i = 0; teensy_to_any::startup_commands[i] != nullptr; i++) {
+    cmd.processString(teensy_to_any::startup_commands[i]);
   }
-#endif
 }
 
 void execute_demo_commands() {
-#ifdef TEENSY_TO_ANY_DEMO_COMMANDS
   int demo_enabled = EEPROM.read(0) == 0xFF;
   if (!demo_enabled) {
     return;
   }
   while (true) {
-    for (int i = 0; demo_commands[i] != nullptr; i++) {
-      cmd.processString(demo_commands[i]);
+    for (int i = 0; teensy_to_any::demo_commands[i] != nullptr; i++) {
+      cmd.processString(teensy_to_any::demo_commands[i]);
       if (Serial.available()) {
         return;
       }
     }
   }
-#endif
 }
 
 void setup() {
@@ -97,13 +71,55 @@ void setup() {
 #else
   cmd.init(command_list, 1024, 10);
 #endif
-
+  teensy_to_any::setup_startup_and_demo_commands();
   execute_startup_commands();
 
   // Starting serial seems to be slow, so do it at the end
+  // See Delays section in
+  // https://www.pjrc.com/teensy/td_startup.html
   Serial.begin(115'200);
 
   execute_demo_commands();
+}
+
+int startup_commands_available(CommandRouter *cmd, int argc, const char **argv){
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", teensy_to_any::len_startup_commands);
+  return 0;
+}
+
+int read_startup_command(CommandRouter *cmd, int argc, const char **argv){
+  if (argc != 2)
+    return EINVAL;
+  int index = strtol(argv[1], nullptr, 0);
+  if (index < 0)
+    return EINVAL;
+  if (index >= teensy_to_any::len_startup_commands)
+    return EINVAL;
+  const char *command = teensy_to_any::startup_commands[index];
+  if (command == nullptr)
+    return EINVAL;
+  snprintf(cmd->buffer, cmd->buffer_size, "%s", command);
+  return 0;
+}
+
+int demo_commands_available(CommandRouter *cmd, int argc, const char **argv){
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", teensy_to_any::len_demo_commands);
+  return 0;
+}
+
+int read_demo_command(CommandRouter *cmd, int argc, const char **argv){
+  if (argc != 2)
+    return EINVAL;
+  int index = strtol(argv[1], nullptr, 0);
+  if (index < 0)
+    return EINVAL;
+  if (index >= teensy_to_any::len_demo_commands)
+    return EINVAL;
+  const char *command = teensy_to_any::demo_commands[index];
+  if (command == nullptr)
+    return EINVAL;
+  snprintf(cmd->buffer, cmd->buffer_size, "%s", command);
+  return 0;
 }
 
 int info_func(CommandRouter *cmd, int argc, const char **argv) {

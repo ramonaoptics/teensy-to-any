@@ -39,6 +39,10 @@ I2CMaster i2c;
 I2CMaster_T4 i2c;
 #endif
 
+// Teensy4 has 1080 bytes of EEPROM, use the last byte to store the
+// demo command enabled flag
+#define DEMO_COMMAND_ENABLED_ADDRESS 1079
+
 void execute_startup_commands() {
   for (int i = 0; teensy_to_any::startup_commands[i] != nullptr; i++) {
     cmd.processString(teensy_to_any::startup_commands[i]);
@@ -46,7 +50,7 @@ void execute_startup_commands() {
 }
 
 void execute_demo_commands() {
-  int demo_enabled = EEPROM.read(0) == 0xFF;
+  int demo_enabled = EEPROM.read(DEMO_COMMAND_ENABLED_ADDRESS) == 0xFF;
   if (!demo_enabled) {
     return;
   }
@@ -58,6 +62,41 @@ void execute_demo_commands() {
       }
     }
   }
+}
+
+int disable_demo_commands(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argv;
+  if (argc != 1) {
+    return EINVAL;
+  }
+  EEPROM.write(DEMO_COMMAND_ENABLED_ADDRESS, 0);
+  // Mark - 2024/11/10
+  // I've noticed that if we don't write the EEPROM twice the value
+  // isn't guaranteed to be written....
+  EEPROM.write(DEMO_COMMAND_ENABLED_ADDRESS, 0);
+  return 0;
+}
+
+int enable_demo_commands(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argv;
+  if (argc != 1) {
+    return EINVAL;
+  }
+  EEPROM.write(DEMO_COMMAND_ENABLED_ADDRESS, 0xFF);
+  // Mark - 2024/11/10
+  // I've noticed that if we don't write the EEPROM twice the value
+  // isn't guaranteed to be written....
+  EEPROM.write(DEMO_COMMAND_ENABLED_ADDRESS, 0xFF);
+  return 0;
+}
+int demo_commands_enabled(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argv;
+  if (argc != 1) {
+    return EINVAL;
+  }
+  int demo_enabled = EEPROM.read(DEMO_COMMAND_ENABLED_ADDRESS) == 0xFF;
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", demo_enabled);
+  return 0;
 }
 
 void setup() {

@@ -72,6 +72,7 @@ int read_demo_command(CommandRouter *cmd, int argc, const char **argv);
 int disable_demo_commands(CommandRouter *cmd, int argc, const char **argv);
 int enable_demo_commands(CommandRouter *cmd, int argc, const char **argv);
 int demo_commands_available(CommandRouter *cmd, int argc, const char **argv);
+int demo_commands_enabled(CommandRouter *cmd, int argc, const char **argv);
 
 // Syntax is: {short command, description, syntax}
 const command_item_t command_list[] = {
@@ -197,6 +198,6 @@ const command_item_t command_list[] = {
     {"enable_demo_commands", "Enable the demo command loop on future startups.",
      "enable_demo_commands", enable_demo_commands},
     {"demo_commands_enabled", "Check if demo commands are enabled.",
-     "demo_commands_enabled", demo_commands_available},
+     "demo_commands_enabled", demo_commands_enabled},
     {nullptr, nullptr, nullptr, nullptr},
 };

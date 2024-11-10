@@ -43,6 +43,21 @@ I2CMaster_T4 i2c;
 // demo command enabled flag
 #define DEMO_COMMAND_ENABLED_ADDRESS 1079
 
+
+int len_startup_commands;
+int len_demo_commands;
+
+void setup_startup_and_demo_commands() {
+  len_startup_commands = 0;
+  for (int i = 0; teensy_to_any::startup_commands[i] != nullptr; i++) {
+    len_startup_commands++;
+  }
+  len_demo_commands = 0;
+  for (int i = 0; teensy_to_any::demo_commands[i] != nullptr; i++) {
+    len_demo_commands++;
+  }
+}
+
 void execute_startup_commands() {
   for (int i = 0; teensy_to_any::startup_commands[i] != nullptr; i++) {
     cmd.processString(teensy_to_any::startup_commands[i]);
@@ -110,7 +125,7 @@ void setup() {
 #else
   cmd.init(command_list, 1024, 10);
 #endif
-  teensy_to_any::setup_startup_and_demo_commands();
+  setup_startup_and_demo_commands();
   execute_startup_commands();
 
   // Starting serial seems to be slow, so do it at the end
@@ -122,7 +137,7 @@ void setup() {
 }
 
 int startup_commands_available(CommandRouter *cmd, int argc, const char **argv){
-  snprintf(cmd->buffer, cmd->buffer_size, "%d", teensy_to_any::len_startup_commands);
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", len_startup_commands);
   return 0;
 }
 
@@ -132,7 +147,7 @@ int read_startup_command(CommandRouter *cmd, int argc, const char **argv){
   int index = strtol(argv[1], nullptr, 0);
   if (index < 0)
     return EINVAL;
-  if (index >= teensy_to_any::len_startup_commands)
+  if (index >= len_startup_commands)
     return EINVAL;
   const char *command = teensy_to_any::startup_commands[index];
   if (command == nullptr)
@@ -142,7 +157,7 @@ int read_startup_command(CommandRouter *cmd, int argc, const char **argv){
 }
 
 int demo_commands_available(CommandRouter *cmd, int argc, const char **argv){
-  snprintf(cmd->buffer, cmd->buffer_size, "%d", teensy_to_any::len_demo_commands);
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", len_demo_commands);
   return 0;
 }
 
@@ -152,7 +167,7 @@ int read_demo_command(CommandRouter *cmd, int argc, const char **argv){
   int index = strtol(argv[1], nullptr, 0);
   if (index < 0)
     return EINVAL;
-  if (index >= teensy_to_any::len_demo_commands)
+  if (index >= len_demo_commands)
     return EINVAL;
   const char *command = teensy_to_any::demo_commands[index];
   if (command == nullptr)

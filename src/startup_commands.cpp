@@ -11,17 +11,4 @@ __attribute__((weak)) const char *demo_commands[] = {
   nullptr,
 };
 
-int len_startup_commands;
-int len_demo_commands;
-
-void setup_startup_and_demo_commands() {
-  len_startup_commands = 0;
-  for (int i = 0; startup_commands[i] != nullptr; i++) {
-    len_startup_commands++;
-  }
-  len_demo_commands = 0;
-  for (int i = 0; demo_commands[i] != nullptr; i++) {
-    len_demo_commands++;
-  }
-}
 }

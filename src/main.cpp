@@ -186,11 +186,17 @@ int info_func(CommandRouter *cmd, int argc, const char **argv) {
 int reboot_func(CommandRouter *cmd, int argc, const char **argv) {
   (void)argc;
   (void)argv;
+  // This function was never tested to work....
   return ENOSYS;
 
-  // This reboots you into the programming mode
+  // Maybe look into
+  // https://forum.pjrc.com/index.php?threads/soft-reboot-on-teensy4-0.57810/
+  // or
+  // https://forum.pjrc.com/index.php?threads/wdt_t4-watchdog-library-for-teensy-4.59257/
+  // for the teensy 4
+  // This reboots you into the programming mode not the normal mode which we care about...
   _reboot_Teensyduino_();
-  // Does nto get here
+  // Does not get here
   return 0;
 }
 

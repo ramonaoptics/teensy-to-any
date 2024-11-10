@@ -5,7 +5,7 @@
 This program allows you to use the Teensy as a USB to protocol converter.
 
 The design is centered around exposing simple building blocks to a USB UART interface.
-In this case, the Teensy is not designed as a standalone device. Rather, it should always be used with 
+In this case, the Teensy is not designed as a standalone device. Rather, it should always be used with
 a host computer that sends requests to accomplish different actions.
 
 Currently, we support:
@@ -50,5 +50,3 @@ To upload a precompiled build:
 ```
 teensy_loader_cli -s --mcu=TEENSY40 build_version_number.hex
 ```
-
-

@@ -60,12 +60,19 @@ int register_write_uint16(CommandRouter *cmd, int argc, const char **argv);
 int register_read_uint32(CommandRouter *cmd, int argc, const char **argv);
 int register_write_uint32(CommandRouter *cmd, int argc, const char **argv);
 
-int eeprom_length(CommandRouter *cmd, int argc, const char **argv);
 int eeprom_read_uint8(CommandRouter *cmd, int argc, const char **argv);
 int eeprom_write_uint8(CommandRouter *cmd, int argc, const char **argv);
-int eeprom_update_uint8(CommandRouter *cmd, int argc, const char **argv);
-int eeprom_read_string(CommandRouter *cmd, int argc, const char **argv);
-int eeprom_write_string(CommandRouter *cmd, int argc, const char **argv);
+
+// Mostly for debugging and startup scripts
+int sleep_seconds(CommandRouter *cmd, int argc, const char **argv);
+int startup_commands_available(CommandRouter *cmd, int argc, const char **argv);
+int read_startup_command(CommandRouter *cmd, int argc, const char **argv);
+int demo_commands_available(CommandRouter *cmd, int argc, const char **argv);
+int read_demo_command(CommandRouter *cmd, int argc, const char **argv);
+int disable_demo_commands(CommandRouter *cmd, int argc, const char **argv);
+int enable_demo_commands(CommandRouter *cmd, int argc, const char **argv);
+int demo_commands_available(CommandRouter *cmd, int argc, const char **argv);
+int demo_commands_enabled(CommandRouter *cmd, int argc, const char **argv);
 
 // Syntax is: {short command, description, syntax}
 const command_item_t command_list[] = {
@@ -172,17 +179,25 @@ const command_item_t command_list[] = {
      "register_read_uint32 address", register_read_uint32},
     {"register_write_uint32", "Write to an arbitrary hardware register.",
      "register_write_uint32 address data", register_write_uint32},
-    {"eeprom_length", "Return the size of the of the EEPROM in bytes.",
-     "eeprom_length", eeprom_length},
     {"eeprom_read_uint8", "Read data from a given EEPROM address.",
      "eeprom_read_uint8 address", eeprom_read_uint8},
     {"eeprom_write_uint8", "Write to an EEPROM address.",
      "eeprom_write_uint8 address data", eeprom_write_uint8},
-    {"eeprom_update_uint8", "Write to an EEPROM address if the value has changed.",
-     "eeprom_update_uint8 address data", eeprom_update_uint8},
-    {"eeprom_read_string", "Read data from a given EEPROM address.",
-     "eeprom_read_string address", eeprom_read_string},
-    {"eeprom_write_string", "Write to an EEPROM address.",
-     "eeprom_write_string address data", eeprom_write_string},
+    {"sleep", "Sleep (and block) for the desired duration",
+     "sleep duration", sleep_seconds},
+    {"startup_commands_available", "Number of startup commands available",
+     "startup_commands_available", startup_commands_available},
+    {"read_startup_command", "Read a startup command",
+     "read_startup_command index", read_startup_command},
+    {"demo_commands_available", "Number of demo commands available",
+     "demo_commands_available", demo_commands_available},
+    {"read_demo_command", "Read a demo command",
+    "read_demo_command index", read_demo_command},
+    {"disable_demo_commands", "Disable the demo command loop on future startups.",
+     "disable_demo_commands", disable_demo_commands},
+    {"enable_demo_commands", "Enable the demo command loop on future startups.",
+     "enable_demo_commands", enable_demo_commands},
+    {"demo_commands_enabled", "Check if demo commands are enabled.",
+     "demo_commands_enabled", demo_commands_enabled},
     {nullptr, nullptr, nullptr, nullptr},
 };

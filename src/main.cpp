@@ -1,6 +1,7 @@
 #include "commandconstants.hpp"
 #include "commandrouting.hpp"
 #include "i2c.hpp"
+#include "startup_commands.hpp"
 #include <Arduino.h>
 #include <SPI.h>
 #include <errno.h>
@@ -12,6 +13,7 @@
 #ifndef GIT_DESCRIBE
 #define GIT_DESCRIBE "0.0.0-unknown"
 #endif
+
 
 #define USE_STATIC_ALLOCATION 1
 #if USE_STATIC_ALLOCATION
@@ -37,17 +39,141 @@ I2CMaster i2c;
 I2CMaster_T4 i2c;
 #endif
 
+// Teensy4 has 1080 bytes of EEPROM, use the last byte to store the
+// demo command enabled flag
+#define DEMO_COMMAND_ENABLED_ADDRESS 1079
+
+
+int len_startup_commands;
+int len_demo_commands;
+
+void setup_startup_and_demo_commands() {
+  len_startup_commands = 0;
+  for (int i = 0; teensy_to_any_startup_commands[i] != nullptr; i++) {
+    len_startup_commands++;
+  }
+  len_demo_commands = 0;
+  for (int i = 0; teensy_to_any_demo_commands[i] != nullptr; i++) {
+    len_demo_commands++;
+  }
+}
+
+void execute_startup_commands() {
+  for (int i = 0; teensy_to_any_startup_commands[i] != nullptr; i++) {
+    cmd.processString(teensy_to_any_startup_commands[i]);
+  }
+}
+
+void execute_demo_commands() {
+  int demo_enabled = EEPROM.read(DEMO_COMMAND_ENABLED_ADDRESS) == 0xFF;
+  if (!demo_enabled) {
+    return;
+  }
+  while (true) {
+    for (int i = 0; teensy_to_any_demo_commands[i] != nullptr; i++) {
+      cmd.processString(teensy_to_any_demo_commands[i]);
+      if (Serial.available()) {
+        return;
+      }
+    }
+  }
+}
+
+int disable_demo_commands(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argv;
+  if (argc != 1) {
+    return EINVAL;
+  }
+  EEPROM.write(DEMO_COMMAND_ENABLED_ADDRESS, 0);
+  // Mark - 2024/11/10
+  // I've noticed that if we don't write the EEPROM twice the value
+  // isn't guaranteed to be written....
+  EEPROM.write(DEMO_COMMAND_ENABLED_ADDRESS, 0);
+  return 0;
+}
+
+int enable_demo_commands(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argv;
+  if (argc != 1) {
+    return EINVAL;
+  }
+  EEPROM.write(DEMO_COMMAND_ENABLED_ADDRESS, 0xFF);
+  // Mark - 2024/11/10
+  // I've noticed that if we don't write the EEPROM twice the value
+  // isn't guaranteed to be written....
+  EEPROM.write(DEMO_COMMAND_ENABLED_ADDRESS, 0xFF);
+  return 0;
+}
+int demo_commands_enabled(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argv;
+  if (argc != 1) {
+    return EINVAL;
+  }
+  int demo_enabled = EEPROM.read(DEMO_COMMAND_ENABLED_ADDRESS) == 0xFF;
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", demo_enabled);
+  return 0;
+}
+
 void setup() {
   // Pause for 100 MS in order to debounce the power supply getting
   // plugged in.
   delay(100);
-  Serial.begin(115'200);
+
 #if USE_STATIC_ALLOCATION
   cmd.init_no_malloc(command_list, BUFFER_SIZE, serial_buffer, ARGV_MAX,
                      argv_buffer);
 #else
   cmd.init(command_list, 1024, 10);
 #endif
+  setup_startup_and_demo_commands();
+  execute_startup_commands();
+
+  // Starting serial seems to be slow, so do it at the end
+  // See Delays section in
+  // https://www.pjrc.com/teensy/td_startup.html
+  Serial.begin(115'200);
+
+  execute_demo_commands();
+}
+
+int startup_commands_available(CommandRouter *cmd, int argc, const char **argv){
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", len_startup_commands);
+  return 0;
+}
+
+int read_startup_command(CommandRouter *cmd, int argc, const char **argv){
+  if (argc != 2)
+    return EINVAL;
+  int index = strtol(argv[1], nullptr, 0);
+  if (index < 0)
+    return EINVAL;
+  if (index >= len_startup_commands)
+    return EINVAL;
+  const char *command = teensy_to_any_startup_commands[index];
+  if (command == nullptr)
+    return EINVAL;
+  snprintf(cmd->buffer, cmd->buffer_size, "%s", command);
+  return 0;
+}
+
+int demo_commands_available(CommandRouter *cmd, int argc, const char **argv){
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", len_demo_commands);
+  return 0;
+}
+
+int read_demo_command(CommandRouter *cmd, int argc, const char **argv){
+  if (argc != 2)
+    return EINVAL;
+  int index = strtol(argv[1], nullptr, 0);
+  if (index < 0)
+    return EINVAL;
+  if (index >= len_demo_commands)
+    return EINVAL;
+  const char *command = teensy_to_any_demo_commands[index];
+  if (command == nullptr)
+    return EINVAL;
+  snprintf(cmd->buffer, cmd->buffer_size, "%s", command);
+  return 0;
 }
 
 int info_func(CommandRouter *cmd, int argc, const char **argv) {
@@ -60,11 +186,17 @@ int info_func(CommandRouter *cmd, int argc, const char **argv) {
 int reboot_func(CommandRouter *cmd, int argc, const char **argv) {
   (void)argc;
   (void)argv;
+  // This function was never tested to work....
   return ENOSYS;
 
-  // This reboots you into the programming mode
+  // Maybe look into
+  // https://forum.pjrc.com/index.php?threads/soft-reboot-on-teensy4-0.57810/
+  // or
+  // https://forum.pjrc.com/index.php?threads/wdt_t4-watchdog-library-for-teensy-4.59257/
+  // for the teensy 4
+  // This reboots you into the programming mode not the normal mode which we care about...
   _reboot_Teensyduino_();
-  // Does nto get here
+  // Does not get here
   return 0;
 }
 
@@ -506,6 +638,32 @@ int gpio_digital_pulse(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+int sleep_seconds(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2)
+    return EINVAL;
+  double duration;
+
+  duration = strtod(argv[1], nullptr);
+
+  // allow for 3 mins which should accomodate
+  // any reasonable use case
+  if (duration < 0 || duration > 180.1) {
+    return EINVAL;
+  }
+
+  if (duration < 16E-6) {
+    int duration_ns = (int)(duration * 1E9);
+    delayNanoseconds(duration_ns);
+  } else if (duration < 16E-3) {
+    int duration_us = (int)(duration * 1E6);
+    delayMicroseconds(duration_us);
+  } else {
+    int duration_ms = (int)(duration * 1E3);
+    delay(duration_ms);
+  }
+  return 0;
+}
+
 int analog_write(CommandRouter *cmd, int argc, const char **argv) {
   int pin;
   int dutycycle;
@@ -878,156 +1036,69 @@ int register_read_uint32(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
-int eeprom_length(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc != 1) {
-    return EINVAL;
-  }
-
-  uint16_t length = EEPROM.length();
-
-  snprintf(cmd->buffer, cmd->buffer_size, "0x%04X", length);
-
-  return 0;
-}
-
 int eeprom_read_uint8(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc != 2) {
+  if (argc < 2) {
     return EINVAL;
   }
   int index;
-  uint8_t data;
+  int length = 1;
 
   index = strtol(argv[1], nullptr, 0);
-  if (index > EEPROM.length()) {
-    return EINVAL;
+  if (argc == 3) {
+    length = strtol(argv[2], nullptr, 0);
   }
 
-  data = EEPROM.read(index);
-
-  snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", data);
+  auto buffer = cmd->buffer;
+  auto buffer_size = cmd->buffer_size;
+  int written = 0;
+  const char * fmt;
+  for (int i = 0; i < length; i++) {
+    if (index + i > EEPROM.length()) {
+      return EINVAL;
+    }
+    auto data = EEPROM.read(index + i);
+    if (i == 0) {
+      fmt = "0x%02X";
+    } else {
+      fmt = " 0x%02X";
+    }
+    written = snprintf(buffer, buffer_size, fmt, data);
+    buffer += written;
+    buffer_size -= written;
+    index++;
+  }
 
   return 0;
 }
 
 int eeprom_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc != 3) {
+  if (argc < 3) {
     return EINVAL;
   }
   int index;
   uint8_t data;
 
   index = strtol(argv[1], nullptr, 0);
-  data = strtol(argv[2], nullptr, 0);
-  if (index > EEPROM.length()) {
-    return EINVAL;
-  }
 
-  EEPROM.write(index, data);
+  for (int i = 2; i < argc; i++) {
+    if (index > EEPROM.length()) {
+      return EINVAL;
+    }
 
-  return 0;
-}
-
-int eeprom_update_uint8(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc != 3) {
-    return EINVAL;
-  }
-  int index;
-  uint8_t data;
-
-  index = strtol(argv[1], nullptr, 0);
-  data = strtol(argv[2], nullptr, 0);
-  if (index > EEPROM.length()) {
-    return EINVAL;
-  }
-
-  /*
+    data = strtol(argv[i], nullptr, 0);
+    /*
     The function EEPROM.update(address, val) is equivalent to the following:
 
     if( EEPROM.read(address) != val ){
       EEPROM.write(address, val);
     }
-  */
-  EEPROM.update(index, data);
+    */
+    EEPROM.update(index, data);
+    ++index;
+  }
 
   return 0;
 }
-
-int eeprom_read_string(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc < 2 || argc > 3) {
-    return EINVAL;
-  }
-  int index, i;
-  int n_read;
-  char data;
-
-  index = strtol(argv[1], nullptr, 0);
-  if (index > EEPROM.length()) {
-    return EINVAL;
-  }
-  if (argc >= 3) {
-    n_read = strtol(argv[2], nullptr, 0);
-  } else {
-    n_read = EEPROM.length() - index;
-  }
-
-  if (index + n_read > EEPROM.length()) {
-    return EINVAL;
-  }
-
-  for(i=0; i < n_read; i++, index++){
-    data = (char) EEPROM.read(index);
-
-    if (data == '\0') {
-      break;
-    }
-
-    cmd->buffer[i] = data;
-  }
-  // Terminate, always, even if we "got to the end of EEPROM's length
-  cmd->buffer[i] = '\0';
-
-  return 0;
-}
-
-int eeprom_write_string(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc < 3) {
-    return EINVAL;
-  }
-  int index, i;
-  int data_length;
-  const char* data;
-
-  index = strtol(argv[1], nullptr, 0);
-  if (index > EEPROM.length()) {
-    return EINVAL;
-  }
-
-  // We compute the length of the string "joined" by spaces
-  data_length = argc - 3;
-  for (i=2; i < argc; i++) {
-    data = argv[2];
-    data_length += strlen(data);
-  }
-
-  if (index + data_length >= EEPROM.length()) {
-    return EINVAL;
-  }
-
-  for (int j=2; j < argc; j++) {
-    data = argv[j];
-    if (j != 2) {
-      EEPROM.update(index, ' ');
-      ++index;
-    }
-    for(i=0; data[i] != '\0'; i++, index++){
-      EEPROM.update(index, data[i]);
-    }
-  }
-  EEPROM.update(index, '\0');
-
-  return 0;
-}
-
 
 
 void loop() {

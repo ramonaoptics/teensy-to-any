@@ -21,6 +21,7 @@ public:
                      const char **argv_buffer);
   int help(const char *command_name = nullptr);
   int processSerialStream();
+  int processString(const char *buffer);
   void cleanup();
   ~CommandRouter();
 

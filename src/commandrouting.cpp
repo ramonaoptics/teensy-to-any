@@ -1,6 +1,7 @@
 #include "commandrouting.hpp"
 #include <Arduino.h>
 #include <errno.h>
+#include <EEPROM.h>
 
 #define LICENSE_TEXT                                                           \
   "teensytoany: hardware debugger based on the Teensy platform\n"              \
@@ -185,6 +186,32 @@ int command_help_func(CommandRouter *cmd, int argc, const char **argv) {
   }
 }
 
+static void parseInputBuffer(char *input_buffer, int bytes_read, const char **argv, int &argc) {
+  // This could likely be replaced by strtok_r, but I really failed
+  // at using it on the teensy 4.0
+  // And as such, I'm simply ignoring using it.
+  int i = 0;
+  argc = 0;
+  while (i < bytes_read) {
+    char c = input_buffer[i];
+    if (c == '\0')
+      break;
+    if (input_buffer[i] == ' ') {
+      input_buffer[i] = '\0';
+      i++;
+      continue;
+    }
+    argv[argc] = &input_buffer[i];
+    argc++;
+    while (i < bytes_read) {
+      i += 1;
+      c = input_buffer[i];
+      if (c == ' ' || c == '\0')
+        break;
+    }
+  }
+}
+
 int CommandRouter::processSerialStream() {
   int argc;
   int bytes_read = 0;
@@ -230,31 +257,7 @@ int CommandRouter::processSerialStream() {
     return 0;
   }
 
-  // This could likely be replaced by strtok_r, but I really failed
-  // at using it on the teensy 4.0
-  // And as such, I'm simply ignoring using it.
-  int i;
-  i = 0;
-  argc = 0;
-  while (i < bytes_read){
-    char c;
-    c = input_buffer[i];
-    if (c == '\0')
-      break;
-     if (input_buffer[i] == ' ') {
-       input_buffer[i] = '\0';
-       i++;
-       continue;
-    }
-    argv[argc] = &input_buffer[i];
-    argc++;
-    while(i < bytes_read) {
-        i += 1;
-        c = input_buffer[i];
-        if (c == ' ' || c  == '\0')
-            break;
-    }
-  }
+  parseInputBuffer(input_buffer, bytes_read, argv, argc);
 
 #if 0
   Serial.printf("argc == %d\n", argc);
@@ -282,4 +285,12 @@ finish:
   Serial.send_now();
 
   return result;
+}
+
+int CommandRouter::processString(const char *buffer) {
+  int argc;
+  this->buffer[0] = '\0';
+  int bytes_read = snprintf(this->buffer + 1, this->buffer_size - 1, "%s", buffer);
+  parseInputBuffer(this->buffer + 1, bytes_read, argv, argc);
+  return route(argc, argv);
 }

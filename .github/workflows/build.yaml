@@ -11,7 +11,7 @@ jobs:
   build:
     strategy:
       matrix:
-        teensy: ['32', '40']
+        teensy: ['32', '40', '40_blinker', '40_fan_hub']
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2

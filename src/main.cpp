@@ -32,6 +32,17 @@ inline SPISettings my_spi_settings() {
   return SPISettings(spi_baudrate, spi_bit_order, spi_data_mode);
 }
 
+#include <Adafruit_NeoPixel.h>
+#define NEOPIXEL_PIN     19
+#define NEOPIXEL_NUMLEDS     5
+#define NEOPIXEL_BRIGHTNESS  50 // Set BRIGHTNESS to about 1/5 (max = 255)
+
+Adafruit_NeoPixel neopixel_strip(
+    NEOPIXEL_NUMLEDS,
+    NEOPIXEL_PIN,
+    NEO_GRBW + NEO_KHZ800
+);
+
 #if TEENSY_TO_ANY_HAS_I2C_T3
 I2CMaster i2c;
 #endif

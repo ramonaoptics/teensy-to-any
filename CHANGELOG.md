@@ -1,3 +1,11 @@
+### 0.6.0 (2024/12/11)
+
+* Fix the usecase where an infinite loop would occur if no demo commands.
+
+### 0.5.0 (2024/11/10)
+
+* Provide the capability to define startup and demo commands.
+
 ### 0.4.0 (2024/01/04)
 
 * Provide EEPROM commands.

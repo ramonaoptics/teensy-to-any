@@ -69,6 +69,10 @@ void execute_demo_commands() {
   if (!demo_enabled) {
     return;
   }
+  // No demo programs defined
+  if (teensy_to_any_demo_commands[0] == nullptr) {
+    return;
+  }
   while (true) {
     for (int i = 0; teensy_to_any_demo_commands[i] != nullptr; i++) {
       cmd.processString(teensy_to_any_demo_commands[i]);

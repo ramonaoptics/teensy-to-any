@@ -8,11 +8,13 @@ const char *teensy_to_any_startup_commands[] = {
     "neopixel_update_length 5",
 
     // set color to orange to indicate that we aren't ready yet
-    "neopixel_set_pixel_color 0 56 10 1 0",
-    "neopixel_set_pixel_color 1 56 10 1 0",
-    "neopixel_set_pixel_color 2 56 10 1 0",
-    "neopixel_set_pixel_color 3 56 10 1 0",
-    "neopixel_set_pixel_color 4 56 10 1 0",
+    // It takes about 2-3 seconds for the serial module to boot up
+    // The teensy will be unresponsive during this time.
+    "neopixel_set_pixel_color 0 56 5 1 0",
+    "neopixel_set_pixel_color 1 56 5 1 0",
+    "neopixel_set_pixel_color 2 56 5 1 0",
+    "neopixel_set_pixel_color 3 56 5 1 0",
+    "neopixel_set_pixel_color 4 56 5 1 0",
     "neopixel_begin",
     "neopixel_show",
     nullptr,

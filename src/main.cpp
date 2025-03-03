@@ -32,6 +32,7 @@ inline SPISettings my_spi_settings() {
   return SPISettings(spi_baudrate, spi_bit_order, spi_data_mode);
 }
 
+#ifdef TEENSYTOANY_USE_NEOPIXEL
 #include <Adafruit_NeoPixel.h>
 #define NEOPIXEL_PIN     19
 #define NEOPIXEL_NUMLEDS     5
@@ -39,9 +40,10 @@ inline SPISettings my_spi_settings() {
 
 Adafruit_NeoPixel neopixel_strip(
     NEOPIXEL_NUMLEDS,
-    -1,  // -1 = nopin
+    19,  // -1 = nopin
     NEO_GRBW + NEO_KHZ800
 );
+#endif
 
 #if TEENSY_TO_ANY_HAS_I2C_T3
 I2CMaster i2c;
@@ -1111,6 +1113,7 @@ int eeprom_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+#ifdef TEENSYTOANY_USE_NEOPIXEL
 int neopixel_init(CommandRouter *cmd, int argc, const char **argv) {
   if (argc != 4) {
     return EINVAL;
@@ -1178,6 +1181,7 @@ int neopixel_set_pixel_color(CommandRouter *cmd, int argc, const char **argv) {
 
   return 0;
 }
+#endif
 
 
 void loop() {

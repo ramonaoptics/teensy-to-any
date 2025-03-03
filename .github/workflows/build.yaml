@@ -11,7 +11,7 @@ jobs:
   build:
     strategy:
       matrix:
-        teensy: ['32', '40', '40_blinker', '40_fan_hub', '32_fan_hub']
+        teensy: ['32', '40', '40_blinker', '40_fan_hub', '32_fan_hub', '40_neopixel', '40_neopixel_example']
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -31,8 +31,9 @@ jobs:
         cp .pio/build/teensy${{ matrix.teensy }}/firmware.hex firmware_teensy${{ matrix.teensy }}.hex
     - name: Upload artifact
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
+        name: firmware_teensy${{ matrix.teensy }}
         path: |
           firmware_teensy${{ matrix.teensy }}.hex
     - name: Upload firmware to release

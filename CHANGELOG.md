@@ -1,3 +1,7 @@
+### 0.7.0 (2025/03/03)
+
+* Provide the ability to use Neopixels.
+
 ### 0.6.0 (2024/12/11)
 
 * Fix the usecase where an infinite loop would occur if no demo commands.

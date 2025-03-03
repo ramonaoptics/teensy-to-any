@@ -7,12 +7,13 @@ const char *teensy_to_any_startup_commands[] = {
     "neopixel_update_pin 19",
     "neopixel_update_length 5",
 
+    // set color to orange to indicate that we aren't ready yet
+    "neopixel_set_pixel_color 0 56 10 1 0",
+    "neopixel_set_pixel_color 1 56 10 1 0",
+    "neopixel_set_pixel_color 2 56 10 1 0",
+    "neopixel_set_pixel_color 3 56 10 1 0",
+    "neopixel_set_pixel_color 4 56 10 1 0",
     "neopixel_begin",
-    "neopixel_set_pixel_color 0 0 0 0 50",
-    "neopixel_set_pixel_color 1 50 0 0 0",
-    "neopixel_set_pixel_color 2 0 50 0 0",
-    "neopixel_set_pixel_color 3 0 0 50 0",
-    "neopixel_set_pixel_color 4 50 50 50 50",
     "neopixel_show",
     nullptr,
 };

@@ -1134,6 +1134,14 @@ int neopixel_init(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+int neopixel_begin(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 1) {
+    return EINVAL;
+  }
+  neopixel_strip.begin();
+  return 0;
+}
+
 
 int neopixel_update_length(CommandRouter *cmd, int argc, const char **argv) {
   if (argc != 2) {

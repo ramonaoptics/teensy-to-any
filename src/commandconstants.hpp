@@ -65,6 +65,7 @@ int eeprom_write_uint8(CommandRouter *cmd, int argc, const char **argv);
 
 #ifdef TEENSYTOANY_USE_NEOPIXEL
 int neopixel_init(CommandRouter *cmd, int argc, const char **argv);
+int neopixel_begin(CommandRouter *cmd, int argc, const char **argv);
 int neopixel_update_length(CommandRouter *cmd, int argc, const char **argv);
 int neopixel_update_pin(CommandRouter *cmd, int argc, const char **argv);
 int neopixel_update_type(CommandRouter *cmd, int argc, const char **argv);
@@ -195,6 +196,8 @@ const command_item_t command_list[] = {
 #ifdef TEENSYTOANY_USE_NEOPIXEL
     {"neopixel_init", "Initialize the neopixel library",
      "neopixel_init num_pixels pin type", neopixel_init},
+    {"neopixel_begin", "Begin the neopixel buffer",
+     "neopixel_begin", neopixel_begin},
     {"neopixel_update_length", "Update the length of the neopixel buffer",
      "neopixel_update_length num_pixels", neopixel_update_length},
     {"neopixel_update_pin", "Update the pin of the neopixel buffer",

@@ -31,7 +31,7 @@ jobs:
         cp .pio/build/teensy${{ matrix.teensy }}/firmware.hex firmware_teensy${{ matrix.teensy }}.hex
     - name: Upload artifact
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         path: |
           firmware_teensy${{ matrix.teensy }}.hex

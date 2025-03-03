@@ -35,11 +35,11 @@ inline SPISettings my_spi_settings() {
 #include <Adafruit_NeoPixel.h>
 #define NEOPIXEL_PIN     19
 #define NEOPIXEL_NUMLEDS     5
-#define NEOPIXEL_BRIGHTNESS  50 // Set BRIGHTNESS to about 1/5 (max = 255)
+// #define NEOPIXEL_BRIGHTNESS  50 // Set BRIGHTNESS to about 1/5 (max = 255)
 
 Adafruit_NeoPixel neopixel_strip(
     NEOPIXEL_NUMLEDS,
-    NEOPIXEL_PIN,
+    -1,  // -1 = nopin
     NEO_GRBW + NEO_KHZ800
 );
 
@@ -1106,6 +1106,74 @@ int eeprom_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
     */
     EEPROM.update(index, data);
     ++index;
+  }
+
+  return 0;
+}
+
+int neopixel_init(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 4) {
+    return EINVAL;
+  }
+
+  uint16_t num_pixels = (uint16_t) strtol(argv[1], nullptr, 0);
+  int16_t pin = (int16_t) strtol(argv[2], nullptr, 0);
+  neoPixelType type = (neoPixelType) strtol(argv[3], nullptr, 0);
+
+  neopixel_strip.updateType(type);
+  neopixel_strip.updateLength(num_pixels);
+  neopixel_strip.setPin(pin);
+
+  return 0;
+}
+
+
+int neopixel_update_length(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2) {
+    return EINVAL;
+  }
+  uint16_t num_pixels = (uint16_t) strtol(argv[1], nullptr, 0);
+  neopixel_strip.updateLength(num_pixels);
+  return 0;
+}
+int neopixel_update_pin(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2) {
+    return EINVAL;
+  }
+
+  int16_t pin = (int16_t) strtol(argv[1], nullptr, 0);
+  neopixel_strip.setPin(pin);
+  return 0;
+}
+int neopixel_update_type(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2) {
+    return EINVAL;
+  }
+  neoPixelType type = (neoPixelType) strtol(argv[1], nullptr, 0);
+  neopixel_strip.updateType(type);
+  return 0;
+}
+int neopixel_show(CommandRouter *cmd, int argc, const char **argv){
+  if (argc != 1) {
+    return EINVAL;
+  }
+  neopixel_strip.show();
+  return 0;
+}
+int neopixel_set_pixel_color(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc > 6 || argc < 5) {
+    return EINVAL;
+  }
+
+  uint16_t n = (uint16_t) strtol(argv[1], nullptr, 0);
+  uint16_t r = (uint16_t) strtol(argv[2], nullptr, 0);
+  uint16_t g = (uint16_t) strtol(argv[3], nullptr, 0);
+  uint16_t b = (uint16_t) strtol(argv[4], nullptr, 0);
+  if (argc == 6) {
+    uint16_t w = (uint16_t) strtol(argv[5], nullptr, 0);
+    neopixel_strip.setPixelColor(n, r, g, b, w);
+  } else {
+    neopixel_strip.setPixelColor(n, r, g, b);
   }
 
   return 0;

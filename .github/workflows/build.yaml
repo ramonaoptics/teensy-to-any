@@ -11,7 +11,15 @@ jobs:
   build:
     strategy:
       matrix:
-        teensy: ['32', '40', '40_blinker', '40_fan_hub', '32_fan_hub', '40_neopixel', '40_neopixel_example']
+        build_environment:
+          - teensy32
+          - teensy40
+          - teensy40_blinker
+          - teensy40_fan_hub
+          - teensy32_fan_hub
+          - teensy40_neopixel
+          - teensy40_neopixel_example
+          - teensy40_fastled
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -25,22 +33,22 @@ jobs:
         pip install platformio
     - name: Build firmware
       run: |
-        platformio run --environment teensy${{ matrix.teensy }}
+        platformio run --environment ${{ matrix.build_environment }}
         git_describe=$(git describe --tags --dirty)
-        cp .pio/build/teensy${{ matrix.teensy }}/firmware.hex firmware_teensy${{ matrix.teensy }}-${git_describe}.hex
-        cp .pio/build/teensy${{ matrix.teensy }}/firmware.hex firmware_teensy${{ matrix.teensy }}.hex
+        cp .pio/build/${{ matrix.build_environment }}/firmware.hex firmware_${{ matrix.build_environment }}-${git_describe}.hex
+        cp .pio/build/${{ matrix.build_environment }}/firmware.hex firmware_${{ matrix.build_environment }}.hex
     - name: Upload artifact
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: firmware_teensy${{ matrix.teensy }}
+        name: firmware_${{ matrix.build_environment }}
         path: |
-          firmware_teensy${{ matrix.teensy }}.hex
+          firmware_${{ matrix.build_environment }}.hex
     - name: Upload firmware to release
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ./firmware_teensy*.hex
+        file: ./firmware_*.hex
         tag: ${{ github.ref }}
         overwrite: true
         file_glob: true

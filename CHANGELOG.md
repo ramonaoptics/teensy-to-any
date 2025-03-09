@@ -1,3 +1,7 @@
+### 0.8.0 (2025/03/09)
+
+* Provide basic support for FastLED.
+
 ### 0.7.0 (2025/03/03)
 
 * Provide the ability to use Neopixels.

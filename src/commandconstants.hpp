@@ -73,6 +73,14 @@ int neopixel_show(CommandRouter *cmd, int argc, const char **argv);
 int neopixel_set_pixel_color(CommandRouter *cmd, int argc, const char **argv);
 #endif
 
+int fastled_add_leds(CommandRouter *cmd, int argc, const char **argv);
+int fastled_show(CommandRouter *cmd, int argc, const char **argv);
+int fastled_set_rgb(CommandRouter *cmd, int argc, const char **argv);
+int fastled_set_hsv(CommandRouter *cmd, int argc, const char **argv);
+int fastled_set_hue(CommandRouter *cmd, int argc, const char **argv);
+int fastled_set_brightness(CommandRouter *cmd, int argc, const char **argv);
+int fastled_get_brightness(CommandRouter *cmd, int argc, const char **argv);
+
 // Mostly for debugging and startup scripts
 int sleep_seconds(CommandRouter *cmd, int argc, const char **argv);
 int startup_commands_available(CommandRouter *cmd, int argc, const char **argv);
@@ -209,6 +217,20 @@ const command_item_t command_list[] = {
     {"neopixel_set_pixel_color", "Set the color of a pixel in the neopixel buffer",
      "neopixel_set_pixel_color pixel red green blue", neopixel_set_pixel_color},
 #endif
+    {"fastled_add_leds", "Initialize the FastLED library",
+     "fastled_init num_pixels pin type", fastled_add_leds},
+    {"fastled_show", "Show the current FastLED buffer",
+     "fastled_show [scale]", fastled_show},
+    {"fastled_set_rgb", "Set the color of a pixel in the FastLED buffer",
+     "fastled_set_rgb pixel red green blue", fastled_set_rgb},
+    {"fastled_set_hsv", "Set the color of a pixel in the FastLED buffer",
+     "fastled_set_hsv pixel hue saturation value", fastled_set_hsv},
+    {"fastled_set_hue", "Set the hue of the FastLED buffer",
+     "fastled_set_hue pixel hue", fastled_set_hue},
+    {"fastled_set_brightness", "Set the brightness of the FastLED buffer",
+     "fastled_set_brightness scale", fastled_set_brightness},
+    {"fastled_get_brightness", "Get the brightness of the FastLED buffer",
+     "fastled_get_brightness", fastled_get_brightness},
     {"sleep", "Sleep (and block) for the desired duration",
      "sleep duration", sleep_seconds},
     {"startup_commands_available", "Number of startup commands available",

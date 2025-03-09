@@ -45,6 +45,12 @@ Adafruit_NeoPixel neopixel_strip(
 );
 #endif
 
+#include "FastLED.h"
+CRGB * fastled_leds = nullptr;
+CLEDController * fastled_controller = nullptr;
+int fastled_num_leds = 0;
+int fastled_has_white = 0;
+
 #if TEENSY_TO_ANY_HAS_I2C_T3
 I2CMaster i2c;
 #endif
@@ -1114,6 +1120,205 @@ int eeprom_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
     ++index;
   }
 
+  return 0;
+}
+
+int fastled_add_leds(CommandRouter *cmd, int argc, const char **argv) {
+  // Arguments are the
+  // * Class of LEDs being driven
+  // * If the driver has as a white led
+  // * The pin
+  // * The number of LEDs
+  if (argc != 5) {
+    return EINVAL;
+  }
+  const char * led_class = argv[1];
+
+  int has_white = strtol(argv[2], nullptr, 0) != 0;
+  int pin = strtol(argv[3], nullptr, 0);
+  int num_leds = strtol(argv[4], nullptr, 0);
+
+  if (
+    (fastled_leds != nullptr) &&
+    (fastled_num_leds < num_leds) &&
+    (fastled_has_white != has_white)
+  ) {
+    return EINVAL;
+  }
+
+  // We don't really support calling this with different settings just yet....
+  // I don't think the FastLED library has an API that is super clean for it.
+  if (fastled_leds != nullptr) {
+    return 0;
+  }
+  // I think to support adding and remove LED strips we would have to move to the controller
+  // based API, which I thin kwe can do...
+  //   delete fastled_leds;
+  //   fastled_leds = nullptr;
+
+  // Round to the nearest 4, for some reason I get getting crashes if I don't
+  // Do this and try to setup the LEDs with exactly 5 LEDs
+  // I feel like the code is optimized for "4"
+  num_leds = int((num_leds + 3)/ 4) * 4;
+  fastled_leds = new CRGB[num_leds];
+  fastled_num_leds = num_leds;
+  fastled_has_white = has_white;
+  // This is a little silly, but they use templating, so we can't really parameterize
+  // this allocator
+  if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 0) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 0>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 1) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 1>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 2) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 2>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 3) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 3>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 4) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 4>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 5) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 5>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 6) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 6>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 7) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 7>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 8) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 8>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 9) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 9>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 10) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 10>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 11) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 11>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 12) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 12>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 13) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 13>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 14) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 14>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 15) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 15>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 16) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 16>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 17) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 17>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 18) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 18>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 19) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 19>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 20) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 20>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 21) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 21>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 22) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 22>(fastled_leds, num_leds);
+  } else if (strcmp(led_class, "NEOPIXEL") == 0 && pin == 23) {
+    fastled_controller = &FastLED.addLeds<NEOPIXEL, 23>(fastled_leds, num_leds);
+  } else {
+    return EINVAL;
+  }
+
+  if (has_white) fastled_controller->setRgbw();
+
+  return 0;
+}
+int fastled_show(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc > 2) {
+    return EINVAL;
+  }
+  if (argc == 2) {
+    uint8_t scale = (uint8_t)strtol(argv[1], nullptr, 0);
+    FastLED.show(scale);
+  } else {
+    FastLED.show();
+  }
+  return 0;
+}
+int fastled_set_rgb(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc < 5) {
+    return EINVAL;
+  }
+  if (fastled_leds == nullptr) {
+    return EINVAL;
+  }
+
+  int index = strtol(argv[1], nullptr, 0);
+  if (index >= fastled_num_leds) {
+    return EINVAL;
+  }
+
+  uint8_t r = (uint8_t)strtol(argv[2], nullptr, 0);
+  uint8_t g = (uint8_t)strtol(argv[3], nullptr, 0);
+  uint8_t b = (uint8_t)strtol(argv[4], nullptr, 0);
+
+  fastled_leds[index].setRGB(r, g, b);
+
+  return 0;
+}
+
+
+int fastled_set_hsv(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc < 5) {
+    return EINVAL;
+  }
+  if (fastled_leds == nullptr) {
+    return EINVAL;
+  }
+
+  int index = strtol(argv[1], nullptr, 0);
+  if (index >= fastled_num_leds) {
+    return EINVAL;
+  }
+
+  uint8_t h = (uint8_t)strtol(argv[2], nullptr, 0);
+  uint8_t s = (uint8_t)strtol(argv[3], nullptr, 0);
+  uint8_t v = (uint8_t)strtol(argv[4], nullptr, 0);
+
+  fastled_leds[index].setHSV(h, s, v);
+
+  return 0;
+}
+
+int fastled_set_hue(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc < 3) {
+    return EINVAL;
+  }
+  if (fastled_leds == nullptr) {
+    return EINVAL;
+  }
+
+  int index = strtol(argv[1], nullptr, 0);
+  if (index >= fastled_num_leds) {
+    return EINVAL;
+  }
+
+  uint8_t hue = (uint8_t)strtol(argv[2], nullptr, 0);
+
+  fastled_leds[index].setHue(hue);
+
+  return 0;
+}
+
+
+int fastled_set_brightness(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2) {
+    return EINVAL;
+  }
+  if (fastled_leds == nullptr) {
+    return EINVAL;
+  }
+  int brightness = strtol(argv[1], nullptr, 0);
+  FastLED.setBrightness(brightness);
+  return 0;
+}
+
+int fastled_get_brightness(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 1) {
+    return EINVAL;
+  }
+  if (fastled_leds == nullptr) {
+    return EINVAL;
+  }
+  snprintf(cmd->buffer, cmd->buffer_size, "%u", FastLED.getBrightness());
   return 0;
 }
 

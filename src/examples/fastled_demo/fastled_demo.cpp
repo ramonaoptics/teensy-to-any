@@ -4,7 +4,8 @@
  */
 const char *teensy_to_any_startup_commands[] = {
     // Setup the LED as an indicator pin
-    "fastled_add_leds NEOPIXEL 1 19 5",
+    "fastled_add_leds NEOPIXEL 1 19 50",
+    "fastled_show 0",
 
     // set color to orange to indicate that we aren't ready yet
     // It takes about 2-3 seconds for the serial module to boot up

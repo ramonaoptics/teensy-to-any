@@ -3,7 +3,11 @@
 // enabling customization of these startup_commands depending
 // on the application
 __attribute__((weak)) const char *teensy_to_any_startup_commands[] = {
-    nullptr,
+  nullptr,
+};
+
+__attribute__((weak)) const char *teensy_to_any_post_serial_startup_commands[] = {
+  nullptr,
 };
 
 __attribute__((weak)) const char *teensy_to_any_demo_commands[] = {

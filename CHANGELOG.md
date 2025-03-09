@@ -1,6 +1,7 @@
 ### 0.8.0 (2025/03/09)
 
 * Provide basic support for FastLED.
+* Provide a way to run commands immediately after the Serial Port has been setup.
 
 ### 0.7.0 (2025/03/03)
 

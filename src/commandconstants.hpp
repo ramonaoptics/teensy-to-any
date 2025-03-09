@@ -85,6 +85,8 @@ int fastled_get_brightness(CommandRouter *cmd, int argc, const char **argv);
 int sleep_seconds(CommandRouter *cmd, int argc, const char **argv);
 int startup_commands_available(CommandRouter *cmd, int argc, const char **argv);
 int read_startup_command(CommandRouter *cmd, int argc, const char **argv);
+int post_serial_startup_commands_available(CommandRouter *cmd, int argc, const char **argv);
+int read_post_serial_startup_command(CommandRouter *cmd, int argc, const char **argv);
 int demo_commands_available(CommandRouter *cmd, int argc, const char **argv);
 int read_demo_command(CommandRouter *cmd, int argc, const char **argv);
 int disable_demo_commands(CommandRouter *cmd, int argc, const char **argv);
@@ -237,6 +239,10 @@ const command_item_t command_list[] = {
      "startup_commands_available", startup_commands_available},
     {"read_startup_command", "Read a startup command",
      "read_startup_command index", read_startup_command},
+    {"post_serial_startup_commands_available", "Number of post serial startup commands available",
+     "post_serial_startup_commands_available", startup_commands_available},
+    {"read_post_serial_startup_command", "Read a post serial startup command",
+     "read_post_serial_startup_command index", read_startup_command},
     {"demo_commands_available", "Number of demo commands available",
      "demo_commands_available", demo_commands_available},
     {"read_demo_command", "Read a demo command",

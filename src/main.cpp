@@ -64,12 +64,17 @@ I2CMaster_T4 i2c;
 
 
 int len_startup_commands;
+int len_post_serial_startup_commands;
 int len_demo_commands;
 
 void setup_startup_and_demo_commands() {
   len_startup_commands = 0;
   for (int i = 0; teensy_to_any_startup_commands[i] != nullptr; i++) {
     len_startup_commands++;
+  }
+  len_post_serial_startup_commands = 0;
+  for (int i = 0; teensy_to_any_post_serial_startup_commands[i] != nullptr; i++) {
+    len_post_serial_startup_commands++;
   }
   len_demo_commands = 0;
   for (int i = 0; teensy_to_any_demo_commands[i] != nullptr; i++) {
@@ -80,6 +85,11 @@ void setup_startup_and_demo_commands() {
 void execute_startup_commands() {
   for (int i = 0; teensy_to_any_startup_commands[i] != nullptr; i++) {
     cmd.processString(teensy_to_any_startup_commands[i]);
+  }
+}
+void execute_post_serial_startup_commands() {
+  for (int i = 0; teensy_to_any_post_serial_startup_commands[i] != nullptr; i++) {
+    cmd.processString(teensy_to_any_post_serial_startup_commands[i]);
   }
 }
 
@@ -155,6 +165,7 @@ void setup() {
   // See Delays section in
   // https://www.pjrc.com/teensy/td_startup.html
   Serial.begin(115'200);
+  execute_post_serial_startup_commands();
 
   execute_demo_commands();
 }
@@ -173,6 +184,25 @@ int read_startup_command(CommandRouter *cmd, int argc, const char **argv){
   if (index >= len_startup_commands)
     return EINVAL;
   const char *command = teensy_to_any_startup_commands[index];
+  if (command == nullptr)
+    return EINVAL;
+  snprintf(cmd->buffer, cmd->buffer_size, "%s", command);
+  return 0;
+}
+
+int post_startup_commands_available(CommandRouter *cmd, int argc, const char **argv){
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", len_post_serial_startup_commands);
+  return 0;
+}
+int read_post_startup_command(CommandRouter *cmd, int argc, const char **argv){
+  if (argc != 2)
+    return EINVAL;
+  int index = strtol(argv[1], nullptr, 0);
+  if (index < 0)
+    return EINVAL;
+  if (index >= len_post_serial_startup_commands)
+    return EINVAL;
+  const char *command = teensy_to_any_post_serial_startup_commands[index];
   if (command == nullptr)
     return EINVAL;
   snprintf(cmd->buffer, cmd->buffer_size, "%s", command);

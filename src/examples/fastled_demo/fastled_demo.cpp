@@ -14,6 +14,15 @@ const char *teensy_to_any_startup_commands[] = {
     "fastled_set_rgb 2 255 140 0",
     "fastled_set_rgb 3 255 140 0",
     "fastled_set_rgb 4 255 140 0",
+    "fastled_show 10",
+    nullptr,
+};
+
+const char *teensy_to_any_post_serial_startup_commands[] = {
+    // set color to orange to indicate that we aren't ready yet
+    // It takes about 2-3 seconds for the serial module to boot up
+    // The teensy will be unresponsive during this time.
+    "fastled_set_rgb 0 255 255 255",
     "fastled_show 30",
     nullptr,
 };

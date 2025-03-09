@@ -1189,7 +1189,7 @@ int fastled_add_leds(CommandRouter *cmd, int argc, const char **argv) {
   // Round to the nearest 4, for some reason I get getting crashes if I don't
   // Do this and try to setup the LEDs with exactly 5 LEDs
   // I feel like the code is optimized for "4"
-  num_leds = int((num_leds + 3)/ 4) * 4;
+  num_leds = int((num_leds + 7) / 8) * 8;
   fastled_leds = new CRGB[num_leds];
   fastled_num_leds = num_leds;
   fastled_has_white = has_white;

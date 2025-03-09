@@ -1,3 +1,7 @@
+### 0.9.0 (2025/03/09)
+
+* Fix edge case with FastLED driver.
+
 ### 0.8.0 (2025/03/09)
 
 * Provide basic support for FastLED.

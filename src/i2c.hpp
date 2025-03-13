@@ -15,18 +15,19 @@
 #define TEENSY_TO_ANY_HAS_I2C_T4 0
 #endif
 
-#if (TEENSY_TO_ANY_HAS_I2C_T3 || TEENSY_TO_ANY_HAS_I2C_T4)
-#define TEENSY_TO_ANY_HAS_I2C 1
-#else
-#define TEENSY_TO_ANY_HAS_I2C 0
-#warning I2C library not available for this build.
+#if !(TEENSY_TO_ANY_HAS_I2C_T3 || TEENSY_TO_ANY_HAS_I2C_T4)
+#error I2C library not available for this build.
 #endif
 
-#if TEENSY_TO_ANY_HAS_I2C_T3
 #include <unistd.h>
 
+#if TEENSY_TO_ANY_HAS_I2C_T3
+
+#include <i2c_t3.h>
 class I2CMaster {
 public:
+  I2CMaster(i2c_t3* wire_instance) : wire(wire_instance) {}
+
   int init(int baudrate, int timeout_ms, int address_size,
            int address_msb_first);
   int reset();
@@ -50,15 +51,20 @@ private:
   int address_size = 0;
   bool is_initialized = false;
   bool slave_8bit_address = true;
+  i2c_t3 *wire;
 };
 #endif
 
 #if TEENSY_TO_ANY_HAS_I2C_T4
-#include <unistd.h>
-class I2CMaster_T4 {
+
+#include <i2c_driver_wire.h>
+
+// Make this a template class that takes in a WIRE object
+class I2CMaster_T4{
 public:
+  I2CMaster_T4(I2CDriverWire* wire_instance) : wire(wire_instance) {}
   int init(int baudrate, int timeout_ms, int address_size,
-           int address_msb_first);
+    int address_msb_first);
   int reset();
   int write_uint16(int slave_address, int register_address, uint16_t data);
   int read_uint16(int slave_address, int register_address, uint16_t &data);
@@ -80,5 +86,6 @@ private:
   int address_size = 0;
   bool is_initialized = false;
   bool slave_8bit_address = true;
+  I2CDriverWire *wire;
 };
 #endif

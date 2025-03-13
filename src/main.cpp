@@ -517,6 +517,229 @@ int i2c_write_no_register_uint8(CommandRouter *cmd, int argc,
   return i2c.write_no_register_uint8(slave_address, data);
 }
 
+
+
+int i2c_1_init(CommandRouter *cmd, int argc, const char **argv) {
+  int baudrate = 100'000;
+  int timeout_ms = 200'000; // 200ms
+  int address_size = 2;
+  int address_msb_first = false;
+  if (argc >= 2) {
+    baudrate = strtol(argv[1], nullptr, 0);
+  }
+  if (argc >= 3) {
+    timeout_ms = strtol(argv[2], nullptr, 0);
+  }
+  if (argc >= 4) {
+    address_size = strtol(argv[3], nullptr, 0);
+  }
+  if (argc >= 5) {
+    address_msb_first = strtol(argv[4], nullptr, 0);
+  }
+
+  return i2c_1.init(baudrate, timeout_ms, address_size, address_msb_first);
+}
+
+int i2c_1_reset(CommandRouter *cmd, int argc, const char **argv) {
+  return i2c_1.reset();
+}
+
+int i2c_1_write_uint16(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 4)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  int register_address = strtol(argv[2], nullptr, 0);
+  uint16_t data = strtol(argv[3], nullptr, 0);
+  return i2c_1.write_uint16(slave_address, register_address, data);
+}
+
+int i2c_1_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 4)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  int register_address = strtol(argv[2], nullptr, 0);
+  uint8_t data = strtol(argv[3], nullptr, 0);
+
+  return i2c_1.write_uint8(slave_address, register_address, data);
+}
+
+int i2c_1_write_payload(CommandRouter *cmd, int argc, const char **argv) {
+  const int num_bytes_max = 8;
+  uint8_t data[num_bytes_max];
+  if (argc < 4)
+    return EINVAL;
+
+  int num_bytes = argc - 3;
+  if (num_bytes > num_bytes_max)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  int register_address = strtol(argv[2], nullptr, 0);
+
+  for (int i = 0; i < num_bytes; i++) {
+    data[i] = strtol(argv[i + 3], nullptr, 0);
+  }
+
+  return i2c_1.write_payload(slave_address, register_address, data, num_bytes);
+
+}
+
+int i2c_1_read_payload(CommandRouter *cmd, int argc, const char **argv) {
+  const int num_bytes_max = 8;
+  if (argc != 4)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  int register_address = strtol(argv[2], nullptr, 0);
+  int num_bytes = strtol(argv[3], nullptr, 0);
+  if (num_bytes > num_bytes_max)
+    return EINVAL;
+
+  uint8_t data[8];
+  int result;
+  result = i2c_1.read_payload(slave_address, register_address, data, num_bytes);
+
+  if (result == 0) {
+    for (int i = 0; i < num_bytes; i++) {
+      if (i == 0) {
+        snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", data[i]);
+      } else {
+        snprintf(cmd->buffer + strlen(cmd->buffer), cmd->buffer_size, "0x%02X",
+                 data[i]);
+      }
+      if (i != num_bytes - 1) {
+        snprintf(cmd->buffer + strlen(cmd->buffer), cmd->buffer_size, "%c",
+                 ' ');
+      }
+    }
+  }
+  return result;
+}
+
+int i2c_1_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv) {
+  const int num_bytes_max = 16;
+  if (argc != 3)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  int num_bytes = strtol(argv[2], nullptr, 0);
+  if (num_bytes > num_bytes_max)
+    return EINVAL;
+
+  uint8_t data[16];
+  int result;
+  result = i2c_1.read_payload_no_register(slave_address, data, num_bytes);
+
+  if (result == 0) {
+    for (int i = 0; i < num_bytes; i++) {
+      if (i == 0) {
+        snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", data[i]);
+      } else {
+        snprintf(cmd->buffer + strlen(cmd->buffer), cmd->buffer_size, "0x%02X",
+                 data[i]);
+      }
+      if (i != num_bytes - 1) {
+        snprintf(cmd->buffer + strlen(cmd->buffer), cmd->buffer_size, "%c",
+                 ' ');
+      }
+    }
+  }
+  return result;
+}
+
+int i2c_1_read_payload_uint16(CommandRouter *cmd, int argc, const char **argv) {
+  const int num_bytes_max = 16;
+  if (argc != 4)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  int register_address;
+  register_address = strtol(argv[2], nullptr, 0);
+  int num_bytes = strtol(argv[3], nullptr, 0);
+  if (num_bytes > num_bytes_max)
+    return EINVAL;
+
+  uint8_t data[16];
+  int result;
+  result = i2c_1.read_payload_uint16(slave_address, register_address,
+                                   data, num_bytes);
+
+  if (result == 0) {
+    for (int i = 0; i < num_bytes; i++) {
+      if (i == 0) {
+        snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", data[i]);
+      } else {
+        snprintf(cmd->buffer + strlen(cmd->buffer), cmd->buffer_size, "0x%02X",
+                 data[i]);
+      }
+      if (i != num_bytes - 1) {
+        snprintf(cmd->buffer + strlen(cmd->buffer), cmd->buffer_size, "%c",
+                 ' ');
+      }
+    }
+  }
+  return result;
+}
+
+int i2c_1_read_uint16(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 3)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  int register_address = strtol(argv[2], nullptr, 0);
+  uint16_t data;
+  int result;
+  result = i2c_1.read_uint16(slave_address, register_address, data);
+
+  if (result == 0) {
+    snprintf(cmd->buffer, cmd->buffer_size, "0x%04X", data);
+  }
+  return result;
+}
+
+int i2c_1_read_uint8(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 3)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  int register_address = strtol(argv[2], nullptr, 0);
+  uint8_t data;
+  int result;
+  result = i2c_1.read_uint8(slave_address, register_address, data);
+  if (result == 0) {
+    snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", data);
+  }
+  return result;
+}
+
+int i2c_1_read_no_register_uint8(CommandRouter *cmd, int argc,
+                               const char **argv) {
+  if (argc != 2)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  uint8_t data;
+  int result;
+
+  result = i2c_1.read_no_register_uint8(slave_address, data);
+  if (result == 0) {
+    snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", data);
+  }
+  return result;
+}
+
+int i2c_1_write_no_register_uint8(CommandRouter *cmd, int argc,
+                                const char **argv) {
+  if (argc != 3)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  uint8_t data = strtol(argv[2], nullptr, 0);
+  return i2c_1.write_no_register_uint8(slave_address, data);
+}
+
 int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv) {
   if (argc < 3 || argc > 4)
     return EINVAL;

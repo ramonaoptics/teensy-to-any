@@ -30,6 +30,20 @@ int i2c_read_payload(CommandRouter *cmd, int argc, const char **argv);
 int i2c_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv);
 int i2c_read_payload_uint16(CommandRouter *cmd, int argc, const char **argv);
 
+int i2c_1_init(CommandRouter *cmd, int argc, const char **argv);
+int i2c_1_reset(CommandRouter *cmd, int argc, const char **argv);
+int i2c_1_write_uint16(CommandRouter *cmd, int argc, const char **argv);
+int i2c_1_read_uint16(CommandRouter *cmd, int argc, const char **argv);
+int i2c_1_write_uint8(CommandRouter *cmd, int argc, const char **argv);
+int i2c_1_read_uint8(CommandRouter *cmd, int argc, const char **argv);
+int i2c_1_read_no_register_uint8(CommandRouter *cmd, int argc, const char **argv);
+int i2c_1_write_no_register_uint8(CommandRouter *cmd, int argc,
+                                const char **argv);
+int i2c_1_write_payload(CommandRouter *cmd, int argc, const char **argv);
+int i2c_1_read_payload(CommandRouter *cmd, int argc, const char **argv);
+int i2c_1_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv);
+int i2c_1_read_payload_uint16(CommandRouter *cmd, int argc, const char **argv);
+
 // PWM Support
 int analog_write(CommandRouter *cmd, int argc, const char **argv);
 int analog_write_frequency(CommandRouter *cmd, int argc, const char **argv);
@@ -160,6 +174,49 @@ const command_item_t command_list[] = {
       "register address.",
       "i2c_read_payload_uint16 slave_address register_address data num_bytes",
       i2c_read_payload_uint16},
+
+    {"i2c_1_init", "Initialize I2C Communication",
+    "i2c_1_init [baudrate=100_000] [timeout_ms=200_000] [address_size=2] "
+    "[address_msb_first=1]",
+    i2c_1_init},
+    {"i2c_1_reset", "Reset the I2C PORT in case of lockup.", "i2c_1_reset",
+    i2c_1_reset},
+    {"i2c_1_write_uint16", "Write a 16 bit number to the I2C device",
+    "i2c_1_write_uint16 slave_address register_address data", i2c_1_write_uint16},
+    {"i2c_1_read_uint16", "Read a 16 bit number from the I2C device",
+    "i2c_1_read_uint16 slave_address register_address", i2c_1_read_uint16},
+    {"i2c_1_write_uint8", "Write a 16 bit number to the I2C device",
+    "i2c_1_write_uint8 slave_address register_address data", i2c_1_write_uint8},
+    {"i2c_1_read_uint8", "Read a 16 bit number from the I2C device",
+    "i2c_1_read_uint8 slave_address register_address", i2c_1_read_uint8},
+    {"i2c_1_read_no_register_uint8",
+    "Read a uint8_t from the I2C bus without specifying a register address.",
+    "i2c_1_read_no_register_uint8 slave_address", i2c_1_read_no_register_uint8},
+    {"i2c_1_write_no_register_uint8",
+    "Write a uint8_t to the I2C bus without specifying a register address.",
+    "i2c_1_write_no_register_uint8 slave_address data",
+    i2c_1_write_no_register_uint8},
+    {"i2c_1_write_payload",
+    "Write up to 8 bytes to the I2C bus starting at a specified register "
+    "address.",
+    "i2c_1_write_payload slave_address register_address data num_bytes",
+    i2c_1_write_payload},
+    {"i2c_1_read_payload",
+    "Read up to 8 bytes from the I2C bus starting at a specified 8 bit "
+    "register address.",
+    "i2c_1_read_payload slave_address register_address data num_bytes",
+    i2c_1_read_payload},
+    {"i2c_1_read_payload_no_register",
+    "Read up to 16 bytes from the I2C bus without specifying a register "
+    "address.",
+    "i2c_1_read_payload_no_register slave_address data num_bytes",
+    i2c_1_read_payload_no_register},
+    {"i2c_1_read_payload_uint16",
+        "Read up to 16 bytes from the I2C bus starting at a specified 16 bit "
+        "register address.",
+        "i2c_1_read_payload_uint16 slave_address register_address data num_bytes",
+        i2c_1_read_payload_uint16},
+
     {"analog_write", "Write the duty cycle of the PWM",
      "analog_write pin dutycycle", analog_write},
     {"analog_write_frequency", "Write the frequency of the PWM",

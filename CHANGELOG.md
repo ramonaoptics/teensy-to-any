@@ -1,3 +1,7 @@
+### 0.10.0 (2025/03/12)
+
+* Add support for Wire1 interface on Teensy3.2 and Teensy4.0.
+
 ### 0.9.0 (2025/03/09)
 
 * Fix edge case with FastLED driver.

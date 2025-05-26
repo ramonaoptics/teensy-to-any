@@ -1,3 +1,7 @@
+### 0.11.0 (2025/05/26)
+
+* Allow payloads of up to 16 instead of 8 for i2c.
+
 ### 0.10.0 (2025/03/12)
 
 * Add support for Wire1 interface on Teensy3.2 and Teensy4.0.

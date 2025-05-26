@@ -343,7 +343,7 @@ int i2c_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_write_payload(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 8;
+  const int num_bytes_max = 16;
   uint8_t data[num_bytes_max];
   if (argc < 4)
     return EINVAL;
@@ -364,7 +364,7 @@ int i2c_write_payload(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_read_payload(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 8;
+  const int num_bytes_max = 16;
   if (argc != 4)
     return EINVAL;
 
@@ -374,7 +374,7 @@ int i2c_read_payload(CommandRouter *cmd, int argc, const char **argv) {
   if (num_bytes > num_bytes_max)
     return EINVAL;
 
-  uint8_t data[8];
+  uint8_t data[num_bytes_max];
   int result;
   result = i2c.read_payload(slave_address, register_address, data, num_bytes);
 
@@ -566,7 +566,7 @@ int i2c_1_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_1_write_payload(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 8;
+  const int num_bytes_max = 16;
   uint8_t data[num_bytes_max];
   if (argc < 4)
     return EINVAL;
@@ -587,7 +587,7 @@ int i2c_1_write_payload(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_1_read_payload(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 8;
+  const int num_bytes_max = 16;
   if (argc != 4)
     return EINVAL;
 
@@ -597,7 +597,7 @@ int i2c_1_read_payload(CommandRouter *cmd, int argc, const char **argv) {
   if (num_bytes > num_bytes_max)
     return EINVAL;
 
-  uint8_t data[8];
+  uint8_t data[16];
   int result;
   result = i2c_1.read_payload(slave_address, register_address, data, num_bytes);
 

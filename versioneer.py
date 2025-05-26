@@ -6,5 +6,4 @@ revision = revision.replace('-dirty', '+dirty', 1)
 revision = revision.replace('-', '.post', 1)
 revision = revision.replace('-g', '+g', 1)
 
-# print('-DGIT_DESCRIBE=\'"%s"\'' % revision)
-print('-DGIT_DESCRIBE=\'"0.10.0"\'')
+print(f'-DGIT_DESCRIBE=\'"{revision}"\'')

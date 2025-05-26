@@ -30,6 +30,8 @@ int i2c_read_payload(CommandRouter *cmd, int argc, const char **argv);
 int i2c_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv);
 int i2c_read_payload_uint16(CommandRouter *cmd, int argc, const char **argv);
 
+int i2c_ping(CommandRouter *cmd, int argc, const char **argv);
+
 int i2c_1_init(CommandRouter *cmd, int argc, const char **argv);
 int i2c_1_reset(CommandRouter *cmd, int argc, const char **argv);
 int i2c_1_write_uint16(CommandRouter *cmd, int argc, const char **argv);
@@ -43,6 +45,7 @@ int i2c_1_write_payload(CommandRouter *cmd, int argc, const char **argv);
 int i2c_1_read_payload(CommandRouter *cmd, int argc, const char **argv);
 int i2c_1_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv);
 int i2c_1_read_payload_uint16(CommandRouter *cmd, int argc, const char **argv);
+int i2c_1_ping(CommandRouter *cmd, int argc, const char **argv);
 
 // PWM Support
 int analog_write(CommandRouter *cmd, int argc, const char **argv);
@@ -167,14 +170,17 @@ const command_item_t command_list[] = {
     {"i2c_read_payload_no_register",
      "Read up to 16 bytes from the I2C bus without specifying a register "
      "address.",
-     "i2c_read_payload_no_register slave_address data num_bytes",
+     "i2c_read_payload_no_register slave_address num_bytes",
      i2c_read_payload_no_register},
-     {"i2c_read_payload_uint16",
+    {"i2c_read_payload_uint16",
       "Read up to 16 bytes from the I2C bus starting at a specified 16 bit "
       "register address.",
       "i2c_read_payload_uint16 slave_address register_address data num_bytes",
       i2c_read_payload_uint16},
-
+    {"i2c_ping",
+     "Ping the bus to check if the address acknoledges a read request.",
+     "i2c_ping slave_address",
+      i2c_ping},
     {"i2c_1_init", "Initialize I2C Communication",
     "i2c_1_init [baudrate=100_000] [timeout_ms=200_000] [address_size=2] "
     "[address_msb_first=1]",
@@ -216,6 +222,10 @@ const command_item_t command_list[] = {
         "register address.",
         "i2c_1_read_payload_uint16 slave_address register_address data num_bytes",
         i2c_1_read_payload_uint16},
+    {"i2c_1_ping",
+     "Ping the bus to check if the address acknoledges a read request.",
+     "i2c_1_ping slave_address",
+      i2c_1_ping},
 
     {"analog_write", "Write the duty cycle of the PWM",
      "analog_write pin dutycycle", analog_write},

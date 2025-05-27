@@ -1,3 +1,8 @@
+### 0.12.0 (2025/05/26)
+
+* Beta: Provide an i2c ping command. At the time of release this feature has
+  not been tested. We value user feedback as well as any bug reports.
+
 ### 0.11.0 (2025/05/26)
 
 * Allow payloads of up to 16 instead of 8 for i2c.

@@ -213,8 +213,8 @@ int I2CMaster::read_uint8(int slave_address, int register_address,
   this->wire->beginTransmission(slave_address); // slave addr
   // Write the MSB of the address first
   this->_write_register_address(register_address);
-  this->wire->endTransmission(
-      I2C_NOSTOP); // blocking write (when not specified I2C_STOP is implicit)
+  // blocking write (when not specified I2C_STOP is implicit)
+  this->wire->endTransmission(I2C_NOSTOP);
   err = this->wire->getError();
   if (err) {
     goto handle_error;
@@ -324,8 +324,8 @@ int I2CMaster::read_payload_uint16(int slave_address, int register_address,
   // Write the MSB of the address first
   this->wire->write((register_address >> 8) & 0xFF);
   this->wire->write((register_address >> 0) & 0xFF);
-  this->wire->endTransmission(
-      I2C_NOSTOP); // blocking write (when not specified I2C_STOP is implicit)
+  // blocking write (when not specified I2C_STOP is implicit)
+  this->wire->endTransmission(I2C_NOSTOP);
   err = this->wire->getError();
   if (err) {
     goto handle_error;
@@ -353,6 +353,22 @@ handle_error:
   while (this->wire->available() != 0) {
     this->wire->readByte();
   }
+  return err;
+}
+
+int I2CMaster::ping(int slave_address) {
+  if (!this->is_initialized)
+    return ENODEV;
+  // Wire library uses 7 bit addresses
+  if (slave_8bit_address)
+    slave_address = slave_address >> 1;
+  // Ensure the address is in write mode
+  uint8_t err;
+
+  this->wire->beginTransmission(slave_address); // slave addr
+  // Write the MSB of the address first
+  // blocking write (when not specified I2C_STOP is implicit)
+  err = this->wire->endTransmission(I2C_STOP);
   return err;
 }
 #endif
@@ -675,4 +691,21 @@ handle_error:
   }
   return err;
 }
+
+int I2CMaster_T4::ping(int slave_address) {
+  if (!this->is_initialized)
+    return ENODEV;
+  // Wire library uses 7 bit addresses
+  if (slave_8bit_address)
+    slave_address = slave_address >> 1;
+  // Ensure the address is in write mode
+  uint8_t err;
+
+  this->wire->beginTransmission(slave_address); // slave addr
+  // Write the MSB of the address first
+  // blocking write (when not specified I2C_STOP is implicit)
+  err = this->wire->endTransmission(I2C_STOP);
+  return err;
+}
+
 #endif

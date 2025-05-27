@@ -518,6 +518,14 @@ int i2c_write_no_register_uint8(CommandRouter *cmd, int argc,
 }
 
 
+int i2c_ping(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  return i2c.ping(slave_address);
+}
+
 
 int i2c_1_init(CommandRouter *cmd, int argc, const char **argv) {
   int baudrate = 100'000;
@@ -738,6 +746,14 @@ int i2c_1_write_no_register_uint8(CommandRouter *cmd, int argc,
   int slave_address = strtol(argv[1], nullptr, 0);
   uint8_t data = strtol(argv[2], nullptr, 0);
   return i2c_1.write_no_register_uint8(slave_address, data);
+}
+
+int i2c_1_ping(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  return i2c_1.ping(slave_address);
 }
 
 int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv) {

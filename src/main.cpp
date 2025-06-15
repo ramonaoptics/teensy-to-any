@@ -32,6 +32,31 @@ inline SPISettings my_spi_settings() {
   return SPISettings(spi_baudrate, spi_bit_order, spi_data_mode);
 }
 
+/* The following are weak aliases for the USB string descriptors
+   We use this to override the default USB string descriptors
+   With our own to describe the TeensyToAny device.
+
+
+extern struct usb_string_descriptor_struct usb_string_manufacturer_name
+        __attribute__ ((weak, alias("usb_string_manufacturer_name_default")));
+extern struct usb_string_descriptor_struct usb_string_product_name
+        __attribute__ ((weak, alias("usb_string_product_name_default")));
+extern struct usb_string_descriptor_struct usb_string_serial_number
+        __attribute__ ((weak, alias("usb_string_serial_number_default")));
+*/
+#ifndef TEENSY_TO_ANY_MANUFACTURER_NAME
+#define TEENSY_TO_ANY_MANUFACTURER_NAME {'T', 'e', 'e', 'n', 's', 'y', 'T', 'o', 'A', 'n', 'y'}
+#endif
+#ifndef TEENSY_TO_ANY_MANUFACTURER_NAME_LEN
+#define TEENSY_TO_ANY_MANUFACTURER_NAME_LEN 11
+#endif
+
+PROGMEM usb_string_descriptor_struct usb_string_manufacturer_name = {
+    .bLength = 2 + 2 * TEENSY_TO_ANY_MANUFACTURER_NAME_LEN,
+    .bDescriptorType = 3,
+    .wString = TEENSY_TO_ANY_MANUFACTURER_NAME,
+};
+
 #ifdef TEENSYTOANY_USE_NEOPIXEL
 #include <Adafruit_NeoPixel.h>
 #define NEOPIXEL_PIN     19

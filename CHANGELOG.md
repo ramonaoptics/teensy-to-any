@@ -1,3 +1,7 @@
+### 0.13.0 (2025/06/14)
+
+* The usb manfuacturer is now specified as TeensyToAny instead of Teensyduino.
+
 ### 0.12.0 (2025/05/26)
 
 * Beta: Provide an i2c ping command. At the time of release this feature has

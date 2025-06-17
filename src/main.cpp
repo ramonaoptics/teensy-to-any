@@ -360,10 +360,9 @@ int i2c_write(CommandRouter *cmd, int argc, const char **argv) {
   if (argc < 3)
     return EINVAL;
 
-  int slave_address = strtol(argv[1], nullptr, 0);
-  int num_bytes = argc - 2;
+  int num_bytes = argc - 1;
   for (int i = 0; i < num_bytes; i++) {
-    data[i] = strtol(argv[i + 2], nullptr, 0);
+    data[i] = strtol(argv[i + 1], nullptr, 0);
   }
 
   return i2c.write(data, num_bytes);
@@ -450,7 +449,7 @@ int i2c_read_payload(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 16;
+  const int num_bytes_max = 256;
   if (argc != 3)
     return EINVAL;
 
@@ -459,7 +458,7 @@ int i2c_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv
   if (num_bytes > num_bytes_max)
     return EINVAL;
 
-  uint8_t data[16];
+  uint8_t data[num_bytes_max];
   int result;
   result = i2c.read_payload_no_register(slave_address, data, num_bytes);
 
@@ -481,7 +480,7 @@ int i2c_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv
 }
 
 int i2c_read_payload_uint16(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 16;
+  const int num_bytes_max = 256;
   if (argc != 4)
     return EINVAL;
 
@@ -492,7 +491,7 @@ int i2c_read_payload_uint16(CommandRouter *cmd, int argc, const char **argv) {
   if (num_bytes > num_bytes_max)
     return EINVAL;
 
-  uint8_t data[16];
+  uint8_t data[num_bytes_max];
   int result;
   result = i2c.read_payload_uint16(slave_address, register_address,
                                    data, num_bytes);
@@ -620,10 +619,9 @@ int i2c_1_write(CommandRouter *cmd, int argc, const char **argv) {
   if (argc < 3)
     return EINVAL;
 
-  int slave_address = strtol(argv[1], nullptr, 0);
-  int num_bytes = argc - 2;
+  int num_bytes = argc - 1;
   for (int i = 0; i < num_bytes; i++) {
-    data[i] = strtol(argv[i + 2], nullptr, 0);
+    data[i] = strtol(argv[i + 1], nullptr, 0);
   }
 
   return i2c_1.write(data, num_bytes);
@@ -657,7 +655,7 @@ int i2c_1_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_1_write_payload(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 16;
+  const int num_bytes_max = 256;
   uint8_t data[num_bytes_max];
   if (argc < 4)
     return EINVAL;
@@ -678,7 +676,7 @@ int i2c_1_write_payload(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_1_read_payload(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 16;
+  const int num_bytes_max = 256;
   if (argc != 4)
     return EINVAL;
 
@@ -688,7 +686,7 @@ int i2c_1_read_payload(CommandRouter *cmd, int argc, const char **argv) {
   if (num_bytes > num_bytes_max)
     return EINVAL;
 
-  uint8_t data[16];
+  uint8_t data[num_bytes_max];
   int result;
   result = i2c_1.read_payload(slave_address, register_address, data, num_bytes);
 
@@ -710,7 +708,7 @@ int i2c_1_read_payload(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_1_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 16;
+  const int num_bytes_max = 256;
   if (argc != 3)
     return EINVAL;
 
@@ -719,7 +717,7 @@ int i2c_1_read_payload_no_register(CommandRouter *cmd, int argc, const char **ar
   if (num_bytes > num_bytes_max)
     return EINVAL;
 
-  uint8_t data[16];
+  uint8_t data[num_bytes_max];
   int result;
   result = i2c_1.read_payload_no_register(slave_address, data, num_bytes);
 
@@ -741,7 +739,7 @@ int i2c_1_read_payload_no_register(CommandRouter *cmd, int argc, const char **ar
 }
 
 int i2c_1_read_payload_uint16(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 16;
+  const int num_bytes_max = 256;
   if (argc != 4)
     return EINVAL;
 
@@ -752,7 +750,7 @@ int i2c_1_read_payload_uint16(CommandRouter *cmd, int argc, const char **argv) {
   if (num_bytes > num_bytes_max)
     return EINVAL;
 
-  uint8_t data[16];
+  uint8_t data[num_bytes_max];
   int result;
   result = i2c_1.read_payload_uint16(slave_address, register_address,
                                    data, num_bytes);

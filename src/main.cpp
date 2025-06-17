@@ -369,9 +369,17 @@ int i2c_write(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_end_transaction(CommandRouter *cmd, int argc, const char **argv) {
-  (void)argc;
-  (void)argv;
-  return i2c.end_transaction();
+  bool stop = True;
+  if (argc >= 2) {
+    if (strcmp(argv[1], "false") == 0) {
+      stop = false;
+    } else if (strcmp(argv[1], "true") == 0) {
+      stop = true;
+    } else {
+      stop = (bool)strtol(argv[1], nullptr, 0);
+    }
+  }
+  return i2c.end_transaction(stop);
 }
 
 int i2c_write_uint16(CommandRouter *cmd, int argc, const char **argv) {
@@ -628,9 +636,17 @@ int i2c_1_write(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_1_end_transaction(CommandRouter *cmd, int argc, const char **argv) {
-  (void)argc;
-  (void)argv;
-  return i2c_1.end_transaction();
+    bool stop = True;
+  if (argc >= 2) {
+    if (strcmp(argv[1], "false") == 0) {
+      stop = false;
+    } else if (strcmp(argv[1], "true") == 0) {
+      stop = true;
+    } else {
+      stop = (bool)strtol(argv[1], nullptr, 0);
+    }
+  }
+  return i2c_1.end_transaction(stop);
 }
 
 int i2c_1_write_uint16(CommandRouter *cmd, int argc, const char **argv) {

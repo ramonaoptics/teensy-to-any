@@ -369,7 +369,7 @@ int i2c_write(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_end_transaction(CommandRouter *cmd, int argc, const char **argv) {
-  bool stop = True;
+  bool stop = true;
   if (argc >= 2) {
     if (strcmp(argv[1], "false") == 0) {
       stop = false;
@@ -636,7 +636,7 @@ int i2c_1_write(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_1_end_transaction(CommandRouter *cmd, int argc, const char **argv) {
-    bool stop = True;
+    bool stop = true;
   if (argc >= 2) {
     if (strcmp(argv[1], "false") == 0) {
       stop = false;

@@ -39,6 +39,30 @@ void I2CMaster::_write_register_address(int register_address) {
   }
 }
 
+int I2CMaster::begin_transaction(int slave_address) {
+  if (!this->is_initialized)
+    return ENODEV;
+  // Wire library uses 7 bit addresses
+  if (slave_8bit_address)
+    slave_address = slave_address >> 1;
+  // Ensure the address is in write mode
+  this->wire->beginTransmission(slave_address); // slave addr
+  return 0;
+}
+int I2CMaster::write(uint8_t *data, int num_bytes) {
+  if (!this->is_initialized)
+    return ENODEV;
+  // Write the data to the wire
+  this->wire->write(data, num_bytes);
+  return 0;
+}
+int I2CMaster::end_transaction(bool stop) {
+  if (!this->is_initialized)
+    return ENODEV;
+  // blocking write (when not specified I2C_STOP is implicit)
+  return this->wire->endTransmission(stop);
+}
+
 int I2CMaster::write_uint16(int slave_address, int register_address,
                             uint16_t data) {
   if (!this->is_initialized)
@@ -415,6 +439,32 @@ void I2CMaster_T4::_write_register_address(int register_address) {
   } else if (this->address_size == 1) {
     this->wire->write((register_address >> 0) & 0xFF);
   }
+}
+
+int I2CMaster_T4::begin_transaction(int slave_address) {
+  if (!this->is_initialized)
+    return ENODEV;
+  // Wire library uses 7 bit addresses
+  if (slave_8bit_address)
+    slave_address = slave_address >> 1;
+  // Ensure the address is in write mode
+  this->wire->beginTransmission(slave_address); // slave addr
+  return 0;
+}
+
+int I2CMaster_T4::write(uint8_t *data, int num_bytes) {
+  if (!this->is_initialized)
+    return ENODEV;
+  // Write the data to the wire
+  this->wire->write(data, num_bytes);
+  return 0;
+}
+
+int I2CMaster_T4::end_transaction(bool stop) {
+  if (!this->is_initialized)
+    return ENODEV;
+  // blocking write (when not specified I2C_STOP is implicit)
+  return (int)(this->wire->endTransmission(stop));
 }
 
 int I2CMaster_T4::write_uint16(int slave_address, int register_address,

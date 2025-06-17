@@ -1,3 +1,7 @@
+### 0.14.0 (2025/06/16)
+
+* Provide ways to break up an i2c transaction with very low level i2c commands.
+
 ### 0.13.0 (2025/06/14)
 
 * The usb manfuacturer is now specified as TeensyToAny instead of Teensyduino.

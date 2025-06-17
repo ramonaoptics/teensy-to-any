@@ -31,6 +31,9 @@ public:
   int init(int baudrate, int timeout_ms, int address_size,
            int address_msb_first);
   int reset();
+  int begin_transaction(int slave_address);
+  int write(uint8_t *data, int num_bytes);
+  int end_transaction(bool stop = true);
   int write_uint16(int slave_address, int register_address, uint16_t data);
   int read_uint16(int slave_address, int register_address, uint16_t &data);
   int write_uint8(int slave_address, int register_address, uint8_t data);
@@ -67,6 +70,9 @@ public:
   int init(int baudrate, int timeout_ms, int address_size,
     int address_msb_first);
   int reset();
+  int begin_transaction(int slave_address);
+  int write(uint8_t *data, int num_bytes);
+  int end_transaction(bool stop = true);
   int write_uint16(int slave_address, int register_address, uint16_t data);
   int read_uint16(int slave_address, int register_address, uint16_t &data);
   int write_uint8(int slave_address, int register_address, uint8_t data);

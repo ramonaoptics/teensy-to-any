@@ -346,6 +346,35 @@ int i2c_reset(CommandRouter *cmd, int argc, const char **argv) {
   return i2c.reset();
 }
 
+int i2c_begin_transaction(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  return i2c.begin_transaction(slave_address);
+}
+
+int i2c_write(CommandRouter *cmd, int argc, const char **argv) {
+  const int num_bytes_max = 256;
+  uint8_t data[num_bytes_max];
+  if (argc < 3)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  int num_bytes = argc - 2;
+  for (int i = 0; i < num_bytes; i++) {
+    data[i] = strtol(argv[i + 2], nullptr, 0);
+  }
+
+  return i2c.write(data, num_bytes);
+}
+
+int i2c_end_transaction(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argc;
+  (void)argv;
+  return i2c.end_transaction();
+}
+
 int i2c_write_uint16(CommandRouter *cmd, int argc, const char **argv) {
   if (argc != 4)
     return EINVAL;
@@ -575,6 +604,35 @@ int i2c_1_init(CommandRouter *cmd, int argc, const char **argv) {
 
 int i2c_1_reset(CommandRouter *cmd, int argc, const char **argv) {
   return i2c_1.reset();
+}
+
+int i2c_1_begin_transaction(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  return i2c_1.begin_transaction(slave_address);
+}
+
+int i2c_1_write(CommandRouter *cmd, int argc, const char **argv) {
+  const int num_bytes_max = 256;
+  uint8_t data[num_bytes_max];
+  if (argc < 3)
+    return EINVAL;
+
+  int slave_address = strtol(argv[1], nullptr, 0);
+  int num_bytes = argc - 2;
+  for (int i = 0; i < num_bytes; i++) {
+    data[i] = strtol(argv[i + 2], nullptr, 0);
+  }
+
+  return i2c_1.write(data, num_bytes);
+}
+
+int i2c_1_end_transaction(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argc;
+  (void)argv;
+  return i2c_1.end_transaction();
 }
 
 int i2c_1_write_uint16(CommandRouter *cmd, int argc, const char **argv) {

@@ -1,3 +1,7 @@
+### 0.15.0 (2025/08/11)
+
+* Reduce number of LEDs from 50 to 6 in the fastled demo code.
+
 ### 0.14.0 (2025/06/16)
 
 * Provide ways to break up an i2c transaction with very low level i2c commands.

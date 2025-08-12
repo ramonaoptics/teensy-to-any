@@ -4,7 +4,9 @@
  */
 const char *teensy_to_any_startup_commands[] = {
     // Setup the LED as an indicator pin
-    "fastled_add_leds NEOPIXEL 1 19 50",
+    // We choose to have 6 LEDs since we can show
+    // patterns a little faster compared to 50
+    "fastled_add_leds NEOPIXEL 1 19 6",
     "fastled_show 0",
 
     // set color to orange to indicate that we aren't ready yet
@@ -45,6 +47,7 @@ const char *teensy_to_any_demo_commands[] = {
     "fastled_set_rgb 2 0 40 0",
     "fastled_set_rgb 3 0 0 40",
     "fastled_set_rgb 4 40 40 40",
+    "fastled_set_rgb 5 80 80 80",
 
     "fastled_show 250", _SLEEP_PATTERN,
     "fastled_show 200", _SLEEP_PATTERN,

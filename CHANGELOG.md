@@ -5,6 +5,7 @@
 * Update command documentation to accurately reflect function signatures and parameter requirements.
 * Fix incorrect bit size descriptions in documentation (8-bit vs 16-bit functions).
 * Correct parameter syntax for transaction-based I2C commands.
+* Reduce BUFFER_SIZE from 16KB to 2KB for improved memory efficiency and Teensy 3.2 compatibility.
 
 ### 0.15.0 (2025/08/11)
 

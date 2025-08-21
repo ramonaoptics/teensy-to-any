@@ -22,6 +22,13 @@
 char serial_buffer[BUFFER_SIZE];
 const char *argv_buffer[ARGV_MAX];
 #endif
+
+// I2C buffer sizes - smaller for Teensy 3.2, larger for Teensy 4.0
+#if defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#define I2C_BUFFER_SIZE 32  // Teensy 3.2/3.5/3.6
+#else
+#define I2C_BUFFER_SIZE 256 // Teensy 4.0/4.1
+#endif
 // Default SPI Settings
 uint32_t spi_baudrate = 4'000'000;
 uint8_t spi_bit_order = MSBFIRST;
@@ -355,15 +362,12 @@ int i2c_begin_transaction(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_write(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   uint8_t data[num_bytes_max];
   if (argc < 3)
     return EINVAL;
 
   int num_bytes = argc - 1;
-  if (num_bytes > num_bytes_max)
-    return EINVAL;
-
   for (int i = 0; i < num_bytes; i++) {
     data[i] = strtol(argv[i + 1], nullptr, 0);
   }
@@ -407,7 +411,7 @@ int i2c_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_write_payload(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   uint8_t data[num_bytes_max];
   if (argc < 4)
     return EINVAL;
@@ -428,7 +432,7 @@ int i2c_write_payload(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_read_payload(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   if (argc != 4)
     return EINVAL;
 
@@ -460,7 +464,7 @@ int i2c_read_payload(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   if (argc != 3)
     return EINVAL;
 
@@ -491,7 +495,7 @@ int i2c_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv
 }
 
 int i2c_read_payload_uint16(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   if (argc != 4)
     return EINVAL;
 
@@ -625,15 +629,12 @@ int i2c_1_begin_transaction(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_1_write(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   uint8_t data[num_bytes_max];
   if (argc < 3)
     return EINVAL;
 
   int num_bytes = argc - 1;
-  if (num_bytes > num_bytes_max)
-    return EINVAL;
-
   for (int i = 0; i < num_bytes; i++) {
     data[i] = strtol(argv[i + 1], nullptr, 0);
   }
@@ -677,7 +678,7 @@ int i2c_1_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_1_write_payload(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   uint8_t data[num_bytes_max];
   if (argc < 4)
     return EINVAL;
@@ -698,7 +699,7 @@ int i2c_1_write_payload(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_1_read_payload(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   if (argc != 4)
     return EINVAL;
 
@@ -730,7 +731,7 @@ int i2c_1_read_payload(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_1_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   if (argc != 3)
     return EINVAL;
 
@@ -761,7 +762,7 @@ int i2c_1_read_payload_no_register(CommandRouter *cmd, int argc, const char **ar
 }
 
 int i2c_1_read_payload_uint16(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   if (argc != 4)
     return EINVAL;
 

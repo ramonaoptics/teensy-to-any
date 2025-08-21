@@ -17,7 +17,7 @@
 
 #define USE_STATIC_ALLOCATION 1
 #if USE_STATIC_ALLOCATION
-#define BUFFER_SIZE 1024 * 16
+#define BUFFER_SIZE 1024 * 2
 #define ARGV_MAX 300
 char serial_buffer[BUFFER_SIZE];
 const char *argv_buffer[ARGV_MAX];

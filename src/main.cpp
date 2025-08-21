@@ -423,7 +423,7 @@ int i2c_write_payload(CommandRouter *cmd, int argc, const char **argv) {
 
   int num_bytes = argc - 3;
   if (num_bytes > num_bytes_max)
-    return EINVAL;
+    return E2BIG;
 
   int slave_address = strtol(argv[1], nullptr, 0);
   int register_address = strtol(argv[2], nullptr, 0);
@@ -445,7 +445,7 @@ int i2c_read_payload(CommandRouter *cmd, int argc, const char **argv) {
   int register_address = strtol(argv[2], nullptr, 0);
   int num_bytes = strtol(argv[3], nullptr, 0);
   if (num_bytes > num_bytes_max)
-    return EINVAL;
+    return E2BIG;
 
   uint8_t data[num_bytes_max];
   int result;
@@ -476,7 +476,7 @@ int i2c_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv
   int slave_address = strtol(argv[1], nullptr, 0);
   int num_bytes = strtol(argv[2], nullptr, 0);
   if (num_bytes > num_bytes_max)
-    return EINVAL;
+    return E2BIG;
 
   uint8_t data[num_bytes_max];
   int result;
@@ -509,7 +509,7 @@ int i2c_read_payload_uint16(CommandRouter *cmd, int argc, const char **argv) {
   register_address = strtol(argv[2], nullptr, 0);
   int num_bytes = strtol(argv[3], nullptr, 0);
   if (num_bytes > num_bytes_max)
-    return EINVAL;
+    return E2BIG;
 
   uint8_t data[num_bytes_max];
   int result;
@@ -693,7 +693,7 @@ int i2c_1_write_payload(CommandRouter *cmd, int argc, const char **argv) {
 
   int num_bytes = argc - 3;
   if (num_bytes > num_bytes_max)
-    return EINVAL;
+    return E2BIG;
 
   int slave_address = strtol(argv[1], nullptr, 0);
   int register_address = strtol(argv[2], nullptr, 0);

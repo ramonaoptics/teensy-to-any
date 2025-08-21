@@ -860,6 +860,13 @@ int i2c_1_ping(CommandRouter *cmd, int argc, const char **argv) {
   return i2c_1.ping(slave_address);
 }
 
+int i2c_buffer_size(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argc;
+  (void)argv;
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", I2C_BUFFER_SIZE);
+  return 0;
+}
+
 int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv) {
   if (argc < 3 || argc > 4)
     return EINVAL;

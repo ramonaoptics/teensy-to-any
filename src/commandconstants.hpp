@@ -36,7 +36,6 @@ int i2c_end_transaction(CommandRouter *cmd, int argc, const char **argv);
 
 int i2c_ping(CommandRouter *cmd, int argc, const char **argv);
 int i2c_buffer_size(CommandRouter *cmd, int argc, const char **argv);
-int i2c_1_buffer_size(CommandRouter *cmd, int argc, const char **argv);
 
 int i2c_1_init(CommandRouter *cmd, int argc, const char **argv);
 int i2c_1_reset(CommandRouter *cmd, int argc, const char **argv);
@@ -57,6 +56,7 @@ int i2c_1_write(CommandRouter *cmd, int argc, const char **argv);
 int i2c_1_end_transaction(CommandRouter *cmd, int argc, const char **argv);
 
 int i2c_1_ping(CommandRouter *cmd, int argc, const char **argv);
+int i2c_1_buffer_size(CommandRouter *cmd, int argc, const char **argv);
 
 // PWM Support
 int analog_write(CommandRouter *cmd, int argc, const char **argv);

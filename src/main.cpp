@@ -23,11 +23,13 @@ char serial_buffer[BUFFER_SIZE];
 const char *argv_buffer[ARGV_MAX];
 #endif
 
-// I2C buffer sizes - smaller for Teensy 3.2, larger for Teensy 4.0
+// Buffer sizes - smaller for Teensy 3.2, larger for Teensy 4.0
 #if defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
-#define I2C_BUFFER_SIZE 32  // Teensy 3.2/3.5/3.6
+#define I2C_BUFFER_SIZE 32   // Teensy 3.2/3.5/3.6
+#define SPI_BUFFER_SIZE 32   // Teensy 3.2/3.5/3.6
 #else
-#define I2C_BUFFER_SIZE 256 // Teensy 4.0/4.1
+#define I2C_BUFFER_SIZE 256  // Teensy 4.0/4.1
+#define SPI_BUFFER_SIZE 256  // Teensy 4.0/4.1
 #endif
 // Default SPI Settings
 uint32_t spi_baudrate = 4'000'000;
@@ -1241,7 +1243,7 @@ int spi_read_byte(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int spi_transfer_bulk(CommandRouter *cmd, int argc, const char **argv) {
-  const int MAX_UINT8_TO_SEND = 100;
+  const int MAX_UINT8_TO_SEND = SPI_BUFFER_SIZE;
   uint8_t data[MAX_UINT8_TO_SEND];
   int transfer_count;
   size_t output_buffer_remaining = cmd->buffer_size;
@@ -1292,6 +1294,13 @@ int spi_transfer_bulk(CommandRouter *cmd, int argc, const char **argv) {
     output_buffer_remaining -= bytes_written;
     output_pointer = output_pointer + bytes_written;
   }
+  return 0;
+}
+
+int spi_buffer_size(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argc;
+  (void)argv;
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", SPI_BUFFER_SIZE);
   return 0;
 }
 

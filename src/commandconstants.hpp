@@ -79,6 +79,7 @@ int spi_end_transaction(CommandRouter *cmd, int argc, const char **argv);
 int spi_transfer(CommandRouter *cmd, int argc, const char **argv);
 int spi_read_byte(CommandRouter *cmd, int argc, const char **argv);
 int spi_transfer_bulk(CommandRouter *cmd, int argc, const char **argv);
+int spi_buffer_size(CommandRouter *cmd, int argc, const char **argv);
 int spi_set_clock_divider(CommandRouter *cmd, int argc, const char **argv);
 
 int register_read_uint8(CommandRouter *cmd, int argc, const char **argv);
@@ -292,6 +293,10 @@ const command_item_t command_list[] = {
      "spi_read_byte data", spi_read_byte},
     {"spi_transfer_bulk", "SPI transfer multiple sets of 8 bits of data",
      "spi_transfer_bulk data[0] data[1] data[2] [...]", spi_transfer_bulk},
+    {"spi_buffer_size",
+     "Get the maximum SPI buffer size for this board.",
+     "spi_buffer_size",
+      spi_buffer_size},
     {"register_read_uint8", "Read an arbitrary hardware register.",
      "register_read_uint8 address", register_read_uint8},
     {"register_write_uint8", "Write to an arbitrary hardware register.",

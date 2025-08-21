@@ -123,6 +123,8 @@ int enable_demo_commands(CommandRouter *cmd, int argc, const char **argv);
 int demo_commands_available(CommandRouter *cmd, int argc, const char **argv);
 int demo_commands_enabled(CommandRouter *cmd, int argc, const char **argv);
 
+int nop_func(CommandRouter *cmd, int argc, const char **argv);
+
 // Syntax is: {short command, description, syntax}
 const command_item_t command_list[] = {
     {"?", "Display help info", "?", command_help_func},
@@ -363,5 +365,6 @@ const command_item_t command_list[] = {
      "enable_demo_commands", enable_demo_commands},
     {"demo_commands_enabled", "Check if demo commands are enabled.",
      "demo_commands_enabled", demo_commands_enabled},
+    {"nop", "No operation (does nothing)", "nop", nop_func},
     {nullptr, nullptr, nullptr, nullptr},
 };

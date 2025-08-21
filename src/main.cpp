@@ -183,6 +183,13 @@ int demo_commands_enabled(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+int nop_func(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argc;
+  (void)argv;
+  (void)cmd;
+  return 0;
+}
+
 void setup() {
   // Pause for 100 MS in order to debounce the power supply getting
   // plugged in.
@@ -509,7 +516,7 @@ int i2c_read_payload_uint16(CommandRouter *cmd, int argc, const char **argv) {
   register_address = strtol(argv[2], nullptr, 0);
   int num_bytes = strtol(argv[3], nullptr, 0);
   if (num_bytes > num_bytes_max)
-    return E2BIG;
+    return EINVAL;
 
   uint8_t data[num_bytes_max];
   int result;
@@ -693,7 +700,7 @@ int i2c_1_write_payload(CommandRouter *cmd, int argc, const char **argv) {
 
   int num_bytes = argc - 3;
   if (num_bytes > num_bytes_max)
-    return E2BIG;
+    return EINVAL;
 
   int slave_address = strtol(argv[1], nullptr, 0);
   int register_address = strtol(argv[2], nullptr, 0);

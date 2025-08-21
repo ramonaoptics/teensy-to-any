@@ -361,6 +361,9 @@ int i2c_write(CommandRouter *cmd, int argc, const char **argv) {
     return EINVAL;
 
   int num_bytes = argc - 1;
+  if (num_bytes > num_bytes_max)
+    return EINVAL;
+
   for (int i = 0; i < num_bytes; i++) {
     data[i] = strtol(argv[i + 1], nullptr, 0);
   }
@@ -404,7 +407,7 @@ int i2c_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_write_payload(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 16;
+  const int num_bytes_max = 256;
   uint8_t data[num_bytes_max];
   if (argc < 4)
     return EINVAL;
@@ -425,7 +428,7 @@ int i2c_write_payload(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_read_payload(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 16;
+  const int num_bytes_max = 256;
   if (argc != 4)
     return EINVAL;
 
@@ -628,6 +631,9 @@ int i2c_1_write(CommandRouter *cmd, int argc, const char **argv) {
     return EINVAL;
 
   int num_bytes = argc - 1;
+  if (num_bytes > num_bytes_max)
+    return EINVAL;
+
   for (int i = 0; i < num_bytes; i++) {
     data[i] = strtol(argv[i + 1], nullptr, 0);
   }

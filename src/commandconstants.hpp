@@ -155,9 +155,9 @@ const command_item_t command_list[] = {
      "i2c_write_uint16 slave_address register_address data", i2c_write_uint16},
     {"i2c_read_uint16", "Read a 16 bit number from the I2C device",
      "i2c_read_uint16 slave_address register_address", i2c_read_uint16},
-    {"i2c_write_uint8", "Write a 16 bit number to the I2C device",
+    {"i2c_write_uint8", "Write an 8 bit number to the I2C device",
      "i2c_write_uint8 slave_address register_address data", i2c_write_uint8},
-    {"i2c_read_uint8", "Read a 16 bit number from the I2C device",
+    {"i2c_read_uint8", "Read an 8 bit number from the I2C device",
      "i2c_read_uint8 slave_address register_address", i2c_read_uint8},
     {"i2c_read_no_register_uint8",
      "Read a uint8_t from the I2C bus without specifying a register address.",
@@ -167,35 +167,35 @@ const command_item_t command_list[] = {
      "i2c_write_no_register_uint8 slave_address data",
      i2c_write_no_register_uint8},
     {"i2c_write_payload",
-     "Write up to 8 bytes to the I2C bus starting at a specified register "
+     "Write up to 256 bytes to the I2C bus starting at a specified register "
      "address.",
-     "i2c_write_payload slave_address register_address data num_bytes",
+     "i2c_write_payload slave_address register_address data0 data1 ...",
      i2c_write_payload},
     {"i2c_read_payload",
-     "Read up to 8 bytes from the I2C bus starting at a specified 8 bit "
+     "Read up to 256 bytes from the I2C bus starting at a specified 8 bit "
      "register address.",
-     "i2c_read_payload slave_address register_address data num_bytes",
+     "i2c_read_payload slave_address register_address num_bytes",
      i2c_read_payload},
     {"i2c_read_payload_no_register",
-     "Read up to 16 bytes from the I2C bus without specifying a register "
+     "Read up to 256 bytes from the I2C bus without specifying a register "
      "address.",
      "i2c_read_payload_no_register slave_address num_bytes",
      i2c_read_payload_no_register},
     {"i2c_read_payload_uint16",
-      "Read up to 16 bytes from the I2C bus starting at a specified 16 bit "
+      "Read up to 256 bytes from the I2C bus starting at a specified 16 bit "
       "register address.",
-      "i2c_read_payload_uint16 slave_address register_address data num_bytes",
+      "i2c_read_payload_uint16 slave_address register_address num_bytes",
       i2c_read_payload_uint16},
     {"i2c_begin_transaction",
      "Begin a transaction with the I2C device, "
      "this is required before writing or reading data.",
      "i2c_begin_transaction slave_address", i2c_begin_transaction},
     {"i2c_write", "Write data to the I2C device",
-     "i2c_write slave_address data0 data1 ...", i2c_write},
+     "i2c_write data0 data1 ...", i2c_write},
     {"i2c_end_transaction",
      "End a transaction with the I2C device, "
      "this is required after writing or reading data.",
-     "i2c_end_transaction", i2c_end_transaction},
+     "i2c_end_transaction [stop=true]", i2c_end_transaction},
     {"i2c_ping",
      "Ping the bus to check if the address acknoledges a read request.",
      "i2c_ping slave_address",
@@ -210,9 +210,9 @@ const command_item_t command_list[] = {
     "i2c_1_write_uint16 slave_address register_address data", i2c_1_write_uint16},
     {"i2c_1_read_uint16", "Read a 16 bit number from the I2C device",
     "i2c_1_read_uint16 slave_address register_address", i2c_1_read_uint16},
-    {"i2c_1_write_uint8", "Write a 16 bit number to the I2C device",
+    {"i2c_1_write_uint8", "Write an 8 bit number to the I2C device",
     "i2c_1_write_uint8 slave_address register_address data", i2c_1_write_uint8},
-    {"i2c_1_read_uint8", "Read a 16 bit number from the I2C device",
+    {"i2c_1_read_uint8", "Read an 8 bit number from the I2C device",
     "i2c_1_read_uint8 slave_address register_address", i2c_1_read_uint8},
     {"i2c_1_read_no_register_uint8",
     "Read a uint8_t from the I2C bus without specifying a register address.",
@@ -222,35 +222,35 @@ const command_item_t command_list[] = {
     "i2c_1_write_no_register_uint8 slave_address data",
     i2c_1_write_no_register_uint8},
     {"i2c_1_write_payload",
-    "Write up to 8 bytes to the I2C bus starting at a specified register "
+    "Write up to 256 bytes to the I2C bus starting at a specified register "
     "address.",
-    "i2c_1_write_payload slave_address register_address data num_bytes",
+    "i2c_1_write_payload slave_address register_address data0 data1 ...",
     i2c_1_write_payload},
     {"i2c_1_read_payload",
-    "Read up to 8 bytes from the I2C bus starting at a specified 8 bit "
+    "Read up to 256 bytes from the I2C bus starting at a specified 8 bit "
     "register address.",
-    "i2c_1_read_payload slave_address register_address data num_bytes",
+    "i2c_1_read_payload slave_address register_address num_bytes",
     i2c_1_read_payload},
     {"i2c_1_read_payload_no_register",
-    "Read up to 16 bytes from the I2C bus without specifying a register "
+    "Read up to 256 bytes from the I2C bus without specifying a register "
     "address.",
-    "i2c_1_read_payload_no_register slave_address data num_bytes",
+    "i2c_1_read_payload_no_register slave_address num_bytes",
     i2c_1_read_payload_no_register},
     {"i2c_1_read_payload_uint16",
-        "Read up to 16 bytes from the I2C bus starting at a specified 16 bit "
+        "Read up to 256 bytes from the I2C bus starting at a specified 16 bit "
         "register address.",
-        "i2c_1_read_payload_uint16 slave_address register_address data num_bytes",
+        "i2c_1_read_payload_uint16 slave_address register_address num_bytes",
         i2c_1_read_payload_uint16},
     {"i2c_1_begin_transaction",
       "Begin a transaction with the I2C device, "
       "this is required before writing or reading data.",
       "i2c_1_begin_transaction slave_address", i2c_1_begin_transaction},
     {"i2c_1_write", "Write data to the I2C device",
-      "i2c_1_write slave_address data0 data1 ...", i2c_1_write},
+      "i2c_1_write data0 data1 ...", i2c_1_write},
     {"i2c_1_end_transaction",
       "End a transaction with the I2C device, "
       "this is required after writing or reading data.",
-      "i2c_1_end_transaction", i2c_1_end_transaction},
+      "i2c_1_end_transaction [stop=true]", i2c_1_end_transaction},
     {"i2c_1_ping",
      "Ping the bus to check if the address acknoledges a read request.",
      "i2c_1_ping slave_address",

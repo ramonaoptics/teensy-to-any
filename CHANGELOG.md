@@ -1,3 +1,11 @@
+### 0.16.0 (2025/01/27)
+
+* Fix I2C overflow handling by standardizing maximum buffer size to 256 bytes across all I2C functions.
+* Add missing overflow checks to prevent buffer overflows in i2c_write and i2c_1_write functions.
+* Update command documentation to accurately reflect function signatures and parameter requirements.
+* Fix incorrect bit size descriptions in documentation (8-bit vs 16-bit functions).
+* Correct parameter syntax for transaction-based I2C commands.
+
 ### 0.15.0 (2025/08/11)
 
 * Reduce number of LEDs from 50 to 6 in the fastled demo code.

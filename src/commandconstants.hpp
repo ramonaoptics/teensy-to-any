@@ -36,6 +36,7 @@ int i2c_end_transaction(CommandRouter *cmd, int argc, const char **argv);
 
 int i2c_ping(CommandRouter *cmd, int argc, const char **argv);
 int i2c_buffer_size(CommandRouter *cmd, int argc, const char **argv);
+int i2c_1_buffer_size(CommandRouter *cmd, int argc, const char **argv);
 
 int i2c_1_init(CommandRouter *cmd, int argc, const char **argv);
 int i2c_1_reset(CommandRouter *cmd, int argc, const char **argv);
@@ -260,6 +261,10 @@ const command_item_t command_list[] = {
      "Ping the bus to check if the address acknoledges a read request.",
      "i2c_1_ping slave_address",
       i2c_1_ping},
+    {"i2c_1_buffer_size",
+     "Get the maximum I2C buffer size for this board.",
+     "i2c_1_buffer_size",
+      i2c_1_buffer_size},
     {"analog_write", "Write the duty cycle of the PWM",
      "analog_write pin dutycycle", analog_write},
     {"analog_write_frequency", "Write the frequency of the PWM",

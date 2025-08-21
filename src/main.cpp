@@ -873,6 +873,13 @@ int i2c_buffer_size(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+int i2c_1_buffer_size(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argc;
+  (void)argv;
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", I2C_BUFFER_SIZE);
+  return 0;
+}
+
 int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv) {
   if (argc < 3 || argc > 4)
     return EINVAL;

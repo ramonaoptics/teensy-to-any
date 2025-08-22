@@ -17,10 +17,19 @@
 
 #define USE_STATIC_ALLOCATION 1
 #if USE_STATIC_ALLOCATION
-#define BUFFER_SIZE 1024 * 16
+#define BUFFER_SIZE 1024 * 2
 #define ARGV_MAX 300
 char serial_buffer[BUFFER_SIZE];
 const char *argv_buffer[ARGV_MAX];
+#endif
+
+// Buffer sizes - smaller for Teensy 3.2, larger for Teensy 4.0
+#if defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#define I2C_BUFFER_SIZE 32   // Teensy 3.2/3.5/3.6
+#define SPI_BUFFER_SIZE 32   // Teensy 3.2/3.5/3.6
+#else
+#define I2C_BUFFER_SIZE 256  // Teensy 4.0/4.1
+#define SPI_BUFFER_SIZE 256  // Teensy 4.0/4.1
 #endif
 // Default SPI Settings
 uint32_t spi_baudrate = 4'000'000;
@@ -171,6 +180,13 @@ int demo_commands_enabled(CommandRouter *cmd, int argc, const char **argv) {
   }
   int demo_enabled = EEPROM.read(DEMO_COMMAND_ENABLED_ADDRESS) == 0xFF;
   snprintf(cmd->buffer, cmd->buffer_size, "%d", demo_enabled);
+  return 0;
+}
+
+int nop_func(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argc;
+  (void)argv;
+  (void)cmd;
   return 0;
 }
 
@@ -355,7 +371,7 @@ int i2c_begin_transaction(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_write(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   uint8_t data[num_bytes_max];
   if (argc < 3)
     return EINVAL;
@@ -407,14 +423,14 @@ int i2c_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_write_payload(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   uint8_t data[num_bytes_max];
   if (argc < 4)
     return EINVAL;
 
   int num_bytes = argc - 3;
   if (num_bytes > num_bytes_max)
-    return EINVAL;
+    return E2BIG;
 
   int slave_address = strtol(argv[1], nullptr, 0);
   int register_address = strtol(argv[2], nullptr, 0);
@@ -428,7 +444,7 @@ int i2c_write_payload(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_read_payload(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   if (argc != 4)
     return EINVAL;
 
@@ -436,7 +452,7 @@ int i2c_read_payload(CommandRouter *cmd, int argc, const char **argv) {
   int register_address = strtol(argv[2], nullptr, 0);
   int num_bytes = strtol(argv[3], nullptr, 0);
   if (num_bytes > num_bytes_max)
-    return EINVAL;
+    return E2BIG;
 
   uint8_t data[num_bytes_max];
   int result;
@@ -460,14 +476,14 @@ int i2c_read_payload(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   if (argc != 3)
     return EINVAL;
 
   int slave_address = strtol(argv[1], nullptr, 0);
   int num_bytes = strtol(argv[2], nullptr, 0);
   if (num_bytes > num_bytes_max)
-    return EINVAL;
+    return E2BIG;
 
   uint8_t data[num_bytes_max];
   int result;
@@ -491,7 +507,7 @@ int i2c_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv
 }
 
 int i2c_read_payload_uint16(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   if (argc != 4)
     return EINVAL;
 
@@ -625,7 +641,7 @@ int i2c_1_begin_transaction(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_1_write(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   uint8_t data[num_bytes_max];
   if (argc < 3)
     return EINVAL;
@@ -677,7 +693,7 @@ int i2c_1_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_1_write_payload(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   uint8_t data[num_bytes_max];
   if (argc < 4)
     return EINVAL;
@@ -698,7 +714,7 @@ int i2c_1_write_payload(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_1_read_payload(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   if (argc != 4)
     return EINVAL;
 
@@ -730,7 +746,7 @@ int i2c_1_read_payload(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int i2c_1_read_payload_no_register(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   if (argc != 3)
     return EINVAL;
 
@@ -761,7 +777,7 @@ int i2c_1_read_payload_no_register(CommandRouter *cmd, int argc, const char **ar
 }
 
 int i2c_1_read_payload_uint16(CommandRouter *cmd, int argc, const char **argv) {
-  const int num_bytes_max = 256;
+  const int num_bytes_max = I2C_BUFFER_SIZE;
   if (argc != 4)
     return EINVAL;
 
@@ -857,6 +873,20 @@ int i2c_1_ping(CommandRouter *cmd, int argc, const char **argv) {
 
   int slave_address = strtol(argv[1], nullptr, 0);
   return i2c_1.ping(slave_address);
+}
+
+int i2c_buffer_size(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argc;
+  (void)argv;
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", I2C_BUFFER_SIZE);
+  return 0;
+}
+
+int i2c_1_buffer_size(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argc;
+  (void)argv;
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", I2C_BUFFER_SIZE);
+  return 0;
 }
 
 int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv) {
@@ -1220,7 +1250,7 @@ int spi_read_byte(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int spi_transfer_bulk(CommandRouter *cmd, int argc, const char **argv) {
-  const int MAX_UINT8_TO_SEND = 100;
+  const int MAX_UINT8_TO_SEND = SPI_BUFFER_SIZE;
   uint8_t data[MAX_UINT8_TO_SEND];
   int transfer_count;
   size_t output_buffer_remaining = cmd->buffer_size;
@@ -1271,6 +1301,13 @@ int spi_transfer_bulk(CommandRouter *cmd, int argc, const char **argv) {
     output_buffer_remaining -= bytes_written;
     output_pointer = output_pointer + bytes_written;
   }
+  return 0;
+}
+
+int spi_buffer_size(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argc;
+  (void)argv;
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", SPI_BUFFER_SIZE);
   return 0;
 }
 

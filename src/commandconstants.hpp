@@ -35,6 +35,7 @@ int i2c_write(CommandRouter *cmd, int argc, const char **argv);
 int i2c_end_transaction(CommandRouter *cmd, int argc, const char **argv);
 
 int i2c_ping(CommandRouter *cmd, int argc, const char **argv);
+int i2c_buffer_size(CommandRouter *cmd, int argc, const char **argv);
 
 int i2c_1_init(CommandRouter *cmd, int argc, const char **argv);
 int i2c_1_reset(CommandRouter *cmd, int argc, const char **argv);
@@ -55,6 +56,7 @@ int i2c_1_write(CommandRouter *cmd, int argc, const char **argv);
 int i2c_1_end_transaction(CommandRouter *cmd, int argc, const char **argv);
 
 int i2c_1_ping(CommandRouter *cmd, int argc, const char **argv);
+int i2c_1_buffer_size(CommandRouter *cmd, int argc, const char **argv);
 
 // PWM Support
 int analog_write(CommandRouter *cmd, int argc, const char **argv);
@@ -77,6 +79,7 @@ int spi_end_transaction(CommandRouter *cmd, int argc, const char **argv);
 int spi_transfer(CommandRouter *cmd, int argc, const char **argv);
 int spi_read_byte(CommandRouter *cmd, int argc, const char **argv);
 int spi_transfer_bulk(CommandRouter *cmd, int argc, const char **argv);
+int spi_buffer_size(CommandRouter *cmd, int argc, const char **argv);
 int spi_set_clock_divider(CommandRouter *cmd, int argc, const char **argv);
 
 int register_read_uint8(CommandRouter *cmd, int argc, const char **argv);
@@ -119,6 +122,8 @@ int disable_demo_commands(CommandRouter *cmd, int argc, const char **argv);
 int enable_demo_commands(CommandRouter *cmd, int argc, const char **argv);
 int demo_commands_available(CommandRouter *cmd, int argc, const char **argv);
 int demo_commands_enabled(CommandRouter *cmd, int argc, const char **argv);
+
+int nop_func(CommandRouter *cmd, int argc, const char **argv);
 
 // Syntax is: {short command, description, syntax}
 const command_item_t command_list[] = {
@@ -200,6 +205,10 @@ const command_item_t command_list[] = {
      "Ping the bus to check if the address acknoledges a read request.",
      "i2c_ping slave_address",
       i2c_ping},
+    {"i2c_buffer_size",
+     "Get the maximum I2C buffer size for this board.",
+     "i2c_buffer_size",
+      i2c_buffer_size},
     {"i2c_1_init", "Initialize I2C Communication",
     "i2c_1_init [baudrate=100_000] [timeout_ms=200_000] [address_size=2] "
     "[address_msb_first=1]",
@@ -255,6 +264,10 @@ const command_item_t command_list[] = {
      "Ping the bus to check if the address acknoledges a read request.",
      "i2c_1_ping slave_address",
       i2c_1_ping},
+    {"i2c_1_buffer_size",
+     "Get the maximum I2C buffer size for this board.",
+     "i2c_1_buffer_size",
+      i2c_1_buffer_size},
     {"analog_write", "Write the duty cycle of the PWM",
      "analog_write pin dutycycle", analog_write},
     {"analog_write_frequency", "Write the frequency of the PWM",
@@ -282,6 +295,10 @@ const command_item_t command_list[] = {
      "spi_read_byte data", spi_read_byte},
     {"spi_transfer_bulk", "SPI transfer multiple sets of 8 bits of data",
      "spi_transfer_bulk data[0] data[1] data[2] [...]", spi_transfer_bulk},
+    {"spi_buffer_size",
+     "Get the maximum SPI buffer size for this board.",
+     "spi_buffer_size",
+      spi_buffer_size},
     {"register_read_uint8", "Read an arbitrary hardware register.",
      "register_read_uint8 address", register_read_uint8},
     {"register_write_uint8", "Write to an arbitrary hardware register.",
@@ -348,5 +365,6 @@ const command_item_t command_list[] = {
      "enable_demo_commands", enable_demo_commands},
     {"demo_commands_enabled", "Check if demo commands are enabled.",
      "demo_commands_enabled", demo_commands_enabled},
+    {"nop", "No operation (does nothing)", "nop", nop_func},
     {nullptr, nullptr, nullptr, nullptr},
 };

@@ -1,4 +1,8 @@
-### 0.16.0 (2025/01/27)
+### 0.17.0 (2025/08/22)
+
+* Provide a method to control the fastled refresh rate.
+
+### 0.16.0 (2025/08/21)
 
 * Fix I2C overflow handling by standardizing maximum buffer size to 256 bytes across all I2C functions.
 * Add missing overflow checks to prevent buffer overflows in i2c_write and i2c_1_write functions.

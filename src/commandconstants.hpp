@@ -109,6 +109,7 @@ int fastled_set_hsv(CommandRouter *cmd, int argc, const char **argv);
 int fastled_set_hue(CommandRouter *cmd, int argc, const char **argv);
 int fastled_set_brightness(CommandRouter *cmd, int argc, const char **argv);
 int fastled_get_brightness(CommandRouter *cmd, int argc, const char **argv);
+int fastled_set_max_refresh_rate(CommandRouter *cmd, int argc, const char **argv);
 
 // Mostly for debugging and startup scripts
 int sleep_seconds(CommandRouter *cmd, int argc, const char **argv);
@@ -345,6 +346,8 @@ const command_item_t command_list[] = {
      "fastled_set_brightness scale", fastled_set_brightness},
     {"fastled_get_brightness", "Get the brightness of the FastLED buffer",
      "fastled_get_brightness", fastled_get_brightness},
+    {"fastled_set_max_refresh_rate", "Set the maximum refresh rate of the FastLED buffer",
+     "fastled_set_max_refresh_rate rate", fastled_set_max_refresh_rate},
     {"sleep", "Sleep (and block) for the desired duration",
      "sleep duration", sleep_seconds},
     {"startup_commands_available", "Number of startup commands available",

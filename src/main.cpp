@@ -1685,6 +1685,15 @@ int fastled_get_brightness(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+int fastled_set_max_refresh_rate(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2) {
+    return EINVAL;
+  }
+  uint16_t rate = (uint16_t) strtol(argv[1], nullptr, 0);
+  FastLED.setMaxRefreshRate(rate);
+  return 0;
+}
+
 #ifdef TEENSYTOANY_USE_NEOPIXEL
 int neopixel_init(CommandRouter *cmd, int argc, const char **argv) {
   if (argc != 4) {

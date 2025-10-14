@@ -1236,6 +1236,15 @@ int spi_transfer(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+int spi_transfer16(CommandRouter *cmd, int argc, const char **argv) {
+  if (argc != 2) {
+    return EINVAL;
+  }
+  uint16_t data = strtol(argv[1], nullptr, 0);
+  SPI.transfer16(data);
+  return 0;
+}
+
 int spi_read_byte(CommandRouter *cmd, int argc, const char **argv) {
   if (argc != 2) {
     return EINVAL;

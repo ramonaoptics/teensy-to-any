@@ -72,3 +72,44 @@ teensy_loader_cli -s --mcu=TEENSY31 build_version_number.hex
 ```
 
 </details>
+
+# Release Process
+
+When developing and hacking on teensytoany, it is entirely possible to fully
+use a local-first approach to programming and testing. However, when it comes
+time to share modifications, it is important to follow a few steps to ensure
+that the code is properly released and documented.
+
+We keep track of "versions" using "tags" on github. The rest of the release
+process typically happens through our CI/CD pipelines.
+
+Often, a new release of the firmware is associated with a new release of the
+python driver.
+
+### New Teensy-To-Any firmware Release
+
+1. Create a pull request with a new feature / documentation.
+2. Ensure that the CIs pass. They compile a few of our examples and target different pieces of hardware.
+3. Add a small note in the CHANGELOG.md file.
+4. Merge the pull request.
+5. Create a new tag on Github. The tag should be named X.Y.Z
+    * where X is the major version
+    * Y is the minor version
+    * Z is the patch version
+
+6. Allow github to generate the release notes. It does so by pulling in
+   titles from the pull requests. This is mostly all that matters.
+
+### New Python-TeensyToAny Release
+
+Repeat the same process but on the python repo
+
+https://github.com/ramonaoptics/python-teensytoany
+
+IT should be quickly available on PyPI
+
+https://pypi.org/project/teensytoany/
+
+Once the tag is completed, follow through on conda-forge to make the release there
+
+https://github.com/conda-forge/teensytoany-feedstock

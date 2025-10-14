@@ -77,6 +77,7 @@ int spi_settings(CommandRouter *cmd, int argc, const char **argv);
 int spi_begin_transaction(CommandRouter *cmd, int argc, const char **argv);
 int spi_end_transaction(CommandRouter *cmd, int argc, const char **argv);
 int spi_transfer(CommandRouter *cmd, int argc, const char **argv);
+int spi_transfer16(CommandRouter *cmd, int argc, const char **argv);
 int spi_read_byte(CommandRouter *cmd, int argc, const char **argv);
 int spi_transfer_bulk(CommandRouter *cmd, int argc, const char **argv);
 int spi_buffer_size(CommandRouter *cmd, int argc, const char **argv);
@@ -292,6 +293,8 @@ const command_item_t command_list[] = {
      spi_end_transaction},
     {"spi_transfer", "SPI Transfer 8bits of data", "spi_transfer data",
      spi_transfer},
+    {"spi_transfer16", "SPI Transfer 16bits of data", "spi_transfer16 data",
+     spi_transfer16},
     {"spi_read_byte", "SPI transfer register address and read a byte",
      "spi_read_byte data", spi_read_byte},
     {"spi_transfer_bulk", "SPI transfer multiple sets of 8 bits of data",

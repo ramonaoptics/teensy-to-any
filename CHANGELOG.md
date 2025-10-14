@@ -1,3 +1,8 @@
+### 0.18.0 (2025/08/22)
+
+* Provide new command ``spi_transfer16``.
+* ``spi_transfer`` now returns the read value for the uint8.
+
 ### 0.17.0 (2025/08/22)
 
 * Provide a method to control the fastled refresh rate.

@@ -1232,7 +1232,8 @@ int spi_transfer(CommandRouter *cmd, int argc, const char **argv) {
     return EINVAL;
   }
   uint8_t data = strtol(argv[1], nullptr, 0);
-  SPI.transfer(data);
+  uint16_t value = SPI.transfer(data);
+  snprintf(cmd->buffer, cmd->buffer_size, "0x%02X", value);
   return 0;
 }
 
@@ -1241,7 +1242,8 @@ int spi_transfer16(CommandRouter *cmd, int argc, const char **argv) {
     return EINVAL;
   }
   uint16_t data = strtol(argv[1], nullptr, 0);
-  SPI.transfer16(data);
+  uint16_t value = SPI.transfer16(data);
+  snprintf(cmd->buffer, cmd->buffer_size, "0x%04X", value);
   return 0;
 }
 

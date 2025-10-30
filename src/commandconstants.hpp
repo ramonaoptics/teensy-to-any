@@ -106,6 +106,8 @@ int neopixel_set_pixel_color(CommandRouter *cmd, int argc, const char **argv);
 int fastled_add_leds(CommandRouter *cmd, int argc, const char **argv);
 int fastled_show(CommandRouter *cmd, int argc, const char **argv);
 int fastled_set_rgb(CommandRouter *cmd, int argc, const char **argv);
+int fastled_set_hsv(CommandRouter *cmd, int argc, const char **argv);
+int fastled_set_hue(CommandRouter *cmd, int argc, const char **argv);
 int fastled_set_brightness(CommandRouter *cmd, int argc, const char **argv);
 int fastled_get_brightness(CommandRouter *cmd, int argc, const char **argv);
 int fastled_set_max_refresh_rate(CommandRouter *cmd, int argc, const char **argv);
@@ -339,6 +341,10 @@ const command_item_t command_list[] = {
      "fastled_show [scale]", fastled_show},
     {"fastled_set_rgb", "Set the color of a pixel in the FastLED buffer",
      "fastled_set_rgb pixel red green blue", fastled_set_rgb},
+    {"fastled_set_hsv", "Set the color of a pixel in the FastLED buffer",
+     "fastled_set_hsv pixel hue saturation value", fastled_set_hsv},
+    {"fastled_set_hue", "Set the hue of the FastLED buffer",
+     "fastled_set_hue pixel hue", fastled_set_hue},
     {"fastled_set_brightness", "Set the brightness of the FastLED buffer",
      "fastled_set_brightness scale", fastled_set_brightness},
     {"fastled_get_brightness", "Get the brightness of the FastLED buffer",

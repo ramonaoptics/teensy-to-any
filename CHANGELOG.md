@@ -1,3 +1,8 @@
+### 0.19.0 (2025/08/30)
+
+* Remove command `fastled_set_hsv` and `fastled_set_hue` as due to breakage in
+  FastLED library.
+
 ### 0.18.0 (2025/08/22)
 
 * Provide new command ``spi_transfer16``.

@@ -1,3 +1,7 @@
+### Unreleased (2025/X/X)
+
+* Added back `fastled_set_hsv` and `fastled_set_hue` commands with fixes for FastLED library compatibility.
+
 ### 0.19.0 (2025/08/30)
 
 * Remove command `fastled_set_hsv` and `fastled_set_hue` as due to breakage in

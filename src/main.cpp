@@ -1630,49 +1630,6 @@ int fastled_set_rgb(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 
-int fastled_set_hsv(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc < 5) {
-    return EINVAL;
-  }
-  if (fastled_leds == nullptr) {
-    return EINVAL;
-  }
-
-  int index = strtol(argv[1], nullptr, 0);
-  if (index >= fastled_num_leds) {
-    return EINVAL;
-  }
-
-  uint8_t h = (uint8_t)strtol(argv[2], nullptr, 0);
-  uint8_t s = (uint8_t)strtol(argv[3], nullptr, 0);
-  uint8_t v = (uint8_t)strtol(argv[4], nullptr, 0);
-
-  fastled_leds[index].setHSV(h, s, v);
-
-  return 0;
-}
-
-int fastled_set_hue(CommandRouter *cmd, int argc, const char **argv) {
-  if (argc < 3) {
-    return EINVAL;
-  }
-  if (fastled_leds == nullptr) {
-    return EINVAL;
-  }
-
-  int index = strtol(argv[1], nullptr, 0);
-  if (index >= fastled_num_leds) {
-    return EINVAL;
-  }
-
-  uint8_t hue = (uint8_t)strtol(argv[2], nullptr, 0);
-
-  fastled_leds[index].setHue(hue);
-
-  return 0;
-}
-
-
 int fastled_set_brightness(CommandRouter *cmd, int argc, const char **argv) {
   if (argc != 2) {
     return EINVAL;

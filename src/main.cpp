@@ -5,7 +5,9 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <errno.h>
+#if defined(TEENSYDUINO)
 #include <usb_names.h>
+#endif
 #include <EEPROM.h>
 
 // TODO: this isn't exactly correct since this main file won't get
@@ -17,8 +19,20 @@
 
 #define USE_STATIC_ALLOCATION 1
 #if USE_STATIC_ALLOCATION
-#define BUFFER_SIZE 1024 * 2
-#define ARGV_MAX 300
+// Platform-specific buffer sizes - Arduino Uno has limited RAM (2KB)
+#if !defined(TEENSYDUINO) && defined(ARDUINO)
+  // Arduino Uno: Reduce buffer sizes to fit in 2KB RAM
+  #define BUFFER_SIZE 128
+  #define ARGV_MAX 8
+#elif defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
+  // Teensy 3.2/3.5/3.6: Moderate RAM available
+  #define BUFFER_SIZE 1024
+  #define ARGV_MAX 100
+#else
+  // Teensy 4.0/4.1: Plenty of RAM available
+  #define BUFFER_SIZE 1024 * 2
+  #define ARGV_MAX 300
+#endif
 char serial_buffer[BUFFER_SIZE];
 const char *argv_buffer[ARGV_MAX];
 #endif
@@ -27,12 +41,15 @@ const char *argv_buffer[ARGV_MAX];
 #if defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
 #define I2C_BUFFER_SIZE 32   // Teensy 3.2/3.5/3.6
 #define SPI_BUFFER_SIZE 32   // Teensy 3.2/3.5/3.6
-#else
+#elif defined(TEENSYDUINO)
 #define I2C_BUFFER_SIZE 256  // Teensy 4.0/4.1
 #define SPI_BUFFER_SIZE 256  // Teensy 4.0/4.1
+#else
+#define I2C_BUFFER_SIZE 16   // Arduino Uno
+#define SPI_BUFFER_SIZE 16   // Arduino Uno
 #endif
 // Default SPI Settings
-uint32_t spi_baudrate = 4'000'000;
+uint32_t spi_baudrate = 4000000;
 uint8_t spi_bit_order = MSBFIRST;
 uint8_t spi_data_mode = SPI_MODE0;
 
@@ -60,25 +77,41 @@ extern struct usb_string_descriptor_struct usb_string_serial_number
 #define TEENSY_TO_ANY_MANUFACTURER_NAME_LEN 11
 #endif
 
+#if defined(TEENSYDUINO)
 PROGMEM usb_string_descriptor_struct usb_string_manufacturer_name = {
     .bLength = 2 + 2 * TEENSY_TO_ANY_MANUFACTURER_NAME_LEN,
     .bDescriptorType = 3,
     .wString = TEENSY_TO_ANY_MANUFACTURER_NAME,
 };
+#endif
 
+
+#if defined(TEENSYDUINO)
 #include "FastLED.h"
 CRGB * fastled_leds = nullptr;
 CLEDController * fastled_controller = nullptr;
 int fastled_num_leds = 0;
 int fastled_has_white = 0;
+#else
+void* fastled_leds = nullptr;
+void* fastled_controller = nullptr;
+int fastled_num_leds = 0;
+int fastled_has_white = 0;
+#endif
 
 #if TEENSY_TO_ANY_HAS_I2C_T3
 I2CMaster i2c(&Wire);
 I2CMaster i2c_1(&Wire1);
+#define TEENSY_TO_ANY_HAS_I2C_1 1
 #endif
 #if TEENSY_TO_ANY_HAS_I2C_T4
 I2CMaster_T4 i2c(&Wire);
 I2CMaster_T4 i2c_1(&Wire1);
+#define TEENSY_TO_ANY_HAS_I2C_1 1
+#endif
+#if TEENSY_TO_ANY_HAS_I2C_ARDUINO
+I2CMaster i2c(&Wire);
+#define TEENSY_TO_ANY_HAS_I2C_1 0
 #endif
 
 // Teensy4 has 1080 bytes of EEPROM, use the last byte to store the
@@ -194,7 +227,7 @@ void setup() {
   // Starting serial seems to be slow, so do it at the end
   // See Delays section in
   // https://www.pjrc.com/teensy/td_startup.html
-  Serial.begin(115'200);
+  Serial.begin(115200);
   execute_post_serial_startup_commands();
 
   execute_demo_commands();
@@ -278,8 +311,10 @@ int reboot_func(CommandRouter *cmd, int argc, const char **argv) {
   // https://forum.pjrc.com/index.php?threads/wdt_t4-watchdog-library-for-teensy-4.59257/
   // for the teensy 4
   // This reboots you into the programming mode not the normal mode which we care about...
+#if defined(TEENSYDUINO)
   _reboot_Teensyduino_();
   // Does not get here
+#endif
   return 0;
 }
 
@@ -293,6 +328,7 @@ int version_func(CommandRouter *cmd, int argc, const char **argv) {
 int serialnumber_func(CommandRouter *cmd, int argc, const char **argv) {
   (void)argc;
   (void)argv;
+#if defined(TEENSYDUINO)
   uint8_t i;
   // https://github.com/PaulStoffregen/cores/pull/722
 #pragma GCC diagnostic push
@@ -303,6 +339,9 @@ int serialnumber_func(CommandRouter *cmd, int argc, const char **argv) {
   }
 #pragma GCC diagnostic pop
   cmd->buffer[i] = '\0';
+#else
+  snprintf(cmd->buffer, cmd->buffer_size, "UNO");
+#endif
   return 0;
 }
 
@@ -325,10 +364,10 @@ int mcu_func(CommandRouter *cmd, int argc, const char **argv) {
 
 
 int i2c_init(CommandRouter *cmd, int argc, const char **argv) {
-  int baudrate = 100'000;
-  int timeout_ms = 200'000; // 200ms
-  int address_size = 2;
-  int address_msb_first = false;
+  int32_t baudrate = 100000;
+  int32_t timeout_ms = 200000; // 200ms
+  int32_t address_size = 2;
+  int32_t address_msb_first = false;
   if (argc >= 2) {
     baudrate = strtol(argv[1], nullptr, 0);
   }
@@ -427,7 +466,6 @@ int i2c_write_payload(CommandRouter *cmd, int argc, const char **argv) {
   }
 
   return i2c.write_payload(slave_address, register_address, data, num_bytes);
-
 }
 
 int i2c_read_payload(CommandRouter *cmd, int argc, const char **argv) {
@@ -593,10 +631,17 @@ int i2c_ping(CommandRouter *cmd, int argc, const char **argv) {
   return i2c.ping(slave_address);
 }
 
+int i2c_buffer_size(CommandRouter *cmd, int argc, const char **argv) {
+  (void)argc;
+  (void)argv;
+  snprintf(cmd->buffer, cmd->buffer_size, "%d", I2C_BUFFER_SIZE);
+  return 0;
+}
 
+#if TEENSY_TO_ANY_HAS_I2C_1
 int i2c_1_init(CommandRouter *cmd, int argc, const char **argv) {
-  int baudrate = 100'000;
-  int timeout_ms = 200'000; // 200ms
+  int baudrate = 100000;
+  int timeout_ms = 200000; // 200ms
   int address_size = 2;
   int address_msb_first = false;
   if (argc >= 2) {
@@ -862,19 +907,14 @@ int i2c_1_ping(CommandRouter *cmd, int argc, const char **argv) {
   return i2c_1.ping(slave_address);
 }
 
-int i2c_buffer_size(CommandRouter *cmd, int argc, const char **argv) {
-  (void)argc;
-  (void)argv;
-  snprintf(cmd->buffer, cmd->buffer_size, "%d", I2C_BUFFER_SIZE);
-  return 0;
-}
-
 int i2c_1_buffer_size(CommandRouter *cmd, int argc, const char **argv) {
   (void)argc;
   (void)argv;
   snprintf(cmd->buffer, cmd->buffer_size, "%d", I2C_BUFFER_SIZE);
   return 0;
 }
+#endif
+// TEENSY_TO_ANY_HAS_I2C_1
 
 int gpio_pin_mode(CommandRouter *cmd, int argc, const char **argv) {
   if (argc < 3 || argc > 4)
@@ -985,9 +1025,15 @@ int gpio_digital_pulse(CommandRouter *cmd, int argc, const char **argv) {
   }
 
   if (duration < 16E-6) {
+#if defined(TEENSYDUINO)
     int duration_ns = (int)(duration * 1E9);
+#endif
     digitalWrite(pin, value);
+#if defined(TEENSYDUINO)
     delayNanoseconds(duration_ns);
+#else
+    delayMicroseconds(1);
+#endif
     digitalWrite(pin, value_end);
   } else if (duration < 16E-3) {
     int duration_us = (int)(duration * 1E6);
@@ -1018,8 +1064,12 @@ int sleep_seconds(CommandRouter *cmd, int argc, const char **argv) {
   }
 
   if (duration < 16E-6) {
+#if defined(TEENSYDUINO)
     int duration_ns = (int)(duration * 1E9);
     delayNanoseconds(duration_ns);
+#else
+    delayMicroseconds(1);
+#endif
   } else if (duration < 16E-3) {
     int duration_us = (int)(duration * 1E6);
     delayMicroseconds(duration_us);
@@ -1054,6 +1104,7 @@ int analog_read(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+#if defined(TEENSYDUINO)
 int analog_write_frequency(CommandRouter *cmd, int argc, const char **argv) {
   int pin;
   int frequency;
@@ -1077,6 +1128,7 @@ int analog_write_resolution(CommandRouter *cmd, int argc, const char **argv) {
   analogWriteResolution(resolution);
   return 0;
 }
+#endif
 
 int analog_pulse(CommandRouter *cmd, int argc, const char **argv) {
   int pin;
@@ -1098,9 +1150,15 @@ int analog_pulse(CommandRouter *cmd, int argc, const char **argv) {
   }
 
   if (duration < 16E-6) {
+#if defined(TEENSYDUINO)
     int duration_ns = (int)(duration * 1E9);
+#endif
     analogWrite(pin, dutycycle);
+#if defined(TEENSYDUINO)
     delayNanoseconds(duration_ns);
+#else
+    delayMicroseconds(1);
+#endif
     analogWrite(pin, dutycycle_end);
   } else if (duration < 16E-3) {
     int duration_us = (int)(duration * 1E6);
@@ -1132,6 +1190,7 @@ int spi_end(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+#if defined(TEENSYDUINO)
 int spi_set_mosi(CommandRouter *cmd, int argc, const char **argv) {
   if (argc != 2) {
     return EINVAL;
@@ -1158,6 +1217,7 @@ int spi_set_sck(CommandRouter *cmd, int argc, const char **argv) {
   SPI.setSCK(sck);
   return 0;
 }
+#endif
 
 int spi_settings(CommandRouter *cmd, int argc, const char **argv) {
   int frequency;
@@ -1437,7 +1497,7 @@ int eeprom_read_uint8(CommandRouter *cmd, int argc, const char **argv) {
   int written = 0;
   const char * fmt;
   for (int i = 0; i < length; i++) {
-    if (index + i > EEPROM.length()) {
+    if (index + i > (int)EEPROM.length()) {
       return EINVAL;
     }
     auto data = EEPROM.read(index + i);
@@ -1465,7 +1525,7 @@ int eeprom_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
   index = strtol(argv[1], nullptr, 0);
 
   for (int i = 2; i < argc; i++) {
-    if (index > EEPROM.length()) {
+    if (index > (int)EEPROM.length()) {
       return EINVAL;
     }
 
@@ -1484,6 +1544,7 @@ int eeprom_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+#if defined(TEENSYDUINO)
 int fastled_add_leds(CommandRouter *cmd, int argc, const char **argv) {
   // Arguments are the
   // * Class of LEDs being driven
@@ -1582,6 +1643,7 @@ int fastled_add_leds(CommandRouter *cmd, int argc, const char **argv) {
 
   return 0;
 }
+
 int fastled_show(CommandRouter *cmd, int argc, const char **argv) {
   if (argc > 2) {
     return EINVAL;
@@ -1594,6 +1656,7 @@ int fastled_show(CommandRouter *cmd, int argc, const char **argv) {
   }
   return 0;
 }
+
 int fastled_set_rgb(CommandRouter *cmd, int argc, const char **argv) {
   if (argc < 5) {
     return EINVAL;
@@ -1615,7 +1678,6 @@ int fastled_set_rgb(CommandRouter *cmd, int argc, const char **argv) {
 
   return 0;
 }
-
 
 int fastled_set_hsv(CommandRouter *cmd, int argc, const char **argv) {
   if (argc < 5) {
@@ -1691,6 +1753,7 @@ int fastled_set_max_refresh_rate(CommandRouter *cmd, int argc, const char **argv
   FastLED.setMaxRefreshRate(rate);
   return 0;
 }
+#endif
 
 
 void loop() {

@@ -3,7 +3,9 @@
 #include "commandrouting.hpp"
 
 int info_func(CommandRouter *cmd, int argc, const char **argv);
+#if defined(TEENSYDUINO)
 int reboot_func(CommandRouter *cmd, int argc, const char **argv);
+#endif
 int version_func(CommandRouter *cmd, int argc, const char **argv);
 int mcu_func(CommandRouter *cmd, int argc, const char **argv);
 int serialnumber_func(CommandRouter *cmd, int argc, const char **argv);
@@ -37,6 +39,7 @@ int i2c_end_transaction(CommandRouter *cmd, int argc, const char **argv);
 int i2c_ping(CommandRouter *cmd, int argc, const char **argv);
 int i2c_buffer_size(CommandRouter *cmd, int argc, const char **argv);
 
+#if defined(TEENSYDUINO)
 int i2c_1_init(CommandRouter *cmd, int argc, const char **argv);
 int i2c_1_reset(CommandRouter *cmd, int argc, const char **argv);
 int i2c_1_write_uint16(CommandRouter *cmd, int argc, const char **argv);
@@ -57,11 +60,14 @@ int i2c_1_end_transaction(CommandRouter *cmd, int argc, const char **argv);
 
 int i2c_1_ping(CommandRouter *cmd, int argc, const char **argv);
 int i2c_1_buffer_size(CommandRouter *cmd, int argc, const char **argv);
+#endif
 
 // PWM Support
 int analog_write(CommandRouter *cmd, int argc, const char **argv);
+#if defined(TEENSYDUINO)
 int analog_write_frequency(CommandRouter *cmd, int argc, const char **argv);
 int analog_write_resolution(CommandRouter *cmd, int argc, const char **argv);
+#endif
 int analog_pulse(CommandRouter *cmd, int argc, const char **argv);
 
 // Analog IO
@@ -70,9 +76,11 @@ int analog_read(CommandRouter *cmd, int argc, const char **argv);
 // SPI support
 int spi_begin(CommandRouter *cmd, int argc, const char **argv);
 int spi_end(CommandRouter *cmd, int argc, const char **argv);
+#if defined(TEENSYDUINO)
 int spi_set_mosi(CommandRouter *cmd, int argc, const char **argv);
 int spi_set_miso(CommandRouter *cmd, int argc, const char **argv);
 int spi_set_sck(CommandRouter *cmd, int argc, const char **argv);
+#endif
 int spi_settings(CommandRouter *cmd, int argc, const char **argv);
 int spi_begin_transaction(CommandRouter *cmd, int argc, const char **argv);
 int spi_end_transaction(CommandRouter *cmd, int argc, const char **argv);
@@ -93,6 +101,7 @@ int register_write_uint32(CommandRouter *cmd, int argc, const char **argv);
 int eeprom_read_uint8(CommandRouter *cmd, int argc, const char **argv);
 int eeprom_write_uint8(CommandRouter *cmd, int argc, const char **argv);
 
+#if defined(TEENSYDUINO)
 int fastled_add_leds(CommandRouter *cmd, int argc, const char **argv);
 int fastled_show(CommandRouter *cmd, int argc, const char **argv);
 int fastled_set_rgb(CommandRouter *cmd, int argc, const char **argv);
@@ -101,6 +110,7 @@ int fastled_set_hue(CommandRouter *cmd, int argc, const char **argv);
 int fastled_set_brightness(CommandRouter *cmd, int argc, const char **argv);
 int fastled_get_brightness(CommandRouter *cmd, int argc, const char **argv);
 int fastled_set_max_refresh_rate(CommandRouter *cmd, int argc, const char **argv);
+#endif
 
 // Mostly for debugging and startup scripts
 int sleep_seconds(CommandRouter *cmd, int argc, const char **argv);
@@ -121,7 +131,9 @@ int nop_func(CommandRouter *cmd, int argc, const char **argv);
 const command_item_t command_list[] = {
     {"?", "Display help info", "?", command_help_func},
     {"info", "Displays information about this TeensyToAny device", "about", info_func},
+#if defined(TEENSYDUINO)
     {"reboot", "Runs setup routine again, for this device.", "reboot", reboot_func},
+#endif
     {"mcu", "Displays information about the microcontroller board.", "mcu", mcu_func},
     {"serialnumber", "Displays the serial number of the board.", "serialnumber", serialnumber_func},
     {"license",
@@ -201,6 +213,7 @@ const command_item_t command_list[] = {
      "Get the maximum I2C buffer size for this board.",
      "i2c_buffer_size",
       i2c_buffer_size},
+#if defined(TEENSYDUINO)
     {"i2c_1_init", "Initialize I2C Communication",
     "i2c_1_init [baudrate=100_000] [timeout_ms=200_000] [address_size=2] "
     "[address_msb_first=1]",
@@ -260,21 +273,26 @@ const command_item_t command_list[] = {
      "Get the maximum I2C buffer size for this board.",
      "i2c_1_buffer_size",
       i2c_1_buffer_size},
+#endif
     {"analog_write", "Write the duty cycle of the PWM",
      "analog_write pin dutycycle", analog_write},
+#if defined(TEENSYDUINO)
     {"analog_write_frequency", "Write the frequency of the PWM",
      "analog_write_frequency pin frequency", analog_write_frequency},
     {"analog_write_resolution", "Write the resolution of the PWM timer",
      "analog_write_resolution bitdepth", analog_write_resolution},
+#endif
     {"analog_pulse", "Write the duty cycle of the PWM for a given duration of time.",
      "analog_pulse pin dutycycle dutycycle_end duration", analog_pulse},
     {"analog_read", "Read the value of an analog pin, 0-255",
      "analog_read pin", analog_read},
     {"spi_begin", "SPI Begin", "spi_begin", spi_begin},
     {"spi_end", "SPI End", "spi_end", spi_begin},
+#if defined(TEENSYDUINO)
     {"spi_set_mosi", "SPI set MOSI", "spi_set_mosi mosi", spi_set_mosi},
     {"spi_set_miso", "SPI set MISO ", " spi_set_miso miso", spi_set_miso},
     {"spi_set_sck", "SPI set SCK ", " spi_set_sck sck", spi_set_sck},
+#endif
     {"spi_settings", "SPI set setting",
      "spi_settings frequency bitOrder dataMode", spi_settings},
     {"spi_begin_transaction", "spi_begin_transaction", "spi_begin_transaction",
@@ -309,6 +327,7 @@ const command_item_t command_list[] = {
      "eeprom_read_uint8 address", eeprom_read_uint8},
     {"eeprom_write_uint8", "Write to an EEPROM address.",
      "eeprom_write_uint8 address data", eeprom_write_uint8},
+#if defined(TEENSYDUINO)
     {"fastled_add_leds", "Initialize the FastLED library",
      "fastled_init num_pixels pin type", fastled_add_leds},
     {"fastled_show", "Show the current FastLED buffer",
@@ -325,6 +344,7 @@ const command_item_t command_list[] = {
      "fastled_get_brightness", fastled_get_brightness},
     {"fastled_set_max_refresh_rate", "Set the maximum refresh rate of the FastLED buffer",
      "fastled_set_max_refresh_rate rate", fastled_set_max_refresh_rate},
+#endif
     {"sleep", "Sleep (and block) for the desired duration",
      "sleep duration", sleep_seconds},
     {"startup_commands_available", "Number of startup commands available",

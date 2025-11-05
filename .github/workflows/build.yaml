@@ -17,8 +17,6 @@ jobs:
           - teensy40_blinker
           - teensy40_fan_hub
           - teensy32_fan_hub
-          - teensy40_neopixel
-          - teensy40_neopixel_example
           - teensy40_fastled
     runs-on: ubuntu-latest
     steps:

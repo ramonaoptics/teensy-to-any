@@ -1,3 +1,7 @@
+### 0.21.0 (2025/11/05)
+
+* Removed support for the neopixel library. Use FastLED instead.
+
 ### 0.20.0 (2025/08/30)
 
 * Added back `fastled_set_hsv` and `fastled_set_hue` commands with fixes for FastLED library compatibility.

@@ -92,11 +92,6 @@ CRGB * fastled_leds = nullptr;
 CLEDController * fastled_controller = nullptr;
 int fastled_num_leds = 0;
 int fastled_has_white = 0;
-#else
-void* fastled_leds = nullptr;
-void* fastled_controller = nullptr;
-int fastled_num_leds = 0;
-int fastled_has_white = 0;
 #endif
 
 #if TEENSY_TO_ANY_HAS_I2C_T3

@@ -93,16 +93,6 @@ int register_write_uint32(CommandRouter *cmd, int argc, const char **argv);
 int eeprom_read_uint8(CommandRouter *cmd, int argc, const char **argv);
 int eeprom_write_uint8(CommandRouter *cmd, int argc, const char **argv);
 
-#ifdef TEENSYTOANY_USE_NEOPIXEL
-int neopixel_init(CommandRouter *cmd, int argc, const char **argv);
-int neopixel_begin(CommandRouter *cmd, int argc, const char **argv);
-int neopixel_update_length(CommandRouter *cmd, int argc, const char **argv);
-int neopixel_update_pin(CommandRouter *cmd, int argc, const char **argv);
-int neopixel_update_type(CommandRouter *cmd, int argc, const char **argv);
-int neopixel_show(CommandRouter *cmd, int argc, const char **argv);
-int neopixel_set_pixel_color(CommandRouter *cmd, int argc, const char **argv);
-#endif
-
 int fastled_add_leds(CommandRouter *cmd, int argc, const char **argv);
 int fastled_show(CommandRouter *cmd, int argc, const char **argv);
 int fastled_set_rgb(CommandRouter *cmd, int argc, const char **argv);
@@ -319,22 +309,6 @@ const command_item_t command_list[] = {
      "eeprom_read_uint8 address", eeprom_read_uint8},
     {"eeprom_write_uint8", "Write to an EEPROM address.",
      "eeprom_write_uint8 address data", eeprom_write_uint8},
-#ifdef TEENSYTOANY_USE_NEOPIXEL
-    {"neopixel_init", "Initialize the neopixel library",
-     "neopixel_init num_pixels pin type", neopixel_init},
-    {"neopixel_begin", "Begin the neopixel buffer",
-     "neopixel_begin", neopixel_begin},
-    {"neopixel_update_length", "Update the length of the neopixel buffer",
-     "neopixel_update_length num_pixels", neopixel_update_length},
-    {"neopixel_update_pin", "Update the pin of the neopixel buffer",
-     "neopixel_update_pin pin", neopixel_update_pin},
-    {"neopixel_update_type", "Update the type of the neopixel buffer",
-     "neopixel_update_type type", neopixel_update_type},
-    {"neopixel_show", "Show the current neopixel buffer",
-     "neopixel_show", neopixel_show},
-    {"neopixel_set_pixel_color", "Set the color of a pixel in the neopixel buffer",
-     "neopixel_set_pixel_color pixel red green blue", neopixel_set_pixel_color},
-#endif
     {"fastled_add_leds", "Initialize the FastLED library",
      "fastled_init num_pixels pin type", fastled_add_leds},
     {"fastled_show", "Show the current FastLED buffer",

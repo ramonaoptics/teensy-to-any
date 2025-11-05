@@ -5,7 +5,7 @@
 
 #define LICENSE_TEXT                                                           \
   "teensytoany: hardware debugger based on the Teensy platform\n"              \
-  "Copyright (C) 2019-2023  Ramona Optics, Inc.\n"                                  \
+  "Copyright (C) 2019-2025  Ramona Optics, Inc.\n"                             \
   "\n"                                                                         \
   "This program is free software: you can redistribute it and/or modify\n"     \
   "it under the terms of the GNU General Public License as published by\n"     \
@@ -119,31 +119,21 @@ int CommandRouter::help(const char *command_name) {
     Serial.print(F("-----------------------------------\n"));
   }
   for (int i = 0; command_list[i].name != nullptr; i++) {
-#if !defined(TEENSYDUINO) && defined(ARDUINO) && defined(__AVR__)
-    // On Arduino Uno, names are in PROGMEM
-    bool name_matches = (command_name == nullptr) ||
-                        (strcmp_P(command_name, (const char*)command_list[i].name) == 0);
+    bool name_matches = (command_name == nullptr ||
+                        (strcmp(command_name, command_list[i].name) == 0));
     if (name_matches) {
       Serial.print(F("COMMAND: \n"));
-      // Print PROGMEM string - Serial.print handles __FlashStringHelper automatically
-      Serial.print((const __FlashStringHelper*)command_list[i].name);
-      Serial.print("\n");
-#else
-    if (command_name == nullptr ||
-        (strcmp(command_name, command_list[i].name) == 0)) {
-      Serial.print(F("COMMAND: \n"));
       Serial.print(command_list[i].name);
-      Serial.print("\n");
-#endif
+      Serial.print(F("\n"));
 #if !defined(TEENSYDUINO) && defined(ARDUINO) && defined(__AVR__)
       // Arduino Uno: descriptions and syntax not available to save RAM
 #else
       Serial.print(F("SYNTAX:\n"));
       Serial.print(command_list[i].syntax);
-      Serial.print("\n");
+      Serial.print(F("\n"));
       Serial.print(F("DESCRIPTION:\n"));
       Serial.print(command_list[i].description);
-      Serial.print("\n");
+      Serial.print(F("\n"));
 #endif
       if (command_name == nullptr) {
         Serial.print(F("-----------------------------------\n"));
@@ -169,16 +159,8 @@ int CommandRouter::route(int argc, const char **argv) {
 
   if (argv[0] == nullptr)
     return EINVAL;
-#if 0
-  Serial.printf("Received command: %s", argv[0]);
-#endif
   for (int i = 0; command_list[i].name != nullptr; i++) {
-#if !defined(TEENSYDUINO) && defined(ARDUINO) && defined(__AVR__)
-    // On Arduino Uno, names are in PROGMEM, use strcmp_P
-    if (strcmp_P(argv[0], (const char*)command_list[i].name) == 0) {
-#else
     if (strcmp(argv[0], command_list[i].name) == 0) {
-#endif
       if (command_list[i].func != nullptr) {
         return command_list[i].func(this, argc, argv);
       } else {
@@ -293,10 +275,10 @@ finish:
 
   // And any payload that exists
   if (buffer[0]) {
-    Serial.print(" ");
+    Serial.print(F(" "));
     Serial.print(buffer);
   }
-  Serial.print("\n");
+  Serial.print(F("\n"));
 
 #if defined(TEENSYDUINO)
   // Call send_now on success to ensure that the response is immediate

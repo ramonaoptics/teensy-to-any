@@ -1257,6 +1257,7 @@ int spi_settings(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+#if defined(TEENSYDUINO)
 int spi_begin_transaction(CommandRouter *cmd, int argc, const char **argv) {
   if (argc != 1) {
     return EINVAL;
@@ -1273,6 +1274,7 @@ int spi_end_transaction(CommandRouter *cmd, int argc, const char **argv) {
   SPI.endTransaction();
   return 0;
 }
+#endif
 
 int spi_transfer(CommandRouter *cmd, int argc, const char **argv) {
   if (argc != 2) {

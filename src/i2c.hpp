@@ -21,7 +21,9 @@
 #define TEENSY_TO_ANY_HAS_I2C_ARDUINO 0
 #endif
 
+#if !defined(__AVR__)
 #include <unistd.h>
+#endif
 
 #if TEENSY_TO_ANY_HAS_I2C_T3
 

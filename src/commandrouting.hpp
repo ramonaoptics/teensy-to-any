@@ -6,12 +6,23 @@
 // Need to declare command router since it is used by the command_item struct;
 class CommandRouter;
 
+// Platform-specific command_item_t structures
+// Arduino Uno (memory-constrained): omit descriptions and syntax, names in PROGMEM
+#if !defined(TEENSYDUINO) && defined(ARDUINO) && defined(__AVR__)
+#include <avr/pgmspace.h>
+typedef struct command_item {
+  const char *name;  // Points to PROGMEM string
+  int (*func)(CommandRouter *cmd, int argc, const char **argv);
+} command_item_t;
+#else
+// Teensy platforms: include descriptions and syntax
 typedef struct command_item {
   const char *name;
   const char *description;
   const char *syntax;
   int (*func)(CommandRouter *cmd, int argc, const char **argv);
 } command_item_t;
+#endif
 
 class CommandRouter {
 public:

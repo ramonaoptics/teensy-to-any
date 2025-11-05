@@ -10,13 +10,20 @@ a host computer that sends requests to accomplish different actions.
 
 Currently, we support:
 
-
-| Protocol | Teensy 4.0 |
-|:---------|:-----------|
-| GPIO     | Yes        |
-| I2C      | Yes        |
-| PWM      | Yes        |
-| SPI      | Yes        |
+| Protocol | Teensy 4.0 | Teensy 3.2 | Arduino Uno |
+|:---------|:-----------|:-----------|:------------|
+| GPIO     | Yes        | Yes        | Yes         |
+| I2C      | Yes (2 buses) | Yes (2 buses) | Yes (1 bus) |
+| I2C Custom Frequency | Yes | Yes | Yes |
+| PWM      | Yes        | Yes        | Yes         |
+| PWM Frequency Control | Yes | Yes | No |
+| PWM Resolution Control | Yes | Yes | No |
+| SPI      | Yes        | Yes        | Yes         |
+| SPI Custom Pins | Yes | Yes | No |
+| FastLED  | Yes        | Yes        | No          |
+| NeoPixel | Yes (optional) | No | No |
+| EEPROM   | Yes        | Yes        | Yes         |
+| Register Read/Write | Yes | Yes | Yes |
 
 Future protocols include:
 
@@ -53,13 +60,6 @@ conditions.
 
 ## Teensy 3.2
 
-| Protocol | Teensy 3.2 |
-|:---------|:-----------|
-| GPIO     | Yes        |
-| I2C      | Yes        |
-| PWM      | Yes        |
-| SPI      | Yes        |
-
 upload with
 
 ```
@@ -72,6 +72,31 @@ teensy_loader_cli -s --mcu=TEENSY31 build_version_number.hex
 ```
 
 </details>
+
+## Arduino Uno
+
+The Arduino Uno is supported as a target platform. While it shares many core protocols with Teensy boards, it has some limitations due to hardware constraints:
+
+**Supported Features:**
+- GPIO (digital read/write, pin mode)
+- I2C (single bus via Wire library)
+- PWM (basic analog write, fixed frequency)
+- SPI (fixed pins: MOSI=11, MISO=12, SCK=13)
+- EEPROM read/write
+- Register read/write
+
+**Not Supported:**
+- Dual I2C buses (only one I2C bus available)
+- PWM frequency control (`analog_write_frequency`)
+- PWM resolution control (`analog_write_resolution`)
+- SPI custom pin configuration
+- FastLED library
+- NeoPixel library
+
+Upload with:
+```
+platformio run -e arduino_uno --target upload
+```
 
 # Release Process
 

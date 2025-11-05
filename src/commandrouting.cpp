@@ -5,7 +5,7 @@
 
 #define LICENSE_TEXT                                                           \
   "teensytoany: hardware debugger based on the Teensy platform\n"              \
-  "Copyright (C) 2019-2023  Ramona Optics, Inc.\n"                                  \
+  "Copyright (C) 2019-2025  Ramona Optics, Inc.\n"                             \
   "\n"                                                                         \
   "This program is free software: you can redistribute it and/or modify\n"     \
   "it under the terms of the GNU General Public License as published by\n"     \
@@ -119,17 +119,22 @@ int CommandRouter::help(const char *command_name) {
     Serial.print(F("-----------------------------------\n"));
   }
   for (int i = 0; command_list[i].name != nullptr; i++) {
-    if (command_name == nullptr ||
-        (strcmp(command_name, command_list[i].name) == 0)) {
+    bool name_matches = (command_name == nullptr ||
+                        (strcmp(command_name, command_list[i].name) == 0));
+    if (name_matches) {
       Serial.print(F("COMMAND: \n"));
       Serial.print(command_list[i].name);
-      Serial.print("\n");
+      Serial.print(F("\n"));
+#if !defined(TEENSYDUINO) && defined(ARDUINO) && defined(__AVR__)
+      // Arduino Uno: descriptions and syntax not available to save RAM
+#else
       Serial.print(F("SYNTAX:\n"));
       Serial.print(command_list[i].syntax);
-      Serial.print("\n");
+      Serial.print(F("\n"));
       Serial.print(F("DESCRIPTION:\n"));
       Serial.print(command_list[i].description);
-      Serial.print("\n");
+      Serial.print(F("\n"));
+#endif
       if (command_name == nullptr) {
         Serial.print(F("-----------------------------------\n"));
       } else {
@@ -154,9 +159,6 @@ int CommandRouter::route(int argc, const char **argv) {
 
   if (argv[0] == nullptr)
     return EINVAL;
-#if 0
-  Serial.printf("Received command: %s", argv[0]);
-#endif
   for (int i = 0; command_list[i].name != nullptr; i++) {
     if (strcmp(argv[0], command_list[i].name) == 0) {
       if (command_list[i].func != nullptr) {
@@ -273,16 +275,20 @@ finish:
 
   // And any payload that exists
   if (buffer[0]) {
-    Serial.print(" ");
+    Serial.print(F(" "));
     Serial.print(buffer);
   }
-  Serial.print("\n");
+  Serial.print(F("\n"));
 
+#if defined(TEENSYDUINO)
   // Call send_now on success to ensure that the response is immediate
   // Otherwise, the serial buffer will wait for up to 5 ms
   // for the buffer to get full (it never will) before sending any data
   // https://www.pjrc.com/teensy/td_serial.html
   Serial.send_now();
+#else
+  Serial.flush();
+#endif
 
   return result;
 }

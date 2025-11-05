@@ -18,6 +18,7 @@ jobs:
           - teensy40_fan_hub
           - teensy32_fan_hub
           - teensy40_fastled
+          - arduino_uno
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2

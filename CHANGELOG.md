@@ -1,3 +1,12 @@
+### Unreleased
+
+* Dual-target licensing posture: **Teensy 4.x is moving to a non-GPL
+  bare-metal stack** (NXP MCUXpresso SDK BSD-3 + TinyUSB MIT, no Arduino
+  framework) so its binaries can be free of LGPL/GPL code, while **Teensy 3.2
+  remains supported on the Arduino framework** (a mixed MIT/LGPL/GPL build) for
+  broad ecosystem compatibility. The serial protocol is unchanged across both.
+  See `move_away_from_arduino_framework.md`.
+
 ### 0.21.0 (2025/11/05)
 
 * Removed support for the neopixel library. Use FastLED instead.

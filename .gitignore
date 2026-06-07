@@ -3,3 +3,6 @@
 # pixi environments
 .pixi/*
 !.pixi/config.toml
+
+# Fetched, pinned vendor sources (tools/fetch_mcux.py)
+vendor/

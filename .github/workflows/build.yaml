@@ -8,16 +8,28 @@ on:
   pull_request:
 
 jobs:
+  host-tests:
+    name: Host unit tests (no hardware)
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+    - name: Install PlatformIO
+      run: pip install platformio
+    - name: Run native tests
+      run: platformio test -e native
+
   build:
     strategy:
       matrix:
         build_environment:
-          - teensy32
           - teensy40
           - teensy40_blinker
           - teensy40_fan_hub
-          - teensy32_fan_hub
           - teensy40_fastled
+          - teensy32
+          - teensy32_fan_hub
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2

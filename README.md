@@ -49,9 +49,15 @@ conditions.
 * `teensy40_neopixel_example`: Drives 5 neopixel RGBW LEDs.
 
 
-<details><summary>Deprecation of Teensy3</summary>
+<details><summary>Teensy 3.2 (Arduino framework — broad ecosystem compatibility)</summary>
 
 ## Teensy 3.2
+
+Teensy 3.2 (Kinetis K20) is supported on the Arduino framework so the firmware
+stays compatible with the broader Teensy/Arduino ecosystem. **This build is a
+mixed MIT/LGPL/GPL binary and is _not_ license-clean** — the LGPL/GPL-free
+posture (see below) applies only to the Teensy 4 bare-metal path. Use the
+Teensy 3.2 build when ecosystem compatibility matters more than licensing.
 
 | Protocol | Teensy 3.2 |
 |:---------|:-----------|

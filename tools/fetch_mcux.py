@@ -13,7 +13,12 @@
 #
 #   NXP MCUXpresso SDK  (BSD-3-Clause) : i.MX RT1062 CMSIS device registers
 #   ARM CMSIS_5         (Apache-2.0)   : Cortex-M7 core headers
-#   TinyUSB             (MIT)          : USB device/CDC stack  [added later]
+#
+# These two are subpaths of large CMake/west monorepos with no root
+# library.json, and PlatformIO's package manager drops monorepo subpaths it
+# doesn't recognize as a library layout — so it cannot pin them natively. This
+# script fetches exactly those subpaths. TinyUSB, by contrast, IS a proper PIO
+# library and is pinned natively via `lib_deps` in platformio.ini (not here).
 
 import os
 import sys

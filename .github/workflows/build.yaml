@@ -28,6 +28,8 @@ jobs:
           - teensy40_blinker
           - teensy40_fan_hub
           - teensy40_fastled
+          - teensy32
+          - teensy32_fan_hub
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2

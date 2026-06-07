@@ -49,16 +49,35 @@ conditions.
 * `teensy40_neopixel_example`: Drives 5 neopixel RGBW LEDs.
 
 
-## Teensy 3.2 (no longer supported)
+<details><summary>Teensy 3.2 (Arduino framework — broad ecosystem compatibility)</summary>
 
-Teensy 3.2 (and the other Kinetis boards) is **end-of-life** for this firmware.
-The hardware is discontinued by PJRC, and from `1.0.0` onward this project
-targets only the Teensy 4.x (i.MX RT1062) on a non-GPL toolchain. The `0.x`
-series is the last to support Teensy 3.2.
+## Teensy 3.2
 
-The last release with Teensy 3.2 support is **0.21.0**:
+Teensy 3.2 (Kinetis K20) is supported on the Arduino framework so the firmware
+stays compatible with the broader Teensy/Arduino ecosystem. **This build is a
+mixed MIT/LGPL/GPL binary and is _not_ license-clean** — the LGPL/GPL-free
+posture (see below) applies only to the Teensy 4 bare-metal path. Use the
+Teensy 3.2 build when ecosystem compatibility matters more than licensing.
 
-https://github.com/ramonaoptics/teensy-to-any/releases/tag/0.21.0
+| Protocol | Teensy 3.2 |
+|:---------|:-----------|
+| GPIO     | Yes        |
+| I2C      | Yes        |
+| PWM      | Yes        |
+| SPI      | Yes        |
+
+upload with
+
+```
+platformio run -e teensy32 --target upload
+```
+
+To upload a precompiled build:
+```
+teensy_loader_cli -s --mcu=TEENSY31 build_version_number.hex
+```
+
+</details>
 
 # Release Process
 

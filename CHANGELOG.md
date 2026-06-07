@@ -1,11 +1,11 @@
 ### Unreleased
 
-* **Dropped support for Teensy 3.2** (and the other Kinetis boards). The
-  hardware is discontinued by PJRC; from now on this project targets only the
-  Teensy 4.x (i.MX RT1062). The `teensy32` / `teensy32_fan_hub` build
-  environments, the `i2c_t3` dependency, and all Kinetis code paths are removed.
-  The `0.x` series is the last to support Teensy 3.2; the last release with it is
-  [0.21.0](https://github.com/ramonaoptics/teensy-to-any/releases/tag/0.21.0).
+* Dual-target licensing posture: **Teensy 4.x is moving to a non-GPL
+  bare-metal stack** (NXP MCUXpresso SDK BSD-3 + TinyUSB MIT, no Arduino
+  framework) so its binaries can be free of LGPL/GPL code, while **Teensy 3.2
+  remains supported on the Arduino framework** (a mixed MIT/LGPL/GPL build) for
+  broad ecosystem compatibility. The serial protocol is unchanged across both.
+  See `move_away_from_arduino_framework.md`.
 
 ### 0.21.0 (2025/11/05)
 

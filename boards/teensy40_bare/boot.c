@@ -17,9 +17,11 @@
 // exact timing values are refined during on-hardware bring-up.
 
 #include <stdint.h>
+#include "MIMXRT1062.h"   // NXP CMSIS device registers (vendored, BSD-3)
 
 extern int main(void);
 extern void __libc_init_array(void);
+extern void SystemInit(void);   // NXP system_MIMXRT1062.c
 
 // Linker-provided symbols
 extern uint32_t _stext, _etext, _flashstart_text;
@@ -128,6 +130,11 @@ void ResetHandler(void)
     // Set the stack pointer explicitly (the ROM may enter before SP is loaded).
     __asm__ volatile("ldr sp, =_estack");
 
+    // Enable the FPU (CP10/CP11 full access) before any floating-point use.
+    SCB->CPACR |= (3u << 20) | (3u << 22);
+    __DSB();
+    __ISB();
+
     // Copy .text from flash (XIP) into ITCM.
     uint32_t *src = &_flashstart_text;
     uint32_t *dst = &_stext;
@@ -142,8 +149,18 @@ void ResetHandler(void)
     dst = &_sbss;
     while (dst < &_ebss) *dst++ = 0;
 
-    // TODO(hardware): configure FlexRAM (ITCM/DTCM split via IOMUXC_GPR),
-    // PLLs / clock tree, and enable the FPU + caches before calling main.
+    // Basic device init (watchdog disable, default clock gating) from the
+    // NXP CMSIS system file.
+    SystemInit();
+
+    // Enable the L1 caches.
+    SCB_EnableICache();
+    SCB_EnableDCache();
+
+    // TODO(hardware): configure the FlexRAM ITCM/DTCM bank split (IOMUXC_GPR
+    // GPR14/16/17) to match the linker script, and bring up the full PLL /
+    // clock tree (fsl_clock + a board clock_config). Validated on a real
+    // Teensy 4.0 during bring-up; see docs/migration.
 
     __libc_init_array();   // C++ static constructors
     (void)main();

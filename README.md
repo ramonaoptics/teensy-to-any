@@ -49,29 +49,16 @@ conditions.
 * `teensy40_neopixel_example`: Drives 5 neopixel RGBW LEDs.
 
 
-<details><summary>Deprecation of Teensy3</summary>
+## Teensy 3.2 (no longer supported)
 
-## Teensy 3.2
+Teensy 3.2 (and the other Kinetis boards) is **end-of-life** for this firmware.
+The hardware is discontinued by PJRC, and from `1.0.0` onward this project
+targets only the Teensy 4.x (i.MX RT1062) on a non-GPL toolchain. The `0.x`
+series is the last to support Teensy 3.2.
 
-| Protocol | Teensy 3.2 |
-|:---------|:-----------|
-| GPIO     | Yes        |
-| I2C      | Yes        |
-| PWM      | Yes        |
-| SPI      | Yes        |
+The last release with Teensy 3.2 support is **0.21.0**:
 
-upload with
-
-```
-platformio run -e teensy32 --target upload
-```
-
-To upload a precompiled build:
-```
-teensy_loader_cli -s --mcu=TEENSY31 build_version_number.hex
-```
-
-</details>
+https://github.com/ramonaoptics/teensy-to-any/releases/tag/0.21.0
 
 # Release Process
 

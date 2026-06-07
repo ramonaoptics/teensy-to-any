@@ -23,14 +23,9 @@ char serial_buffer[BUFFER_SIZE];
 const char *argv_buffer[ARGV_MAX];
 #endif
 
-// Buffer sizes - smaller for Teensy 3.2, larger for Teensy 4.0
-#if defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
-#define I2C_BUFFER_SIZE 32   // Teensy 3.2/3.5/3.6
-#define SPI_BUFFER_SIZE 32   // Teensy 3.2/3.5/3.6
-#else
-#define I2C_BUFFER_SIZE 256  // Teensy 4.0/4.1
-#define SPI_BUFFER_SIZE 256  // Teensy 4.0/4.1
-#endif
+// Buffer sizes for Teensy 4.0/4.1
+#define I2C_BUFFER_SIZE 256
+#define SPI_BUFFER_SIZE 256
 // Default SPI Settings
 uint32_t spi_baudrate = 4'000'000;
 uint8_t spi_bit_order = MSBFIRST;
@@ -72,10 +67,6 @@ CLEDController * fastled_controller = nullptr;
 int fastled_num_leds = 0;
 int fastled_has_white = 0;
 
-#if TEENSY_TO_ANY_HAS_I2C_T3
-I2CMaster i2c(&Wire);
-I2CMaster i2c_1(&Wire1);
-#endif
 #if TEENSY_TO_ANY_HAS_I2C_T4
 I2CMaster_T4 i2c(&Wire);
 I2CMaster_T4 i2c_1(&Wire1);
@@ -313,10 +304,6 @@ int mcu_func(CommandRouter *cmd, int argc, const char **argv) {
 
 #if (TEENSYDUINO) && defined(__IMXRT1062__)
   snprintf(cmd->buffer, cmd->buffer_size, "TEENSY40");
-#elif defined(TEENSYDUINO) && (defined(__MK20DX256__) ||  \
-                               defined(__MK64FX512__) ||  \
-                               defined(__MK66FX1M0__))
-  snprintf(cmd->buffer, cmd->buffer_size, "TEENSY32");
 #else
   snprintf(cmd->buffer, cmd->buffer_size, "UNKNOWN");
 #endif

@@ -1,3 +1,12 @@
+### Unreleased
+
+* **Dropped support for Teensy 3.2** (and the other Kinetis boards). The
+  hardware is discontinued by PJRC; from now on this project targets only the
+  Teensy 4.x (i.MX RT1062). The `teensy32` / `teensy32_fan_hub` build
+  environments, the `i2c_t3` dependency, and all Kinetis code paths are removed.
+  The `0.x` series is the last to support Teensy 3.2; the last release with it is
+  [0.21.0](https://github.com/ramonaoptics/teensy-to-any/releases/tag/0.21.0).
+
 ### 0.21.0 (2025/11/05)
 
 * Removed support for the neopixel library. Use FastLED instead.

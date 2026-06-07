@@ -12,11 +12,9 @@ jobs:
     strategy:
       matrix:
         build_environment:
-          - teensy32
           - teensy40
           - teensy40_blinker
           - teensy40_fan_hub
-          - teensy32_fan_hub
           - teensy40_fastled
     runs-on: ubuntu-latest
     steps:

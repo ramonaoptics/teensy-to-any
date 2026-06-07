@@ -1,0 +1,9 @@
+{
+  "name": "arduino_compat",
+  "version": "0.0.0",
+  "description": "MIT clean-room Arduino-compatibility shim (Print/Stream/GPIO/timing) over the NXP SDK + TinyUSB, for the bare-metal Teensy 4 build.",
+  "license": "MIT",
+  "build": {
+    "srcDir": "src"
+  }
+}

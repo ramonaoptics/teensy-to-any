@@ -7,12 +7,16 @@
 // migration proceeds.
 
 #include <stdint.h>
+#include "tusb.h"
 
 int main(void)
 {
-    volatile uint32_t counter = 0;
+    // TODO(hardware): USB PHY/PLL3 clock bring-up and NVIC wiring of the
+    // USB_OTG1 IRQ to tud_int_handler(0) happen during on-hardware bring-up.
+    tusb_init();
+
     for (;;) {
-        counter++;
+        tud_task();   // TinyUSB device task
     }
     return 0;
 }

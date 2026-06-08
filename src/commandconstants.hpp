@@ -93,6 +93,7 @@ int register_write_uint32(CommandRouter *cmd, int argc, const char **argv);
 int eeprom_read_uint8(CommandRouter *cmd, int argc, const char **argv);
 int eeprom_write_uint8(CommandRouter *cmd, int argc, const char **argv);
 
+#if defined(TEENSYTOANY_FASTLED)
 int fastled_add_leds(CommandRouter *cmd, int argc, const char **argv);
 int fastled_define(CommandRouter *cmd, int argc, const char **argv);
 int fastled_clear(CommandRouter *cmd, int argc, const char **argv);
@@ -104,6 +105,7 @@ int fastled_set_hue(CommandRouter *cmd, int argc, const char **argv);
 int fastled_set_brightness(CommandRouter *cmd, int argc, const char **argv);
 int fastled_get_brightness(CommandRouter *cmd, int argc, const char **argv);
 int fastled_set_max_refresh_rate(CommandRouter *cmd, int argc, const char **argv);
+#endif  // TEENSYTOANY_FASTLED
 
 // Mostly for debugging and startup scripts
 int sleep_seconds(CommandRouter *cmd, int argc, const char **argv);
@@ -312,6 +314,7 @@ const command_item_t command_list[] = {
      "eeprom_read_uint8 address", eeprom_read_uint8},
     {"eeprom_write_uint8", "Write to an EEPROM address.",
      "eeprom_write_uint8 address data", eeprom_write_uint8},
+#if defined(TEENSYTOANY_FASTLED)
     {"fastled_add_leds", "Initialize the FastLED library (legacy; prefer fastled_define)",
      "fastled_add_leds chipset has_white pin num_leds", fastled_add_leds},
     {"fastled_define", "Dynamically (re)define the LED chain at runtime",
@@ -334,6 +337,7 @@ const command_item_t command_list[] = {
      "fastled_get_brightness", fastled_get_brightness},
     {"fastled_set_max_refresh_rate", "Set the maximum refresh rate of the FastLED buffer",
      "fastled_set_max_refresh_rate rate", fastled_set_max_refresh_rate},
+#endif  // TEENSYTOANY_FASTLED
     {"sleep", "Sleep (and block) for the desired duration",
      "sleep duration", sleep_seconds},
     {"startup_commands_available", "Number of startup commands available",

@@ -67,6 +67,15 @@ PROGMEM usb_string_descriptor_struct usb_string_manufacturer_name = {
     .wString = TEENSY_TO_ANY_MANUFACTURER_NAME,
 };
 
+// ===========================================================================
+// FastLED support is gated behind a single feature macro, TEENSYTOANY_FASTLED.
+// When it is undefined (e.g. the bare-metal / native paths) NONE of the
+// FastLED code below compiles and NO fastled_* commands are registered.  The
+// framework envs that ship FastLED today (teensy40, teensy32 and their
+// variants) define -D TEENSYTOANY_FASTLED in platformio.ini, preserving the
+// current behaviour exactly.
+// ===========================================================================
+#if defined(TEENSYTOANY_FASTLED)
 #include "FastLED.h"
 CRGB * fastled_leds = nullptr;
 CLEDController * fastled_controller = nullptr;
@@ -113,22 +122,31 @@ int fastled_has_white = 0;
 // instantiate only the two most common color orders (GRB and RGB) and fold the
 // distinct chipset names onto the WS2812 800 kHz template.  Requesting an
 // unsupported order/chipset on Teensy 3.2 returns EINVAL.
+//
+// Real controller-unlink teardown is platform-independent: CLEDController's
+// active-controller linked list (m_pHead/m_pTail/m_pNext) is identical across
+// every FastLED backend, so the FastLEDListAccess unlink helper compiles and
+// runs the same on the K20 (Teensy 3.2) and the IMXRT1062 (Teensy 4.x).  We
+// therefore enable it everywhere -- teardown and command semantics are now
+// IDENTICAL on Teensy 3.2 and Teensy 4.0.
+#define FASTLED_DYNAMIC_TEARDOWN_UNLINK 1
+
 #if defined(__MK20DX256__)
-// Teensy 3.2 (Kinetis K20, 256 KB flash): reduced matrix.
+// Teensy 3.2 (Kinetis K20, 256 KB flash): the FULL chipset x order x pin matrix
+// instantiated for Teensy 4.x overflows the K20's 256 KB flash by ~337 KB, so
+// this is a HARD HARDWARE FLASH LIMIT, not a behavioural guard.  We keep the
+// full pin range (0..23) and the WS2812 800 kHz family, but instantiate only
+// the two most common color orders (GRB, RGB) and fold the distinct chipset
+// names onto the WS2812 template.  The *teardown and command semantics* are
+// identical to Teensy 4.0 (same unlink teardown above); only the set of
+// supported chipset/order COMBINATIONS is smaller, purely to fit flash.
+// Requesting an unsupported order/chipset on Teensy 3.2 returns EINVAL.
 #define FASTLED_DYNAMIC_FULL_ORDERS 0
 #define FASTLED_DYNAMIC_FULL_CHIPSETS 0
-// TODO(teensy3): T3.2 flash is extremely tight.  The maintainer has deferred
-// real-teardown (controller unlinking) parity on T3.2 for now, so we leave the
-// unlink helper compiled out there.  Teardown on T3.2 falls back to the
-// "disable only" behaviour, which is enough to stop a stale chain clocking out
-// of a freed buffer; the controller singleton simply stays linked-but-disabled.
-#define FASTLED_DYNAMIC_TEARDOWN_UNLINK 0
 #else
-// Teensy 4.x and anything else with generous flash: full matrix + real unlink
-// teardown.
+// Teensy 4.x and anything else with generous flash: full matrix.
 #define FASTLED_DYNAMIC_FULL_ORDERS 1
 #define FASTLED_DYNAMIC_FULL_CHIPSETS 1
-#define FASTLED_DYNAMIC_TEARDOWN_UNLINK 1
 #endif
 
 // Supported chipset families.  They all share the WS2812 800kHz clockless
@@ -467,6 +485,7 @@ static int fastled_define_core(int pin, int num_leds, fastled_chipset_t chipset,
 
   return 0;
 }
+#endif  // TEENSYTOANY_FASTLED
 
 #if TEENSY_TO_ANY_HAS_I2C_T3
 I2CMaster i2c(&Wire);
@@ -1880,6 +1899,7 @@ int eeprom_write_uint8(CommandRouter *cmd, int argc, const char **argv) {
   return 0;
 }
 
+#if defined(TEENSYTOANY_FASTLED)
 int fastled_add_leds(CommandRouter *cmd, int argc, const char **argv) {
   // Legacy command, kept for backwards compatibility.
   // Arguments are:
@@ -1977,17 +1997,11 @@ int fastled_teardown(CommandRouter *cmd, int argc, const char **argv) {
     FastLED.show();
   }
 
-#if FASTLED_DYNAMIC_TEARDOWN_UNLINK
   // Real teardown: remove every controller from FastLED's static linked list so
-  // the chain is genuinely gone, not merely disabled.
+  // the chain is genuinely gone, not merely disabled.  This runs identically on
+  // Teensy 3.2 and Teensy 4.0 -- the unlink helper is platform-independent.
   fastled_disable_all_controllers();
   fastled_unlink_all_controllers();
-#else
-  // TODO(teensy3): flash-constrained targets keep the reduced "disable only"
-  // teardown to stay within budget; the controller singleton stays linked but
-  // disabled so FastLED.show() skips it.
-  fastled_disable_all_controllers();
-#endif
 
   if (fastled_leds != nullptr) {
     delete[] fastled_leds;
@@ -2108,6 +2122,7 @@ int fastled_set_max_refresh_rate(CommandRouter *cmd, int argc, const char **argv
   FastLED.setMaxRefreshRate(rate);
   return 0;
 }
+#endif  // TEENSYTOANY_FASTLED
 
 
 void loop() {

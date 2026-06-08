@@ -1,3 +1,12 @@
+### Unreleased
+
+* Added dynamic FastLED chain (re)definition over the serial protocol via
+  `fastled_define`, and a real `fastled_teardown` command. On Teensy 4.0
+  teardown genuinely unlinks the controller from FastLED's active controller
+  list (not merely disabling it), so a chain can be cleanly redefined.
+  `fastled_clear` now blanks the strip while keeping the chain defined.
+  Teensy 3.2 keeps a reduced disable-only teardown for now (flash budget).
+
 ### 0.21.0 (2025/11/05)
 
 * Removed support for the neopixel library. Use FastLED instead.

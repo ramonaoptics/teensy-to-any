@@ -81,9 +81,9 @@ int fastled_has_white = 0;
 // parameters, so they are baked in at compile time.  FastLED.addLeds<...>()
 // for clockless chipsets internally creates ONE static controller object per
 // unique (chipset, pin, order) template instantiation and registers it in a
-// global, singly-linked list of CLEDController objects.  There is no public
-// API to remove a controller from that list, and the controller objects are
-// `static` (not heap allocated), so they cannot be freed.
+// global, singly-linked list of CLEDController objects.  FastLED 3.10.3 ships
+// no public API to remove a controller from that list, and the controller
+// objects are `static` (not heap allocated), so they cannot be freed.
 //
 // What this means in practice:
 //   * "Runtime" pin / order / chipset selection is implemented by switching
@@ -92,11 +92,14 @@ int fastled_has_white = 0;
 //     we want to support has to be instantiated, which costs flash.
 //   * A chain can be (re)defined at runtime: we reallocate the CRGB buffer and
 //     point the (possibly new) controller at it via addLeds<>(buf, n).
-//   * A chain can NOT be torn down in the sense of removing the controller
-//     object from FastLED's list.  The honest "teardown" we can offer is to
-//     disable the active controller (setEnabled(false) so FastLED.show()
-//     skips it) and free the buffer.  Re-defining simply disables whatever was
-//     active and activates the new controller.
+//   * A chain CAN be torn down: although the controller object itself lives in
+//     static storage and cannot be freed, we can *unlink* it from FastLED's
+//     active controller linked list so that FastLED.show()/FastLED.count() no
+//     longer touch it (see fastled_unlink_controller() below).  After unlinking
+//     and freeing the CRGB buffer, the chain is genuinely gone: a later
+//     fastled_define re-links a (possibly different) controller from a clean
+//     slate.  The unlinked controller singleton stays in static memory, ready
+//     to be re-linked if the same (chipset,pin,order) is defined again.
 //
 // To keep flash usage bounded (Teensy 3.2 in particular is very tight) we
 // support the common WS2812/NEOPIXEL-family 800kHz clockless chipsets, the
@@ -114,10 +117,18 @@ int fastled_has_white = 0;
 // Teensy 3.2 (Kinetis K20, 256 KB flash): reduced matrix.
 #define FASTLED_DYNAMIC_FULL_ORDERS 0
 #define FASTLED_DYNAMIC_FULL_CHIPSETS 0
+// TODO(teensy3): T3.2 flash is extremely tight.  The maintainer has deferred
+// real-teardown (controller unlinking) parity on T3.2 for now, so we leave the
+// unlink helper compiled out there.  Teardown on T3.2 falls back to the
+// "disable only" behaviour, which is enough to stop a stale chain clocking out
+// of a freed buffer; the controller singleton simply stays linked-but-disabled.
+#define FASTLED_DYNAMIC_TEARDOWN_UNLINK 0
 #else
-// Teensy 4.x and anything else with generous flash: full matrix.
+// Teensy 4.x and anything else with generous flash: full matrix + real unlink
+// teardown.
 #define FASTLED_DYNAMIC_FULL_ORDERS 1
 #define FASTLED_DYNAMIC_FULL_CHIPSETS 1
+#define FASTLED_DYNAMIC_TEARDOWN_UNLINK 1
 #endif
 
 // Supported chipset families.  They all share the WS2812 800kHz clockless
@@ -216,17 +227,148 @@ static int fastled_parse_order(const char *s, EOrder *out) {
     default: ctrl = nullptr; break;                                            \
   }
 
-// Disable every controller FastLED currently knows about.  This is the closest
-// thing to "teardown" that the FastLED API permits: the controller objects
-// stay in the static linked list (and any heap/DMA buffers they own stay
-// allocated), but FastLED.show() will skip disabled controllers, so a stale
-// controller will not try to clock data out of a buffer we are about to free
-// or re-point.
+// Disable every controller FastLED currently knows about.  Useful as a belt
+// and braces step before re-pointing/freeing buffers: FastLED.show() skips
+// disabled controllers, so a stale controller will not try to clock data out
+// of a buffer we are about to free or re-point.
 static void fastled_disable_all_controllers() {
   for (CLEDController *c = CLEDController::head(); c != nullptr; c = c->next()) {
     c->setEnabled(false);
   }
 }
+
+// ---------------------------------------------------------------------------
+// Real controller teardown: unlinking from FastLED's active controller list
+// ---------------------------------------------------------------------------
+//
+// FastLED 3.10.3 keeps its active controllers in a singly-linked list whose
+// head (CLEDController::m_pHead), tail (CLEDController::m_pTail) and per-node
+// next pointer (CLEDController::m_pNext) are *protected* members of
+// CLEDController.  There is no public remove() API.  Rather than fork FastLED,
+// we reach those members with a small, fully self-contained, standard-C++
+// helper -- no edit to the FastLED source is required.
+//
+// How it stays within the language rules:
+//   * m_pHead / m_pTail are protected *static* members.  A class derived from
+//     CLEDController may name protected static members of its base directly, so
+//     the derived helper can read and write the list head/tail.
+//   * m_pNext is a protected *non-static* member.  C++ [class.protected]
+//     forbids touching it through a base-class (CLEDController*) lvalue, but it
+//     *does* permit forming a pointer-to-member &Derived::m_pNext from inside
+//     the derived class.  Once formed, that CLEDController* CLEDController::*
+//     pointer-to-member may be applied to ANY CLEDController object.  We use
+//     that to walk and re-stitch the next pointers of the real controller
+//     singletons (which are not of our helper type).
+//
+// This is the LEAST invasive mechanism that actually removes a controller from
+// the static list: no FastLED source change, no DMA/driver internals touched.
+//
+// NOTE(fork): the maintainer's intended *final* form is to fork FastLED to a
+// Ramona Optics repo and pin lib_deps to it (as already done for teensy4_i2c
+// via github.com/ramonaoptics/teensy4_i2c.git#our_mods), adding a first-class
+// CLEDController::removeFromList() upstream.  Until that fork exists this
+// in-tree helper provides identical behaviour without patching the dependency.
+#if FASTLED_DYNAMIC_TEARDOWN_UNLINK
+namespace {
+struct FastLEDListAccess : public CLEDController {
+  // Bring the protected statics into scope for read/write.
+  static CLEDController *&headRef() { return CLEDController::m_pHead; }
+  static CLEDController *&tailRef() { return CLEDController::m_pTail; }
+  // Standard-compliant handle to the protected next pointer, usable on any
+  // CLEDController instance.
+  static CLEDController *CLEDController::*nextPtr() {
+    return &FastLEDListAccess::m_pNext;
+  }
+  // We never instantiate this type; the pure virtuals are only here so the
+  // derived class is well-formed for taking member addresses.
+  void showColor(const CRGB &, int, fl::u8) override {}
+  void show(const struct CRGB *, int, fl::u8) override {}
+  void init() override {}
+};
+
+// Unlink a single controller from FastLED's active list.  After this returns,
+// FastLED.show()/FastLED.count() no longer see `target`.  The controller object
+// itself is left intact (it lives in static storage) so it can be re-linked by
+// a future addLeds<>() with the same template parameters.  Returns true if the
+// controller was found and removed.
+bool fastled_unlink_controller(CLEDController *target) {
+  if (target == nullptr) {
+    return false;
+  }
+  CLEDController *CLEDController::*const next = FastLEDListAccess::nextPtr();
+  CLEDController *&head = FastLEDListAccess::headRef();
+  CLEDController *&tail = FastLEDListAccess::tailRef();
+
+  CLEDController *prev = nullptr;
+  for (CLEDController *cur = head; cur != nullptr; cur = cur->*next) {
+    if (cur == target) {
+      if (prev == nullptr) {
+        head = cur->*next;        // removing the head node
+      } else {
+        prev->*next = cur->*next; // splice out a middle/tail node
+      }
+      if (tail == cur) {
+        tail = prev;              // fix the tail pointer if we removed it
+      }
+      cur->*next = nullptr;       // isolate the removed node
+      return true;
+    }
+    prev = cur;
+  }
+  return false;
+}
+
+// Unlink every controller from FastLED's active list, returning the list to the
+// pristine empty state it had before the first addLeds<>() call.
+void fastled_unlink_all_controllers() {
+  CLEDController *CLEDController::*const next = FastLEDListAccess::nextPtr();
+  CLEDController *cur = FastLEDListAccess::headRef();
+  while (cur != nullptr) {
+    CLEDController *n = cur->*next;
+    cur->*next = nullptr;
+    cur = n;
+  }
+  FastLEDListAccess::headRef() = nullptr;
+  FastLEDListAccess::tailRef() = nullptr;
+}
+
+// Re-link a controller onto the tail of FastLED's active list if (and only if)
+// it is not already present.
+//
+// This is the counterpart to unlinking and is essential for correctness:
+// FastLED.addLeds<CHIPSET,PIN,ORDER>() returns a function-local `static`
+// controller singleton whose constructor -- the ONLY place a controller links
+// itself into the list -- runs just once, the first time that exact template
+// is instantiated.  So after we unlink a controller during teardown, a later
+// addLeds<>() for the same (chipset,pin,order) hands back the same now-orphaned
+// singleton WITHOUT re-linking it.  Calling this after every addLeds<>()
+// guarantees the active controller is linked exactly once.
+void fastled_ensure_linked(CLEDController *ctrl) {
+  if (ctrl == nullptr) {
+    return;
+  }
+  CLEDController *CLEDController::*const next = FastLEDListAccess::nextPtr();
+  CLEDController *&head = FastLEDListAccess::headRef();
+  CLEDController *&tail = FastLEDListAccess::tailRef();
+
+  // Already in the list?  Nothing to do.
+  for (CLEDController *cur = head; cur != nullptr; cur = cur->*next) {
+    if (cur == ctrl) {
+      return;
+    }
+  }
+
+  // Append to the tail (mirrors the order CLEDController's constructor uses).
+  ctrl->*next = nullptr;
+  if (head == nullptr) {
+    head = ctrl;
+  } else {
+    tail->*next = ctrl;
+  }
+  tail = ctrl;
+}
+}  // namespace
+#endif  // FASTLED_DYNAMIC_TEARDOWN_UNLINK
 
 // Core (re)definition routine shared by fastled_define and the legacy
 // fastled_add_leds command.  Returns an errno-style int.
@@ -286,15 +428,29 @@ static int fastled_define_core(int pin, int num_leds, fastled_chipset_t chipset,
     return EINVAL;
   }
 
-  // Disable any previously-active controllers so they don't clock data out of
-  // the buffer we are about to free, then make the new controller the active
-  // one.
+  // Clean teardown-then-rebuild: unlink every previously-active controller from
+  // FastLED's list so a stale chain (e.g. a different pin defined earlier) is
+  // genuinely gone and cannot clock data out of the buffer we are about to
+  // free.  `ctrl` is the controller we just (re)linked via addLeds<>(); leave
+  // it in place and make it the sole active controller.
   CRGB *old_buf = fastled_leds;
-  for (CLEDController *c = CLEDController::head(); c != nullptr; c = c->next()) {
+  CLEDController *c = CLEDController::head();
+  while (c != nullptr) {
+    CLEDController *nxt = c->next();
     if (c != ctrl) {
       c->setEnabled(false);
+#if FASTLED_DYNAMIC_TEARDOWN_UNLINK
+      fastled_unlink_controller(c);
+#endif
     }
+    c = nxt;
   }
+#if FASTLED_DYNAMIC_TEARDOWN_UNLINK
+  // addLeds<>() returns a static singleton that only links itself on first use.
+  // If this exact (chipset,pin,order) was previously torn down (unlinked), it
+  // is now orphaned; re-link it so FastLED.show() drives it again.
+  fastled_ensure_linked(ctrl);
+#endif
   ctrl->setEnabled(true);
   ctrl->setLeds(new_buf, alloc_leds);
   ctrl->setRgbw(has_white ? RgbwDefault::value() : RgbwInvalid::value());
@@ -1782,10 +1938,33 @@ int fastled_define(CommandRouter *cmd, int argc, const char **argv) {
 }
 
 int fastled_clear(CommandRouter *cmd, int argc, const char **argv) {
-  // Tear down the active chain as far as FastLED allows.  The controller
-  // object cannot be removed from FastLED's static list, so we blank the LEDs,
-  // disable every controller, and free our CRGB buffer.  After this a fresh
-  // fastled_define is required before any other fastled_* command will work.
+  // Blank the active chain: set every pixel black and push the frame out so the
+  // strip turns off.  The chain stays DEFINED -- the controller and buffer are
+  // left in place so subsequent fastled_set_* / fastled_show commands keep
+  // working.  To fully remove a chain use fastled_teardown.
+  if (argc != 1) {
+    return EINVAL;
+  }
+  if (fastled_leds == nullptr) {
+    return EINVAL;
+  }
+
+  for (int i = 0; i < fastled_num_leds; ++i) {
+    fastled_leds[i] = CRGB::Black;
+  }
+  FastLED.show();
+
+  return 0;
+}
+
+int fastled_teardown(CommandRouter *cmd, int argc, const char **argv) {
+  // Fully tear the active chain down to a clean slate:
+  //   * blank + show so the strip physically turns off,
+  //   * disable and UNLINK every controller from FastLED's active list (so
+  //     FastLED.show()/count() no longer touch any stale chain),
+  //   * free our CRGB buffer and reset all globals.
+  // After this a fresh fastled_define starts from nothing.  Idempotent: calling
+  // it with no chain defined is a no-op success.
   if (argc != 1) {
     return EINVAL;
   }
@@ -1798,7 +1977,17 @@ int fastled_clear(CommandRouter *cmd, int argc, const char **argv) {
     FastLED.show();
   }
 
+#if FASTLED_DYNAMIC_TEARDOWN_UNLINK
+  // Real teardown: remove every controller from FastLED's static linked list so
+  // the chain is genuinely gone, not merely disabled.
   fastled_disable_all_controllers();
+  fastled_unlink_all_controllers();
+#else
+  // TODO(teensy3): flash-constrained targets keep the reduced "disable only"
+  // teardown to stay within budget; the controller singleton stays linked but
+  // disabled so FastLED.show() skips it.
+  fastled_disable_all_controllers();
+#endif
 
   if (fastled_leds != nullptr) {
     delete[] fastled_leds;

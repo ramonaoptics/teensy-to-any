@@ -1048,9 +1048,6 @@ int analog_read(CommandRouter *cmd, int argc, const char **argv) {
     return EINVAL;
 
   uint8_t pin = strtol(argv[1], nullptr, 0);
-  // analogRead returns up to the configured resolution (10-bit / 0-1023 by
-  // default on Teensy 4.x). A uint8_t truncated the result modulo 256, which
-  // wrapped every reading above ~0.8 V. Keep the full-width value.
   uint16_t value = analogRead(pin);
 
   snprintf(cmd->buffer, cmd->buffer_size, "%u", value);

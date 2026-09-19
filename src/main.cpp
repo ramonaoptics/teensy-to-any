@@ -1048,7 +1048,7 @@ int analog_read(CommandRouter *cmd, int argc, const char **argv) {
     return EINVAL;
 
   uint8_t pin = strtol(argv[1], nullptr, 0);
-  uint8_t value = analogRead(pin);
+  uint16_t value = analogRead(pin);
 
   snprintf(cmd->buffer, cmd->buffer_size, "%u", value);
   return 0;

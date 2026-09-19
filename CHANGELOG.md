@@ -1,3 +1,7 @@
+### 0.22.0 (2026/09/18)
+
+* Fix analog read truncation on the Teensy. Previously 10 bit reads were truncated to 8 bits.
+
 ### 0.21.0 (2025/11/05)
 
 * Removed support for the neopixel library. Use FastLED instead.
